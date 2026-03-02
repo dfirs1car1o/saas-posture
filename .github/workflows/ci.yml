@@ -109,17 +109,24 @@ jobs:
               packages = json.load(f)
           # Match both human-readable names and SPDX short identifiers (case-insensitive)
           blocked_families = {"gpl", "lgpl", "agpl"}
+          # Explicitly reviewed and approved LGPL packages (dynamically linked in Python —
+          # LGPL permits use without source disclosure if the library is unmodified).
+          lgpl_allowlist = {
+              "docxtpl",  # LGPL-2.1-only; wraps python-docx for Jinja2 templating;
+                          # used unmodified for DOCX report generation. Reviewed 2026-03-02.
+          }
           violations = [
               f"  {p['Name']} {p['Version']}: {p['License']}"
               for p in packages
               if any(b in p.get("License", "").lower() for b in blocked_families)
+              and p["Name"].lower() not in lgpl_allowlist
           ]
           if violations:
-              print(f"FAIL: {len(violations)} package(s) with copyleft license detected:")
+              print(f"FAIL: {len(violations)} package(s) with unapproved copyleft license:")
               for v in violations:
                   print(v)
               sys.exit(1)
-          print(f"OK — {len(packages)} package(s) checked, no copyleft licenses found")
+          print(f"OK — {len(packages)} package(s) checked, no unapproved copyleft licenses found")
           PYEOF
 
   test:
