@@ -68,7 +68,7 @@ jobs:
       - name: Install actionlint
         run: |
           version="1.7.3"
-          checksum="e7f28eb5857d8df1e86db560e57d56fb9152c9c31c2dd0eca19e33cdd75cf4a4"
+          checksum="37252b4d440b56374b0fc1726e05fd7452d30d6d774f6e9b52e65bb64475f9db"
           curl -sSfL \
             "https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz" \
             -o /tmp/actionlint.tar.gz
