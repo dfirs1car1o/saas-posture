@@ -321,9 +321,13 @@ def run(env: str, org: str, dry_run: bool, approve_critical: bool, task: str | N
     if task is None:
         dry_note = " Use dry_run=true for all tool calls (no real Salesforce connection)." if dry_run else ""
         dry_gate_note = (
-            " This is a dry run — proceed through all pipeline stages including report generation "
-            "without waiting for human review of findings."
-        ) if dry_run else ""
+            (
+                " This is a dry run — proceed through all pipeline stages including report generation "
+                "without waiting for human review of findings."
+            )
+            if dry_run
+            else ""
+        )
         task = (
             f"Run a full OSCAL/SSCF security assessment for Salesforce org '{org}' "
             f"in environment '{env}'.{dry_note}{dry_gate_note}\n\n"
