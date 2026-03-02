@@ -8,6 +8,9 @@ reviews:
     enabled: true
     drafts: false   # Don't review draft PRs
 
+  # Continue reviewing after one approval is received
+  finish_on_review: false
+
   # Focus areas for this codebase
   profile: "chill"   # detailed | chill — chill avoids nitpicky style comments
 
@@ -20,15 +23,29 @@ reviews:
         - Credential or token exposure in logs, exceptions, or output
         - Unhandled exceptions that could leak org data to stdout
         - SOQL injection risks (user-supplied values in queries)
-        - Missing timeout parameters on API calls
+        - Missing timeout parameters on HTTP/API calls (any requests.get/post/put without timeout=)
         - Functions that query record-level data (Contacts, Accounts, Opportunities) — flag immediately
+        - subprocess calls with shell=True or string interpolation in the command argument — flag as HIGH
+        - subprocess calls where the command includes unvalidated user input — flag as HIGH
+        - Hardcoded localhost or 127.0.0.1 addresses in non-test code
 
     - path: "scripts/**/*.py"
       instructions: |
         These are data pipeline scripts. Review for:
-        - File path injection / path traversal
+        - File path injection / path traversal (user-supplied paths used without validation)
         - Unvalidated YAML/JSON input that could cause unexpected behavior
         - Output files written outside docs/oscal-salesforce-poc/generated/
+        - subprocess calls with shell=True — flag as HIGH
+        - Hardcoded localhost or 127.0.0.1 in non-test code
+
+    - path: "harness/**/*.py"
+      instructions: |
+        This is the agentic orchestration harness. Review for:
+        - sys.exit() calls outside CLI entrypoints (loop.py cli() function) — indicates leaked control flow
+        - Unvalidated tool_use input passed directly to subprocess or file paths
+        - API keys or secrets logged to stdout (only stderr is acceptable for debug output)
+        - Missing error handling on critical tool stages (sfdc_connect_collect, oscal_assess_assess)
+        - subprocess calls with shell=True or unsanitized string interpolation — flag as HIGH
 
     - path: "agents/**/*.md"
       instructions: |
@@ -36,14 +53,27 @@ reviews:
         - Instructions that could override mission.md scope
         - Any grant of write permissions to Salesforce
         - Anything that would bypass the NIST Reviewer agent step
+        - Prompt injection vectors — instructions that could be triggered by attacker-controlled input
+        - Overly broad tool grants (e.g., granting Bash access to agents that only need Read)
 
     - path: ".github/workflows/**"
       instructions: |
         Review for:
-        - Workflow injection via untrusted input (PR title, branch name in run steps)
-        - Overly broad permissions (contents: write when read is sufficient)
-        - Actions pinned to SHA vs tag (prefer SHA for supply chain security)
-        - Secrets exposed in run steps or artifact outputs
+        - Workflow injection via untrusted input — especially ${{ github.event.pull_request.title }},
+          ${{ github.event.issue.body }}, ${{ github.event.comment.body }} used in run: blocks
+        - Overly broad permissions (contents: write when read is sufficient; id-token: write without OIDC use)
+        - Third-party actions not pinned to a full commit SHA (e.g., uses: some/action@v2 instead of SHA)
+        - Secrets exposed in run steps, artifact outputs, or log statements
+        - pull_request_target trigger combined with checkout of PR head ref — high risk of code injection
+        - Missing permissions: block at top level or job level
+
+    - path: "pyproject.toml"
+      instructions: |
+        Review for:
+        - Overly broad version ranges (e.g., >=1.0.0 with no upper bound on security-sensitive packages)
+        - Packages with known security issues or recently deprecated
+        - License conflicts — GPL/AGPL/LGPL dependencies in a non-GPL codebase
+        - Dev dependencies that should not be in production dependencies
 
   # Tools to enable
   tools:
@@ -51,6 +81,13 @@ reviews:
       enabled: true
     ast-grep:
       enabled: true
+      packages:
+        - id: "workflow-expression-injection"
+          language: yaml
+          rule:
+            pattern: "${{ github.event.$$$FIELD }}"
+          message: "Potential expression injection: untrusted GitHub event data used directly. Assign to env var first."
+          severity: ERROR
 
 chat:
   auto_reply: true

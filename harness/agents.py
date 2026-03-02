@@ -46,3 +46,20 @@ ORCHESTRATOR = AgentConfig(
         "report_gen_generate",
     ],
 )
+
+# Reporter uses the dated model ID for reproducibility across API releases.
+REPORTER = AgentConfig(
+    name="reporter",
+    model="claude-haiku-4-5-20251001",
+    system_prompt=_load("reporter"),
+    tool_names=[],
+)
+
+# Security reviewer: AppSec + DevSecOps expert. Text analysis only — no tool calls.
+# Invoked by the orchestrator when CI/CD, workflow, or skill changes are reviewed.
+SECURITY_REVIEWER = AgentConfig(
+    name="security-reviewer",
+    model="claude-sonnet-4-6",
+    system_prompt=_load("security-reviewer"),
+    tool_names=[],
+)

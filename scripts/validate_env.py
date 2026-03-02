@@ -312,6 +312,48 @@ def check_sfdc_connect_importable(suite: CheckSuite) -> None:
         )
 
 
+def check_qdrant_config(suite: CheckSuite) -> None:
+    """Warn if neither QDRANT_IN_MEMORY nor QDRANT_HOST is configured.
+
+    QDRANT_IN_MEMORY=1 is the default for local dev and CI — no container needed.
+    QDRANT_HOST should only be set when running a persistent Qdrant container.
+    """
+    in_memory = os.getenv("QDRANT_IN_MEMORY", "")
+    qdrant_host = os.getenv("QDRANT_HOST", "")
+
+    if in_memory == "1":
+        suite.add(
+            CheckResult(
+                "qdrant",
+                "pass",
+                "QDRANT_IN_MEMORY=1 — in-process Qdrant, no Docker container needed",
+                hard=False,
+            )
+        )
+    elif qdrant_host:
+        suite.add(
+            CheckResult(
+                "qdrant",
+                "pass",
+                f"QDRANT_HOST={qdrant_host} — using external Qdrant container",
+                hard=False,
+            )
+        )
+    else:
+        suite.add(
+            CheckResult(
+                "qdrant",
+                "warn",
+                (
+                    "Neither QDRANT_IN_MEMORY=1 nor QDRANT_HOST is set. "
+                    "Session memory will fail at runtime. "
+                    "Add QDRANT_IN_MEMORY=1 to .env (recommended) or start a Qdrant container."
+                ),
+                hard=False,
+            )
+        )
+
+
 def check_docs_generated_dir(suite: CheckSuite) -> None:
     path = Path("docs/oscal-salesforce-poc/generated")
     if path.exists():
@@ -486,6 +528,7 @@ Examples:
 
     print(header("Runtime Paths"))
     check_docs_generated_dir(suite)
+    check_qdrant_config(suite)
 
     if args.fix:
         attempt_fix(suite)

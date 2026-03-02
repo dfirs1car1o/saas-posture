@@ -6,37 +6,54 @@ This guide covers everything a new contributor needs to get the repo running loc
 
 ## Prerequisites
 
-### Required Software
+### Bare Minimum (run the full pipeline)
+
+```
+Python 3.11+  +  git  +  pip install -e .  +  .env with API keys
+```
+
+That's it. No Docker, no Node.js, no container runtime required.
 
 | Tool | Version | Install |
 |---|---|---|
 | Python | ≥ 3.11 | [python.org](https://python.org) or `brew install python@3.11` |
-| Docker Desktop | ≥ 4.x | [docker.com/get-docker](https://www.docker.com/get-docker/) |
 | Git | any recent | pre-installed on macOS/Linux |
-| GitHub CLI (`gh`) | ≥ 2.x | `brew install gh` |
-| Node.js | ≥ 18 (for hooks) | `brew install node` |
 
-### Python Package Manager
+### Full Dev Setup (optional extras)
 
-This repo supports both `pip` and `uv`. `uv` is faster but optional:
-
-```bash
-# pip (standard)
-pip install -e .
-pip install pytest pytest-mock PyYAML click ruff bandit
-
-# uv (faster, optional)
-pip install uv
-uv sync
-```
-
-### Docker Containers Required at Runtime
-
-| Container | Purpose | Command |
+| Tool | Why | Install |
 |---|---|---|
-| `qdrant/qdrant` | Session memory (Mem0 backend) | `docker run -d -p 6333:6333 qdrant/qdrant` |
+| `uv` | Faster installs (optional — plain `pip` works) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| GitHub CLI (`gh`) | PR/issue management from terminal | `brew install gh` |
+| Claude Code | Recommended for interactive dev with this repo | `npm install -g @anthropic-ai/claude-code` |
 
-> **CI note:** Qdrant is not run in CI. Tests mock Mem0 via `QDRANT_IN_MEMORY=1` env var.
+### Not Required
+
+| Item | Reality |
+|---|---|
+| **Docker Desktop** | Not needed. Session memory runs in-process via `QDRANT_IN_MEMORY=1` (the default). Only needed if you want persistent cross-session memory with a real Qdrant container. |
+| **Node.js** | Not needed. Hook files are shell scripts — no JS runtime required. |
+| **Claude Desktop** | NOT needed for this repo. Claude Desktop is a chat UI — it does not run `agent-loop`, CLI skills, or any harness code. |
+| **Graphviz** | CI-only (used by `diagram.yml` to regenerate the architecture diagram). Not needed locally. |
+
+---
+
+## Claude Code vs Claude Desktop
+
+### Claude Code (CLI) — recommended for this repo
+
+- **What it is:** An AI-powered CLI tool that runs in your terminal
+- **Install:** `npm install -g @anthropic-ai/claude-code` (or `brew install claude-code`)
+- **Used for:** interactive development, running `agent-loop`, reviewing code, session memory
+- **Requirement:** `ANTHROPIC_API_KEY` in `.env` — that's it
+
+### Claude Desktop — NOT needed for this repo
+
+- **What it is:** A desktop chat interface to Claude models
+- **It does NOT** run `agent-loop`, harness code, or CLI skills
+- No dependency here
+
+**Neither Claude Code nor Claude Desktop is required to run the pipeline. Only `ANTHROPIC_API_KEY` is needed. The pipeline runs as a plain Python CLI.**
 
 ---
 
@@ -47,24 +64,26 @@ uv sync
 git clone git@github.com:dfirs1car1o/saas-sec-agents.git
 cd saas-sec-agents
 
-# 2. Install Python dependencies
+# 2. Install Python dependencies (plain pip — no Docker, no Node)
 pip install -e .
 pip install pytest pytest-mock PyYAML click ruff bandit
 
 # 3. Copy and fill .env
 cp .env.example .env
-# Edit .env — see Environment Variables section below
+# Edit .env — add SF_USERNAME, SF_PASSWORD, SF_SECURITY_TOKEN, ANTHROPIC_API_KEY
 
-# 4. Start Qdrant (for session memory)
-docker run -d -p 6333:6333 qdrant/qdrant
-
-# 5. Verify everything works
+# 4. Verify everything works
 python3 -m pytest tests/ -v
 agent-loop run --help
 sfdc-connect --help
 oscal-assess --help
 sscf-benchmark --help
 ```
+
+> **Session memory** uses `QDRANT_IN_MEMORY=1` by default (set in `.env.example`).
+> No Docker container needed. To use a persistent Qdrant container instead, set
+> `QDRANT_IN_MEMORY=0` and `QDRANT_HOST=localhost` in `.env`, then run:
+> `docker run -d -p 6333:6333 qdrant/qdrant`
 
 ---
 
@@ -86,10 +105,10 @@ SF_INSTANCE_URL=https://yourorg.salesforce.com  # optional override
 # Org alias used in output file paths
 SFDC_ORG_ALIAS=my-org-alias
 
-# Qdrant (optional — defaults shown)
-QDRANT_HOST=localhost
-QDRANT_PORT=6333
-QDRANT_IN_MEMORY=0                 # set to 1 to skip Docker entirely
+# Qdrant session memory (default: in-memory, no Docker needed)
+QDRANT_IN_MEMORY=1
+# QDRANT_HOST=localhost   # only if running a Qdrant container
+# QDRANT_PORT=6333        # only if running a Qdrant container
 ```
 
 > **Never commit `.env`** — it is in `.gitignore`. Never put credentials in any Python file or commit message.
@@ -109,10 +128,11 @@ saas-sec-agents/
 │   ├── collector.md            ← claude-sonnet-4-6: Salesforce API extraction
 │   ├── assessor.md             ← claude-sonnet-4-6: OSCAL/SBS control mapping
 │   ├── reporter.md             ← claude-haiku-4-5: governance output generation
-│   └── nist-reviewer.md        ← claude-sonnet-4-6: NIST AI RMF validation
+│   ├── nist-reviewer.md        ← claude-sonnet-4-6: NIST AI RMF validation
+│   └── security-reviewer.md   ← claude-sonnet-4-6: CI/CD and AppSec review (Phase 6)
 │
 ├── harness/                    ← Agentic orchestration loop (Phase 3)
-│   ├── agents.py               ← AgentConfig dataclass + ORCHESTRATOR definition
+│   ├── agents.py               ← AgentConfig dataclass + agent registry
 │   ├── tools.py                ← Anthropic tool schemas + subprocess dispatchers
 │   ├── memory.py               ← Mem0+Qdrant session memory
 │   └── loop.py                 ← agent-loop CLI entry point
@@ -138,7 +158,8 @@ saas-sec-agents/
 ├── schemas/                    ← JSON schemas for output validation
 ├── docs/                       ← Architecture docs, deliverables, generated evidence
 ├── tests/                      ← pytest smoke tests
-└── .github/workflows/          ← CI: ruff, bandit, pip-audit, gitleaks, pytest, CodeQL
+└── .github/workflows/          ← CI: ruff, bandit, pip-audit, gitleaks, pytest, CodeQL,
+                                    actions-security (zizmor+actionlint), sbom, license-check
 ```
 
 ---
@@ -176,10 +197,7 @@ pytest tests/test_pipeline_smoke.py -v
 
 For the agentic loop dry-run (needs `ANTHROPIC_API_KEY`):
 ```bash
-# Start Qdrant first (or set QDRANT_IN_MEMORY=1 to skip Docker)
-docker run -d -p 6333:6333 qdrant/qdrant
-
-# Run
+# QDRANT_IN_MEMORY=1 is the default — no Docker container needed
 agent-loop run --dry-run --env dev --org test-org
 ```
 
@@ -196,29 +214,16 @@ All checks run on every PR:
 | Lint | `ruff check + format` | Any E/F/I/UP violations, line > 120 chars |
 | SAST | `bandit -lll -ii` | HIGH severity findings |
 | Dependency CVEs | `pip-audit` | Known CVEs in installed packages |
+| License check | `pip-licenses` | GPL/AGPL/LGPL transitive dependencies |
 | Secret scan | `gitleaks` | Credentials, tokens, API keys in code |
 | Tests | `pytest tests/ -v` | Any test failure |
 | Pre-flight | `validate_env.py --ci` | Missing required layout/packages |
 | Static analysis | CodeQL | Python security patterns |
+| Workflow security | `zizmor` + `actionlint` | Expression injection, bad permissions, syntax errors in workflows |
+| SBOM | `cyclonedx-bom` | Generated on push to main — supply chain transparency |
 | AI code review | CodeRabbit Pro | PR-level review comments |
 
 **All checks must be green before merging to `main`.**
-
----
-
-## Docker MCP Toolkit (Optional — Local Dev Only)
-
-The repo uses the [Docker MCP Toolkit](https://docs.docker.com/ai/mcp-catalog-and-toolkit/) for optional local MCP server support (not required for core pipeline):
-
-```bash
-# Install Docker Desktop with MCP Toolkit
-# Enable in Docker Desktop → Settings → Beta Features → MCP Toolkit
-
-# MCP gateway runs on port 19473 (SSE transport)
-# Configure in Claude Code settings if using MCP tools locally
-```
-
-This is optional — all core pipeline tools are CLI-based, not MCP-dependent.
 
 ---
 
@@ -263,7 +268,9 @@ gh pr create
 | 1 | ✅ Done | `sfdc-connect` CLI + full CI stack |
 | 2 | ✅ Done | `oscal-assess` + `sscf-benchmark` CLIs |
 | 3 | ✅ Done | `agent-loop` harness + Mem0 session memory |
-| 4 | 🔜 Next | `report-gen` DOCX/MD governance output pipeline |
+| 4 | ✅ Done | `report-gen` DOCX/MD governance output pipeline |
+| 5 | ✅ Done | Auto-regenerating architecture diagram + PR template |
+| 6 | ✅ Done | CI hardening, security-reviewer agent, minimal local reqs |
 
 ---
 

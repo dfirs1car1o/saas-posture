@@ -176,7 +176,17 @@ def _run_loop(
         response = client.messages.create(
             model=ORCHESTRATOR.model,
             max_tokens=4096,
-            system=ORCHESTRATOR.system_prompt,
+            # cache_control marks the system prompt for prompt caching.
+            # Across the 20-turn ReAct loop the system prompt (mission.md +
+            # orchestrator.md, ~3 KB) is re-sent every turn. Caching it cuts
+            # token cost by ~90% on the system prompt portion after the first turn.
+            system=[
+                {
+                    "type": "text",
+                    "text": ORCHESTRATOR.system_prompt,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ],
             tools=ALL_TOOLS,
             messages=messages,
         )

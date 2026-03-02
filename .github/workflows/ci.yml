@@ -87,6 +87,40 @@ jobs:
           print("OK — all non-credential pre-flight checks pass")
           PYEOF
 
+  license-check:
+    name: pip-licenses (no GPL/AGPL/LGPL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install pip-licenses
+      - run: pip install -e .
+
+      - name: Check for copyleft licenses
+        run: |
+          pip-licenses --format=json --output-file=/tmp/licenses.json
+          python3 - <<'PYEOF'
+          import json, sys
+          with open("/tmp/licenses.json") as f:
+              packages = json.load(f)
+          blocked = {"GNU General Public License", "GNU Lesser General Public License", "GNU Affero General Public License"}
+          violations = [
+              f"  {p['Name']} {p['Version']}: {p['License']}"
+              for p in packages
+              if any(b in p.get("License", "") for b in blocked)
+          ]
+          if violations:
+              print(f"FAIL: {len(violations)} package(s) with copyleft license detected:")
+              for v in violations:
+                  print(v)
+              sys.exit(1)
+          print(f"OK — {len(packages)} package(s) checked, no copyleft licenses found")
+          PYEOF
+
   test:
     name: pytest
     runs-on: ubuntu-latest

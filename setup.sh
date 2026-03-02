@@ -37,6 +37,14 @@ else
   echo "    .env already exists — skipping"
 fi
 
+# 5. Ensure QDRANT_IN_MEMORY is set in .env (no Docker container needed by default)
+if ! grep -q "^QDRANT_IN_MEMORY=" .env; then
+  echo "" >> .env
+  echo "# Qdrant in-memory mode (no Docker needed for local dev)" >> .env
+  echo "QDRANT_IN_MEMORY=1" >> .env
+  echo "==> Added QDRANT_IN_MEMORY=1 to .env (use Docker container only if you need persistent cross-session memory)"
+fi
+
 # 5. Verify CLI is callable
 echo "==> Verifying sfdc-connect CLI..."
 python3 -m skills.sfdc_connect.sfdc_connect --help > /dev/null 2>&1 && echo "    sfdc-connect OK" || echo "    WARNING: sfdc-connect --help failed (expected until deps installed)"
@@ -46,3 +54,9 @@ echo "Setup complete. Next steps:"
 echo "  1. Edit .env with your Salesforce credentials"
 echo "  2. Run: source .venv/bin/activate"
 echo "  3. Test: python3 -m skills.sfdc_connect.sfdc_connect auth --dry-run"
+echo ""
+echo "Optional:"
+echo "  Docker Desktop — NOT required. Session memory works in-process via QDRANT_IN_MEMORY=1."
+echo "  Node.js        — NOT required. Hooks are shell scripts only."
+echo "  Claude Code    — Recommended for interactive dev (npm install -g @anthropic-ai/claude-code)."
+echo "  uv             — Faster installs. Install: curl -LsSf https://astral.sh/uv/install.sh | sh"

@@ -11,6 +11,7 @@ This file is the canonical reference for all agents in this system. Each agent h
 | assessor | agents/assessor.md | claude-sonnet-4-6 | Maps findings to OSCAL/SBS/SSCF controls |
 | reporter | agents/reporter.md | claude-haiku-4-5 | Generates DOCX/MD/JSON outputs for app owners |
 | nist-reviewer | agents/nist-reviewer.md | claude-sonnet-4-6 | Validates all outputs against NIST AI RMF |
+| security-reviewer | agents/security-reviewer.md | claude-sonnet-4-6 | AppSec + DevSecOps review of CI/CD, workflows, and skill CLIs |
 
 ## Skill Roster
 
@@ -35,6 +36,7 @@ This file is the canonical reference for all agents in this system. Each agent h
 - Collector and Assessor use Sonnet: API interaction, structured data extraction, and control mapping are mid-complexity tasks.
 - Reporter uses Haiku: templated output generation from structured data is low-complexity and high-volume.
 - NIST Reviewer uses Sonnet: regulatory framework review requires depth but not Opus-level synthesis.
+- Security Reviewer uses Sonnet: adversarial security analysis requires depth; no tool calls needed (text-only).
 
 ## Agent Loop Model
 
@@ -61,4 +63,5 @@ The orchestrator can be scheduled to run proactively:
 
 - Any finding with severity=critical and status=fail must surface to human before reporter finalizes.
 - Any NIST AI RMF gap identified by nist-reviewer blocks output until human acknowledges.
+- Any CRITICAL or HIGH finding from security-reviewer on a workflow or skill change blocks merge.
 - If orchestrator cannot determine org target, it asks human before calling sfdc-connect.
