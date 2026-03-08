@@ -1,0 +1,286 @@
+version: 2
+framework: CSA_SSCF
+framework_version: "1.0"
+catalog_ref: config/sscf/sscf_v1_catalog.json
+id_scheme: SSCF-<DOMAIN>-<###>
+total_controls: 36
+domains: [CON, DSP, IAM, IPY, LOG, SEF]
+notes: >
+  Full SSCF v1.0 control index. 36 controls across 6 standard OSCAL-aligned domains.
+  Domain codes match CSA CCM v4.1 domain abbreviations for interoperability.
+  Platform sub-profiles: SBS (Salesforce) = 35 controls; WSCC (Workday) = 30 controls.
+  Legacy v0 controls (SSCF-CKM-001, SSCF-TDR-*, SSCF-GOV-*) are superseded by v1.0 IDs
+  (SSCF-CON-003, SSCF-SEF-001/002, SSCF-SEF-005) — see sscf-v0-equivalent prop in catalog.
+
+controls:
+  # CON — Configuration Hardening
+  - sscf_control_id: SSCF-CON-001
+    domain: configuration_hardening
+    title: SaaS Security Baseline Enforcement
+    description: Apply and continuously assess approved secure configuration baselines.
+    owner_team: security_engineering
+    severity: high
+    sscf_v0_equivalent: SSCF-CON-001
+
+  - sscf_control_id: SSCF-CON-002
+    domain: configuration_hardening
+    title: Drift Detection and Baseline Deviation Management
+    description: Detect unauthorized configuration drift and enforce remediation workflow.
+    owner_team: security_engineering
+    severity: high
+    sscf_v0_equivalent: SSCF-CON-002
+
+  - sscf_control_id: SSCF-CON-003
+    domain: configuration_hardening
+    title: API Credential and Token Lifecycle
+    description: Govern issuance, scope, rotation, and revocation of credentials and tokens.
+    owner_team: platform_security
+    severity: high
+    sscf_v0_equivalent: SSCF-CKM-001
+
+  - sscf_control_id: SSCF-CON-004
+    domain: configuration_hardening
+    title: Platform Hardening and Security Settings Verification
+    description: Apply vendor hardening guidance; disable insecure defaults; enable security features.
+    owner_team: security_engineering
+    severity: high
+
+  - sscf_control_id: SSCF-CON-005
+    domain: configuration_hardening
+    title: Third-Party Integration and Supply Chain Security
+    description: Inventory and assess security posture of third-party integrations.
+    owner_team: platform_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-CON-006
+    domain: configuration_hardening
+    title: Patch and Version Management Assurance
+    description: Track and assure application of security-relevant vendor patches and EOL deprecation.
+    owner_team: security_engineering
+    severity: moderate
+
+  # DSP — Data Security and Privacy
+  - sscf_control_id: SSCF-DSP-001
+    domain: data_security_privacy
+    title: Sensitive Data Access Control
+    description: Restrict and monitor access to sensitive business and personal data.
+    owner_team: data_security
+    severity: critical
+    sscf_v0_equivalent: SSCF-DSP-001
+
+  - sscf_control_id: SSCF-DSP-002
+    domain: data_security_privacy
+    title: Data Export and Exfiltration Controls
+    description: Prevent unauthorized data exports and exfiltration pathways.
+    owner_team: data_security
+    severity: high
+    sscf_v0_equivalent: SSCF-DSP-002
+
+  - sscf_control_id: SSCF-DSP-003
+    domain: data_security_privacy
+    title: Data Classification and Inventory
+    description: Maintain current data inventory and classification map per data classification policy.
+    owner_team: data_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-DSP-004
+    domain: data_security_privacy
+    title: Cross-Border Data Transfer and Residency Controls
+    description: Ensure cross-border data transfers comply with data sovereignty requirements.
+    owner_team: data_security
+    severity: high
+
+  - sscf_control_id: SSCF-DSP-005
+    domain: data_security_privacy
+    title: Data Retention and Secure Disposal
+    description: Apply retention schedules and secure deletion for SaaS-hosted data.
+    owner_team: data_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-DSP-006
+    domain: data_security_privacy
+    title: Privacy Rights and Data Subject Access Management
+    description: Ensure SaaS platforms support DSAR fulfillment within regulatory timeframes.
+    owner_team: data_security
+    severity: moderate
+
+  # IAM — Identity and Access Management
+  - sscf_control_id: SSCF-IAM-001
+    domain: identity_access_management
+    title: Multi-Factor Authentication Enforcement
+    description: Require MFA for privileged and workforce accounts.
+    owner_team: information_security
+    severity: critical
+    sscf_v0_equivalent: SSCF-IAM-001
+
+  - sscf_control_id: SSCF-IAM-002
+    domain: identity_access_management
+    title: Privileged Access Governance and Review
+    description: Enforce approval, least privilege, and periodic recertification for privileged roles.
+    owner_team: information_security
+    severity: critical
+    sscf_v0_equivalent: SSCF-IAM-002
+
+  - sscf_control_id: SSCF-IAM-003
+    domain: identity_access_management
+    title: Federation and SSO Assurance
+    description: Enforce enterprise IdP federation and hardened SSO policy posture.
+    owner_team: information_security
+    severity: high
+    sscf_v0_equivalent: SSCF-IAM-003
+
+  - sscf_control_id: SSCF-IAM-004
+    domain: identity_access_management
+    title: User Lifecycle and Offboarding Controls
+    description: Timely revocation of access on termination or role change; stale account detection.
+    owner_team: information_security
+    severity: high
+
+  - sscf_control_id: SSCF-IAM-005
+    domain: identity_access_management
+    title: Service Account and Non-Human Identity Governance
+    description: Inventory and govern service accounts with named owners and scoped permissions.
+    owner_team: platform_security
+    severity: high
+
+  - sscf_control_id: SSCF-IAM-006
+    domain: identity_access_management
+    title: Session Security and Timeout Controls
+    description: Enforce idle timeout, concurrent session limits, and session token invalidation.
+    owner_team: information_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-IAM-007
+    domain: identity_access_management
+    title: Just-in-Time Access and Temporary Privilege Elevation
+    description: Govern temporary privilege via request-approve-expire workflow.
+    owner_team: information_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-IAM-008
+    domain: identity_access_management
+    title: External and Guest Access Controls
+    description: "Govern external/contractor access: scoped, time-bound, MFA-enforced, recertified quarterly."
+    owner_team: information_security
+    severity: high
+
+  # IPY — Interoperability and Portability
+  - sscf_control_id: SSCF-IPY-001
+    domain: interoperability_portability
+    title: Data Portability and Export Standards
+    description: Verify SaaS platforms support data export in open machine-readable formats.
+    owner_team: platform_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-IPY-002
+    domain: interoperability_portability
+    title: API Security and Open Interface Governance
+    description: Govern API access to enforce authentication, rate limiting, and input validation.
+    owner_team: platform_security
+    severity: high
+
+  - sscf_control_id: SSCF-IPY-003
+    domain: interoperability_portability
+    title: Integration Inventory and Third-Party Connector Risk Assessment
+    description: Maintain integration inventory; assess security risk of data flows between systems.
+    owner_team: platform_security
+    severity: moderate
+
+  - sscf_control_id: SSCF-IPY-004
+    domain: interoperability_portability
+    title: Vendor Lock-In Mitigation and SaaS Exit Planning
+    description: Document SaaS exit plan covering data retrieval, migration, and dependency mapping.
+    owner_team: platform_security
+    severity: low
+
+  - sscf_control_id: SSCF-IPY-005
+    domain: interoperability_portability
+    title: Multi-Cloud Data Residency and Sovereignty Controls
+    description: Enforce data residency requirements for regulated data across cloud environments.
+    owner_team: platform_security
+    severity: moderate
+
+  # LOG — Logging and Monitoring
+  - sscf_control_id: SSCF-LOG-001
+    domain: logging_monitoring
+    title: Security Telemetry Enablement
+    description: Enable required audit/security logs for detection and forensics.
+    owner_team: security_engineering
+    severity: high
+    sscf_v0_equivalent: SSCF-LOG-001
+
+  - sscf_control_id: SSCF-LOG-002
+    domain: logging_monitoring
+    title: Administrative and Configuration Audit Logging
+    description: Capture and monitor administrative and configuration change events.
+    owner_team: security_engineering
+    severity: high
+    sscf_v0_equivalent: SSCF-LOG-002
+
+  - sscf_control_id: SSCF-LOG-003
+    domain: logging_monitoring
+    title: Audit Retention and Integrity
+    description: Retain logs per policy and preserve integrity for investigations.
+    owner_team: security_engineering
+    severity: moderate
+    sscf_v0_equivalent: SSCF-LOG-003
+
+  - sscf_control_id: SSCF-LOG-004
+    domain: logging_monitoring
+    title: Real-Time Security Monitoring and Alerting
+    description: Configure real-time monitoring rules for high-risk events routed to SOC.
+    owner_team: security_operations
+    severity: high
+
+  - sscf_control_id: SSCF-LOG-005
+    domain: logging_monitoring
+    title: SIEM Integration and Cross-Platform Log Correlation
+    description: Integrate SaaS logs into SIEM for cross-platform correlation and investigation.
+    owner_team: security_operations
+    severity: moderate
+
+  - sscf_control_id: SSCF-LOG-006
+    domain: logging_monitoring
+    title: Anomalous Behavior Detection and Insider Threat Monitoring
+    description: Apply UEBA to detect anomalous user activity patterns indicating compromise or misuse.
+    owner_team: security_operations
+    severity: moderate
+
+  # SEF — Security Incident Management
+  - sscf_control_id: SSCF-SEF-001
+    domain: security_incident_management
+    title: Real-Time Threat Policy Enforcement
+    description: Detect and block high-risk behavior through policy-driven automated controls.
+    owner_team: security_operations
+    severity: high
+    sscf_v0_equivalent: SSCF-TDR-001
+
+  - sscf_control_id: SSCF-SEF-002
+    domain: security_incident_management
+    title: Security Alert Triage and Escalation
+    description: Ensure high-risk alerts are triaged and escalated within SLA.
+    owner_team: security_operations
+    severity: high
+    sscf_v0_equivalent: SSCF-TDR-002
+
+  - sscf_control_id: SSCF-SEF-003
+    domain: security_incident_management
+    title: Incident Response Plan and Tabletop Testing
+    description: Maintain IR plan covering SaaS events; conduct annual tabletop exercises.
+    owner_team: security_operations
+    severity: moderate
+
+  - sscf_control_id: SSCF-SEF-004
+    domain: security_incident_management
+    title: Evidence Preservation and Cloud Forensics Readiness
+    description: Preserve SaaS audit logs and forensic artifacts in legally defensible manner.
+    owner_team: security_operations
+    severity: moderate
+
+  - sscf_control_id: SSCF-SEF-005
+    domain: security_incident_management
+    title: Exception Governance and Risk Acceptance
+    description: Enforce time-bound exceptions with compensating controls and approvals.
+    owner_team: information_security
+    severity: moderate
+    sscf_v0_equivalent: SSCF-GOV-001

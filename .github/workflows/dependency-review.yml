@@ -1,0 +1,27 @@
+name: dependency-review
+
+on:
+  pull_request:
+    paths:
+      - "pyproject.toml"
+      - "requirements*.txt"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@05fe4576374b728f0c523d6a13d64c25081e0803  # v4
+        with:
+          # Block PRs that introduce HIGH or CRITICAL vulnerabilities
+          fail-on-severity: high
+          comment-summary-in-pr: always
+          # Allow licenses common in security tooling
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Python-2.0

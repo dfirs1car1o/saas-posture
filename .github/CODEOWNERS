@@ -1,0 +1,18 @@
+# Default owner for all changes.
+* @jerijuar
+
+# Agent definitions and mission scope — require security review.
+agents/** @jerijuar
+mission.md @jerijuar
+
+# Skills (CLIs) — require both owners to review.
+skills/** @jerijuar @compliance-rehab
+
+# Control framework configs — require security and compliance review.
+config/** @jerijuar @compliance-rehab
+
+# Generated evidence — owned by security team.
+docs/oscal-salesforce-poc/generated/** @jerijuar
+
+# Workflow/policy changes require platform ownership review.
+.github/** @jerijuar

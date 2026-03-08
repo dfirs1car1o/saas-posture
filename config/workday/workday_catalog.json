@@ -1,0 +1,1373 @@
+{
+  "catalog": {
+    "uuid": "f7a8b9c0-d1e2-3456-abcd-901234567890",
+    "metadata": {
+      "title": "Workday Security Control Catalog (WSCC)",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "0.2.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL 1.1.2 catalog of Workday HCM/Financials security controls mapped to SSCF domains. Controls link to parent SSCF controls in config/sscf/sscf_catalog.json. collection_method prop classifies how each control is collected: 'rest' (Workday REST API v1, OAuth 2.0 Bearer), 'soap' (Workday Web Services SOAP API, OAuth 2.0 Bearer — no WS-Security BasicAuth), 'raas' (Reports-as-a-Service custom report endpoint, OAuth 2.0 Bearer), or 'manual' (questionnaire only). ALL authenticated calls use OAuth 2.0 Client Credentials — no password credentials are transmitted. Version 0.2.0 updates collection methods and tightens auth to OAuth 2.0 throughout.",
+      "roles": [
+        { "id": "creator", "title": "Catalog Author" },
+        { "id": "maintainer", "title": "Control Framework Maintainer" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "creator", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] },
+        { "role-id": "maintainer", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "groups": [
+      {
+        "id": "iam",
+        "class": "domain",
+        "title": "Identity and Access Management",
+        "controls": [
+          {
+            "id": "wd-iam-001",
+            "title": "Security Group Overprivilege Assessment",
+            "props": [
+              { "name": "label", "value": "WD-IAM-001" },
+              { "name": "sort-id", "value": "iam-01" },
+              { "name": "severity", "value": "critical" },
+              { "name": "sscf-control", "value": "SSCF-IAM-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Security_Group_Domain_Access_Audit" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-001_smt",
+                "name": "statement",
+                "prose": "Security groups must be scoped to least privilege. No security group may hold domain policy permissions beyond those required for its documented business function."
+              },
+              {
+                "id": "wd-iam-001_gdn",
+                "name": "guidance",
+                "prose": "Workday's security model is built on Domain Security Policies (DSPs), which grant security groups access to functional areas (Get, Put, View, Modify). Groups with broad domain access — particularly access to sensitive domains like Compensation, Benefits, and Personal Information — must be inventoried, justified, and reviewed quarterly. Integration System Security Groups (ISSGs) must not hold permissions beyond those required for their specific integration task."
+              },
+              {
+                "id": "wd-iam-001_obj",
+                "name": "objective",
+                "prose": "1. Obtain the list of all security groups via the 'Security_Group_Domain_Access_Audit' RaaS report.\n2. Identify groups with access to sensitive domains (Compensation, SSN, Benefits, Personal Information, Security Configuration).\n3. For each such group, verify a documented justification exists in the system of record.\n4. Flag groups with no justification or with permissions exceeding documented scope.\n5. Verify ISSGs are constrained to the minimum required domain set."
+              },
+              {
+                "id": "wd-iam-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Run the 'Domain Security Policies for Functional Area' delivered Workday report to enumerate all groups per domain.\n2. Remove domain policy access from any group without documented justification.\n3. For ISSGs: remove all domain access beyond the minimum required; constrain to specific functional areas.\n4. Schedule quarterly access review using the 'Security Group Membership and Access' report.\n5. Configure SCIM or Workday's provisioning workflows to enforce access during lifecycle events."
+              },
+              {
+                "id": "wd-iam-001_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce principle of least privilege on security groups by default. Groups may accumulate domain access over time without automated controls preventing overprivilege."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-002", "rel": "related", "text": "SSCF-IAM-002: Privileged Access Governance and Review" }
+            ]
+          },
+          {
+            "id": "wd-iam-002",
+            "title": "Integration System User (ISU) Least Privilege",
+            "props": [
+              { "name": "label", "value": "WD-IAM-002" },
+              { "name": "sort-id", "value": "iam-02" },
+              { "name": "severity", "value": "critical" },
+              { "name": "sscf-control", "value": "SSCF-IAM-002" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Workday_Account" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-002_smt",
+                "name": "statement",
+                "prose": "Integration System Users (ISUs) must hold only the minimum domain permissions required to execute their designated integration, with no interactive login capability."
+              },
+              {
+                "id": "wd-iam-002_gdn",
+                "name": "guidance",
+                "prose": "ISUs are service accounts used by integrations and API clients. An ISU must: (a) be assigned only to Integration System Security Groups (ISSGs), never to role-based or user-based groups; (b) have 'Disallow UI Sessions' checked; (c) hold no permissions beyond those required for the specific integration; and (d) have its credentials stored in a PAM/secrets manager with 90-day rotation."
+              },
+              {
+                "id": "wd-iam-002_obj",
+                "name": "objective",
+                "prose": "1. Enumerate all ISUs via Get_Workday_Account SOAP operation.\n2. Verify each ISU has 'Disallow UI Sessions' enabled.\n3. Verify each ISU belongs only to ISSGs.\n4. For each ISSG, verify domain permissions are constrained to the documented integration scope.\n5. Verify ISU credentials are inventoried and rotation dates are within policy."
+              },
+              {
+                "id": "wd-iam-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Search for 'Create Integration System User' in Workday; audit all existing ISUs.\n2. Enable 'Disallow UI Sessions' on all ISUs that lack it.\n3. Remove ISUs from any non-ISSG security groups.\n4. Reduce ISSG domain permissions to minimum required — test the integration in staging before removing permissions.\n5. Register all ISU credentials in the enterprise secrets manager and configure automated rotation reminders."
+              },
+              {
+                "id": "wd-iam-002_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce ISU session restrictions or domain permission scoping by default. ISUs inherit whatever permissions their associated security groups hold."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-002", "rel": "related", "text": "SSCF-IAM-002: Privileged Access Governance and Review" }
+            ]
+          },
+          {
+            "id": "wd-iam-003",
+            "title": "MFA Enforcement via Authentication Policy",
+            "props": [
+              { "name": "label", "value": "WD-IAM-003" },
+              { "name": "sort-id", "value": "iam-03" },
+              { "name": "severity", "value": "critical" },
+              { "name": "sscf-control", "value": "SSCF-IAM-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Security_Configuration" },
+              { "name": "soap-operation", "value": "Get_Authentication_Policies" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-003_smt",
+                "name": "statement",
+                "prose": "MFA must be enforced for all workforce users accessing Workday via authentication policies. No policy may allow single-factor access for active users except explicitly approved break-glass accounts."
+              },
+              {
+                "id": "wd-iam-003_gdn",
+                "name": "guidance",
+                "prose": "Workday authentication policies define the sign-in rules per security group. MFA enforcement is configured per policy and can require Okta Verify, TOTP, or other factors. PCI-scoped users have their session timeout automatically set to 15 minutes; MFA for these users is non-negotiable. Exemptions from MFA must be documented with compensating controls, time-bound, and approved by the Security Team."
+              },
+              {
+                "id": "wd-iam-003_obj",
+                "name": "objective",
+                "prose": "1. Retrieve all authentication policies via the Workday Authentication Policy configuration or Security_Configuration SOAP service.\n2. Verify MFA is required (not optional) in all active policies applied to workforce users.\n3. Identify any policy permitting single-factor access and confirm it applies only to documented break-glass accounts.\n4. Verify that no workforce security group is assigned to a policy without MFA enforcement."
+              },
+              {
+                "id": "wd-iam-003_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Navigate to: Setup > Security > Manage Authentication Policies in Workday.\n2. For each policy, set 'Require Multi-Factor Authentication' to enforced.\n3. Use the 'Edit Authentication Policy' task to update non-compliant policies.\n4. For break-glass accounts: create a dedicated policy requiring MFA with hardware token; document the exception.\n5. After changes, run 'Activate All Pending Authentication Policy Changes' to apply."
+              },
+              {
+                "id": "wd-iam-003_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce MFA by default. Authentication policy configuration is at customer discretion."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-001", "rel": "related", "text": "SSCF-IAM-001: Multi-Factor Authentication Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-iam-004",
+            "title": "SSO and Federation Configuration",
+            "props": [
+              { "name": "label", "value": "WD-IAM-004" },
+              { "name": "sort-id", "value": "iam-04" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-IAM-003" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_SAML_Setup" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-004_smt",
+                "name": "statement",
+                "prose": "Workday must be federated to the enterprise IdP via SAML 2.0 or OIDC. Local Workday native login must be disabled for all non-break-glass accounts."
+              },
+              {
+                "id": "wd-iam-004_gdn",
+                "name": "guidance",
+                "prose": "Federation is configured via Setup > Security > SAML Setup. The enterprise IdP (Okta, Azure AD, Ping, etc.) must be the authentication authority. SAML assertions must be signed. SCIM provisioning is strongly preferred over manual user creation. Local Workday passwords should be disabled via the 'Allowed Sign-On Types' configuration. All federation changes must be tested in a sandbox tenant before production activation."
+              },
+              {
+                "id": "wd-iam-004_obj",
+                "name": "objective",
+                "prose": "1. Retrieve SAML configuration via Get_SAML_Setup or Workday Setup > Security > SAML Setup.\n2. Verify at least one active SAML IdP configuration is present and enabled.\n3. Verify SAML assertions are configured to be signed.\n4. Verify 'Allowed Sign-On Types' is restricted to federated SSO (not Workday native login) for workforce accounts.\n5. Verify break-glass accounts are inventoried and use PAM-managed credentials."
+              },
+              {
+                "id": "wd-iam-004_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Configure SAML IdP in Setup > Security > SAML Setup.\n2. Set 'Allowed Sign-On Types' to 'SSO Only' for all workforce security groups.\n3. Create dedicated break-glass security group with native login; inventory all members.\n4. Enable SCIM provisioning from IdP to Workday for automated lifecycle management.\n5. Test SSO flows in sandbox before activating in production."
+              },
+              {
+                "id": "wd-iam-004_def",
+                "name": "default-value",
+                "prose": "Workday supports both native login and SAML SSO; neither is enforced by default. Federation must be explicitly configured by the customer."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-003", "rel": "related", "text": "SSCF-IAM-003: Federation and SSO Assurance" }
+            ]
+          },
+          {
+            "id": "wd-iam-005",
+            "title": "Privileged Role Assignment Governance",
+            "props": [
+              { "name": "label", "value": "WD-IAM-005" },
+              { "name": "sort-id", "value": "iam-05" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-IAM-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Privileged_Role_Assignments_Audit" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-005_smt",
+                "name": "statement",
+                "prose": "All assignments to privileged roles (Security Administrator, Payroll Administrator, HR Partner with unrestricted access) must have documented approval and be recertified at least annually."
+              },
+              {
+                "id": "wd-iam-005_gdn",
+                "name": "guidance",
+                "prose": "Privileged roles in Workday include: Security Administrator (can modify security groups and domain policies), Payroll Administrator (access to payroll runs and compensation data), HR Administrators with 'Modify All' access. These must be assigned through a formal access request process with manager and Security Team approval. Recertification must be performed by a role owner different from the account holder. Orphaned privileged accounts (user departed) must be disabled within 5 business days."
+              },
+              {
+                "id": "wd-iam-005_obj",
+                "name": "objective",
+                "prose": "1. Run 'Privileged_Role_Assignments_Audit' RaaS report or use Setup > Security > Security Analysis for Workday Account.\n2. List all users in privileged security groups.\n3. Verify each assignment has documented approval in the access request system.\n4. Verify last recertification date is within 12 months.\n5. Cross-reference with HR terminations list — flag any departed users still holding privileged roles."
+              },
+              {
+                "id": "wd-iam-005_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Create a 'Privileged Access Register' in your GRC or ITSM tool listing all members of privileged Workday security groups.\n2. Implement a joiner-mover-leaver process that automatically removes Workday privileged roles on termination.\n3. Schedule annual recertification campaigns using Workday's Access Review functionality or external GRC tooling.\n4. Require dual approval (manager + Security Team) for privileged role assignments.\n5. Enable audit logging for all security group membership changes."
+              },
+              {
+                "id": "wd-iam-005_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce access approval workflows or recertification for security group assignments by default."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-002", "rel": "related", "text": "SSCF-IAM-002: Privileged Access Governance and Review" }
+            ]
+          },
+          {
+            "id": "wd-iam-006",
+            "title": "Segregation of Duties on Critical Business Processes",
+            "props": [
+              { "name": "label", "value": "WD-IAM-006" },
+              { "name": "sort-id", "value": "iam-06" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-IAM-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Business_Process_Security_Policy_Audit" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-006_smt",
+                "name": "statement",
+                "prose": "Business Process Security Policies (BPSPs) for financial and HR transactions must enforce segregation of duties by preventing a single user from initiating and approving the same transaction."
+              },
+              {
+                "id": "wd-iam-006_gdn",
+                "name": "guidance",
+                "prose": "Critical SOD controls include: Hire employee — initiator and approver must be different security groups; Payroll run — initiator and final approver must be different; Compensation change — employee manager cannot be sole approver without HR Partner review; Security group modification — must not allow self-modification of own security group access. SOD violations are a top SOX ITGC finding and must be remediated within 30 days."
+              },
+              {
+                "id": "wd-iam-006_obj",
+                "name": "objective",
+                "prose": "1. Retrieve Business Process Security Policies for Hire, Terminate, Compensation Change, Payroll Run, and Security Configuration Change transactions.\n2. Verify each critical BPSP has at least two distinct approver security groups in the approval chain.\n3. Verify no single security group appears in both the 'Initiation' and 'Final Approval' steps of the same business process.\n4. Verify SOD exceptions are documented with compensating controls."
+              },
+              {
+                "id": "wd-iam-006_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Use Setup > Business Processes > Business Process Security Policies to review approval chains.\n2. Add a separate 'HR Approver' or 'Finance Approver' security group as a required second step for all critical processes.\n3. Remove any security groups that appear in both initiator and final approver roles.\n4. Document all SOD exceptions with compensating controls and time-bound review in the risk register.\n5. Test SOD enforcement by attempting to self-approve a test transaction in a sandbox environment."
+              },
+              {
+                "id": "wd-iam-006_def",
+                "name": "default-value",
+                "prose": "Workday delivered business processes include some approval steps, but SOD enforcement depends on how the customer configures the Business Process Security Policies. No SOD is enforced by default."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-002", "rel": "related", "text": "SSCF-IAM-002: Privileged Access Governance and Review" }
+            ]
+          },
+          {
+            "id": "wd-iam-007",
+            "title": "Inactive User Account Review",
+            "props": [
+              { "name": "label", "value": "WD-IAM-007" },
+              { "name": "sort-id", "value": "iam-07" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-IAM-002" },
+              { "name": "collection-method", "value": "rest" },
+              { "name": "rest-endpoint", "value": "GET /staffing/v6/workers?includeTerminated=false" },
+              { "name": "rest-auth", "value": "oauth2-client-credentials" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-007_smt",
+                "name": "statement",
+                "prose": "Active Workday accounts with no login activity for 90 or more days must be reviewed and disabled unless a documented business exception exists."
+              },
+              {
+                "id": "wd-iam-007_gdn",
+                "name": "guidance",
+                "prose": "Inactive accounts represent an access risk — dormant credentials that could be compromised without detection. Workday's sign-on audit report provides last login timestamps. Accounts for terminated workers must be disabled within 1 business day via the offboarding workflow. Long-term leave accounts (parental, medical) must be managed separately with a leave policy that maintains access controls."
+              },
+              {
+                "id": "wd-iam-007_obj",
+                "name": "objective",
+                "prose": "1. Query active worker accounts via Get_Workers SOAP operation or the Workday sign-on audit report.\n2. Filter for accounts with last login date older than 90 days.\n3. Cross-reference against active workers list from HR — flag accounts for terminated workers.\n4. For active workers with 90+ day inactivity: verify a documented reason (leave, role change).\n5. Report count of accounts disabled, exceptions documented, and accounts pending action."
+              },
+              {
+                "id": "wd-iam-007_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Create a scheduled report using 'All Active Workday Accounts with Last Login Date' and configure it to alert on 90-day inactivity.\n2. Integrate Workday offboarding business process with automated account disable on termination date.\n3. Implement a 90-day inactivity policy enforced by Workday's session management or by a batch disable job.\n4. For leave scenarios: create a 'Leave of Absence' security group with reduced permissions and migrate accounts during leave."
+              },
+              {
+                "id": "wd-iam-007_def",
+                "name": "default-value",
+                "prose": "Workday does not automatically disable inactive accounts. Account lifecycle management is at customer discretion."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-iam-002", "rel": "related", "text": "SSCF-IAM-002: Privileged Access Governance and Review" }
+            ]
+          },
+          {
+            "id": "wd-iam-008",
+            "title": "API Client Scope Restriction (OAuth)",
+            "props": [
+              { "name": "label", "value": "WD-IAM-008" },
+              { "name": "sort-id", "value": "iam-08" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-CKM-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Security_Configuration" },
+              { "name": "soap-operation", "value": "Get_API_Clients" }
+            ],
+            "parts": [
+              {
+                "id": "wd-iam-008_smt",
+                "name": "statement",
+                "prose": "OAuth 2.0 API clients registered in Workday must be scoped to the minimum required permissions and must be inventoried with documented business justification."
+              },
+              {
+                "id": "wd-iam-008_gdn",
+                "name": "guidance",
+                "prose": "Workday REST API clients require an OAuth 2.0 API client registration with specific scopes (functional areas like 'Human Capital Management', 'Payroll', 'Financials'). Over-scoped clients — those with access to more functional areas than needed — create an exfiltration risk. Refresh tokens must be inventoried and have documented rotation schedules. Unused API clients must be revoked. Client credentials must be stored in a secrets manager, not in application configuration files."
+              },
+              {
+                "id": "wd-iam-008_obj",
+                "name": "objective",
+                "prose": "1. Enumerate all OAuth API clients via Setup > OAuth 2.0 API Clients in Workday.\n2. For each client: document the registered scopes and compare to documented business need.\n3. Flag clients with scopes exceeding documented need.\n4. Verify all client credentials are stored in a secrets manager.\n5. Verify refresh token rotation dates are within the 12-month policy maximum.\n6. Identify and revoke any unused or orphaned API clients."
+              },
+              {
+                "id": "wd-iam-008_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Navigate to Setup > OAuth 2.0 API Clients; audit all registered clients.\n2. For each client, reduce scopes to the minimum set required — test in sandbox first.\n3. Revoke any client not actively used within the past 90 days.\n4. Migrate client secrets to the enterprise secrets manager and remove from config files.\n5. Set calendar reminders for annual refresh token rotation or implement automated rotation."
+              },
+              {
+                "id": "wd-iam-008_def",
+                "name": "default-value",
+                "prose": "Workday does not restrict API client scope by default. The customer selects scopes during client registration with no minimum-scope enforcement."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-ckm-001", "rel": "related", "text": "SSCF-CKM-001: API Credential and Token Lifecycle" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "con",
+        "class": "domain",
+        "title": "Configuration Hardening",
+        "controls": [
+          {
+            "id": "wd-con-001",
+            "title": "Password Complexity and Length Policy",
+            "props": [
+              { "name": "label", "value": "WD-CON-001" },
+              { "name": "sort-id", "value": "con-01" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Password_Rules" }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-001_smt",
+                "name": "statement",
+                "prose": "Workday password rules must enforce minimum complexity: at least 12 characters, mixed case, numbers, and special characters."
+              },
+              {
+                "id": "wd-con-001_gdn",
+                "name": "guidance",
+                "prose": "Password rules apply to native Workday accounts (break-glass, ISUs using password auth). For SSO-federated users, password policy is enforced at the IdP. Workday password rules are configured per security group and must meet the organizational password standard at minimum. NIST SP 800-63B recommends minimum 8 characters; organizational policy typically requires 12+ for privileged accounts."
+              },
+              {
+                "id": "wd-con-001_obj",
+                "name": "objective",
+                "prose": "1. Retrieve password rules via Get_Password_Rules SOAP operation or Setup > Security > Password Rules.\n2. Verify minimum length is 12+ characters.\n3. Verify complexity requirements include uppercase, lowercase, numeric, and special character.\n4. Verify the policy applies to all security groups holding native Workday accounts.\n5. For SSO-federated accounts: confirm password policy is enforced at the IdP level."
+              },
+              {
+                "id": "wd-con-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Navigate to Setup > Security > Password Rules.\n2. Set Minimum Password Length to 12 (or per organizational policy, whichever is stricter).\n3. Enable all complexity requirements: uppercase, lowercase, numeric, special character.\n4. Apply updated rules to all security groups using native Workday authentication.\n5. For federated accounts: validate IdP password policy meets organizational standard."
+              },
+              {
+                "id": "wd-con-001_def",
+                "name": "default-value",
+                "prose": "Workday default minimum password length is 8 characters with no complexity requirements enforced."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-con-002",
+            "title": "Password Expiration and History Policy",
+            "props": [
+              { "name": "label", "value": "WD-CON-002" },
+              { "name": "sort-id", "value": "con-02" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Password_Rules" }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-002_smt",
+                "name": "statement",
+                "prose": "Native Workday account passwords must expire within 90 days and password history must prevent reuse of the last 10 passwords."
+              },
+              {
+                "id": "wd-con-002_gdn",
+                "name": "guidance",
+                "prose": "For ISUs using password-based authentication, 90-day rotation is the maximum allowed interval. Shorter intervals (60 days) are recommended for ISUs with access to sensitive domains. Password history prevents credential cycling attacks. Note: NIST SP 800-63B recommends against mandatory expiration for user accounts when MFA is enforced — apply judgment based on account type and regulatory requirements."
+              },
+              {
+                "id": "wd-con-002_obj",
+                "name": "objective",
+                "prose": "1. Retrieve password rules via Get_Password_Rules SOAP operation.\n2. Verify password expiration is set to 90 days or fewer for native accounts.\n3. Verify password history prevents reuse of last 10 passwords minimum.\n4. Verify ISUs with sensitive domain access have stricter rotation (60 days or shorter)."
+              },
+              {
+                "id": "wd-con-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Set Password Expiration in Setup > Security > Password Rules to 90 days.\n2. Set Password History to 10 prior passwords minimum.\n3. For ISUs: consider storing credentials in a PAM tool that enforces automated 90-day rotation and removes the burden from manual compliance.\n4. Alert on accounts approaching expiration to prevent lockout-related incidents."
+              },
+              {
+                "id": "wd-con-002_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce password expiration or history by default."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-con-003",
+            "title": "Session Timeout Configuration",
+            "props": [
+              { "name": "label", "value": "WD-CON-003" },
+              { "name": "sort-id", "value": "con-03" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Workday_Account" }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-003_smt",
+                "name": "statement",
+                "prose": "Interactive Workday sessions must timeout after no more than 60 minutes of inactivity. PCI-scoped accounts are automatically limited to 15 minutes and must not be modified."
+              },
+              {
+                "id": "wd-con-003_gdn",
+                "name": "guidance",
+                "prose": "Session timeout is configured per user account in Workday (Session Timeout Minutes field). ISUs used in integrations should be set to 0 (no timeout, to prevent mid-run session expiry) — but ISUs must have UI sessions disabled to compensate. Workforce users must not have session timeout set to 0. Privileged users (Security Administrator, Payroll Administrator) should have a shorter timeout (30 minutes)."
+              },
+              {
+                "id": "wd-con-003_obj",
+                "name": "objective",
+                "prose": "1. Retrieve Workday account settings via Get_Workday_Account SOAP operation for a sample of accounts.\n2. Verify no active workforce user account has Session Timeout Minutes set to 0.\n3. Verify privileged accounts have Session Timeout Minutes ≤ 30.\n4. Verify standard workforce accounts have Session Timeout Minutes ≤ 60.\n5. Verify ISUs with timeout = 0 have 'Disallow UI Sessions' enabled."
+              },
+              {
+                "id": "wd-con-003_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Audit session timeout settings via the 'All Active Workday Accounts' report filtered by Session Timeout Minutes.\n2. Set Session Timeout Minutes to 60 for standard workforce accounts; 30 for privileged accounts.\n3. For ISUs with timeout = 0: verify 'Disallow UI Sessions' is checked — this is the required compensating control.\n4. Create a scheduled report to alert when any account session timeout is changed to 0."
+              },
+              {
+                "id": "wd-con-003_def",
+                "name": "default-value",
+                "prose": "Workday default session timeout is customer-configurable per account. No organization-wide default is enforced."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-con-004",
+            "title": "Account Lockout Threshold",
+            "props": [
+              { "name": "label", "value": "WD-CON-004" },
+              { "name": "sort-id", "value": "con-04" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Password_Rules" }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-004_smt",
+                "name": "statement",
+                "prose": "Accounts must be locked after no more than 10 consecutive failed login attempts. Lockout duration must require administrator unlock or enforce a minimum 30-minute waiting period."
+              },
+              {
+                "id": "wd-con-004_gdn",
+                "name": "guidance",
+                "prose": "Account lockout protects against brute-force and credential stuffing attacks. The lockout threshold balances security (lower = better) against user experience and help desk burden. For privileged accounts (Security Administrator, Payroll Administrator), a stricter threshold (5 attempts) is recommended. Lockout events must generate a security alert."
+              },
+              {
+                "id": "wd-con-004_obj",
+                "name": "objective",
+                "prose": "1. Retrieve password rules via Get_Password_Rules SOAP operation.\n2. Verify the maximum login attempts threshold is 10 or fewer.\n3. Verify the lockout policy requires either administrator unlock or a waiting period of at least 30 minutes.\n4. Verify privileged accounts have a stricter threshold (5 attempts recommended).\n5. Verify lockout events are logged and generate alerts."
+              },
+              {
+                "id": "wd-con-004_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Set Maximum Login Attempts in Setup > Security > Password Rules to 10 (or fewer).\n2. Configure the lockout recovery to require administrator action or a 30-minute wait.\n3. For privileged security groups: set Maximum Login Attempts to 5.\n4. Enable audit logging for lockout events and configure SIEM alert on threshold breach."
+              },
+              {
+                "id": "wd-con-004_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce account lockout by default. The maximum login attempts setting must be explicitly configured."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-con-005",
+            "title": "IP Allowlisting for Authentication",
+            "props": [
+              { "name": "label", "value": "WD-CON-005" },
+              { "name": "sort-id", "value": "con-05" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "IP allowlisting configuration is not exposed via standard SOAP or REST API; requires Workday admin review of Setup > Security > Allowed IP Addresses." }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-005_smt",
+                "name": "statement",
+                "prose": "Where technically feasible, Workday administrative and API access must be restricted to approved IP ranges. ISU API access must be IP-restricted."
+              },
+              {
+                "id": "wd-con-005_gdn",
+                "name": "guidance",
+                "prose": "Workday supports IP allowlisting for authentication policies. Restricting ISU API calls to known integration server IP ranges significantly reduces the blast radius of a compromised credential. Workforce SSO login IP restrictions should be applied where employees operate from known office networks or VPN ranges. IP allowlisting is most effective for ISUs and privileged admin accounts."
+              },
+              {
+                "id": "wd-con-005_obj",
+                "name": "objective",
+                "prose": "1. Review Setup > Security > Authentication Policies for IP restriction configuration (manual review required).\n2. Verify ISU authentication policies include IP restrictions limited to integration server ranges.\n3. Verify privileged admin authentication policies include IP restrictions or VPN requirements.\n4. Verify the IP allowlist is current and reflects current network topology.\n5. Flag any authentication policy without IP restriction for accounts with sensitive domain access."
+              },
+              {
+                "id": "wd-con-005_imp",
+                "name": "implementation-guidance",
+                "prose": "1. In Setup > Security > Authentication Policies: add IP allowlist conditions to policies covering ISU and admin accounts.\n2. Restrict ISU policies to integration server IP ranges only.\n3. For workforce policies: restrict to corporate VPN ranges or office IP ranges where possible.\n4. Keep the IP allowlist in a version-controlled document updated as network topology changes.\n5. Test authentication from outside allowed ranges to verify enforcement."
+              },
+              {
+                "id": "wd-con-005_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce IP restrictions by default. Authentication is permitted from any IP address unless explicitly restricted."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-con-006",
+            "title": "Authentication Policy Scope and Coverage",
+            "props": [
+              { "name": "label", "value": "WD-CON-006" },
+              { "name": "sort-id", "value": "con-06" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-CON-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Security_Configuration" },
+              { "name": "soap-operation", "value": "Get_Authentication_Policies" }
+            ],
+            "parts": [
+              {
+                "id": "wd-con-006_smt",
+                "name": "statement",
+                "prose": "Every active Workday security group must be assigned to an approved authentication policy. No security group may exist without an explicit authentication policy assignment."
+              },
+              {
+                "id": "wd-con-006_gdn",
+                "name": "guidance",
+                "prose": "Unassigned security groups fall back to Workday's default authentication policy, which may not enforce MFA or IP restrictions. All security groups — including new groups created for integrations or custom roles — must be explicitly assigned to an authentication policy that meets the organizational standard. Authentication policy assignments must be reviewed when new security groups are created."
+              },
+              {
+                "id": "wd-con-006_obj",
+                "name": "objective",
+                "prose": "1. Retrieve all authentication policies and their security group assignments via Get_Authentication_Policies.\n2. Enumerate all active security groups.\n3. Identify any security group not explicitly assigned to an authentication policy.\n4. For each unassigned group: determine what default policy applies and whether it meets the MFA and session standard.\n5. Flag all unassigned groups as non-compliant."
+              },
+              {
+                "id": "wd-con-006_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Review all authentication policies in Setup > Security > Manage Authentication Policies.\n2. For each policy, review the assigned security groups.\n3. Identify security groups without explicit policy assignment — assign them to the appropriate policy based on role type.\n4. Establish a change control process that requires authentication policy assignment as part of any new security group creation.\n5. Run 'Activate All Pending Authentication Policy Changes' after updates."
+              },
+              {
+                "id": "wd-con-006_def",
+                "name": "default-value",
+                "prose": "Workday assigns a default authentication policy to unassigned security groups. The default policy settings are not guaranteed to meet organizational security requirements."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-001", "rel": "related", "text": "SSCF-CON-001: SaaS Security Baseline Enforcement" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "log",
+        "class": "domain",
+        "title": "Logging and Monitoring",
+        "controls": [
+          {
+            "id": "wd-log-001",
+            "title": "User Activity Logging Enabled",
+            "props": [
+              { "name": "label", "value": "WD-LOG-001" },
+              { "name": "sort-id", "value": "log-01" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-LOG-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "User Activity Logging enablement state is not directly queryable via public SOAP/REST API; requires admin review of Setup > Security > User Activity Logging." }
+            ],
+            "parts": [
+              {
+                "id": "wd-log-001_smt",
+                "name": "statement",
+                "prose": "Workday User Activity Logging must be enabled to capture all user actions for security monitoring, forensics, and compliance reporting."
+              },
+              {
+                "id": "wd-log-001_gdn",
+                "name": "guidance",
+                "prose": "User Activity Logging captures a comprehensive record of all user actions in Workday including page views, task completions, data access, and configuration changes. This is a foundational control for SOX ITGC audit evidence and HIPAA access logging requirements. Logs should be exported to a SIEM for centralized retention and alerting. Workday's built-in retention may not meet organizational or regulatory retention requirements."
+              },
+              {
+                "id": "wd-log-001_obj",
+                "name": "objective",
+                "prose": "1. Verify User Activity Logging is enabled via Setup > Security > User Activity Logging (manual admin review).\n2. Verify logs are being exported to or accessible by the enterprise SIEM.\n3. Verify the retention period meets the applicable regulatory requirement (minimum 12 months hot).\n4. Sample 5 user activity log entries to confirm they contain: user ID, action, timestamp (UTC), object accessed."
+              },
+              {
+                "id": "wd-log-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Enable User Activity Logging in Setup > Security > User Activity Logging.\n2. Configure log forwarding to SIEM using Workday's REST API log endpoints or RaaS report export.\n3. Set retention in the SIEM to meet regulatory requirements (12 months minimum; SOX requires 7 years for financial transaction logs).\n4. Create SIEM dashboards for Workday user activity anomalies (bulk access, off-hours admin activity)."
+              },
+              {
+                "id": "wd-log-001_def",
+                "name": "default-value",
+                "prose": "User Activity Logging is available in Workday but must be explicitly enabled. It is not enabled by default in all tenants."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-log-001", "rel": "related", "text": "SSCF-LOG-001: Security Telemetry Enablement" }
+            ]
+          },
+          {
+            "id": "wd-log-002",
+            "title": "Sign-On Audit Reporting",
+            "props": [
+              { "name": "label", "value": "WD-LOG-002" },
+              { "name": "sort-id", "value": "log-02" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-LOG-001" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Sign_On_Audit_Report" }
+            ],
+            "parts": [
+              {
+                "id": "wd-log-002_smt",
+                "name": "statement",
+                "prose": "Workday sign-on audit reports must be enabled and accessible, capturing successful and failed authentication events with user, timestamp, and source IP."
+              },
+              {
+                "id": "wd-log-002_gdn",
+                "name": "guidance",
+                "prose": "Workday's delivered 'Sign-On Audit' report is a key security artifact required by SOC2 auditors. It records all authentication attempts. This report must be accessible to the Security Team and exportable to SIEM. Failed authentication spikes are an early indicator of credential stuffing or brute force attacks."
+              },
+              {
+                "id": "wd-log-002_obj",
+                "name": "objective",
+                "prose": "1. Verify the Sign-On Audit report is accessible via RaaS endpoint or Workday UI.\n2. Sample the last 30 days: verify entries contain user ID, authentication method, success/failure status, source IP, and UTC timestamp.\n3. Verify failed login events are visible and can be filtered.\n4. Verify the Security Team has access to run the report.\n5. Verify the report data is exported to SIEM within 24 hours."
+              },
+              {
+                "id": "wd-log-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Enable the 'Sign-On Audit' report as a RaaS endpoint for automated SIEM ingestion.\n2. Grant the Security Team security group 'View' access to the Sign-On Audit report domain.\n3. Configure SIEM to alert on: > 10 failed logins per user in 15 minutes; logins from new countries; admin logins outside business hours.\n4. Schedule weekly sign-on audit report review as part of the security operations routine."
+              },
+              {
+                "id": "wd-log-002_def",
+                "name": "default-value",
+                "prose": "Workday includes the Sign-On Audit report as a delivered report, but access to it and export configuration must be set up by the customer."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-log-001", "rel": "related", "text": "SSCF-LOG-001: Security Telemetry Enablement" }
+            ]
+          },
+          {
+            "id": "wd-log-003",
+            "title": "Failed Login Tracking and Alerting",
+            "props": [
+              { "name": "label", "value": "WD-LOG-003" },
+              { "name": "sort-id", "value": "log-03" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-TDR-001" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Sign_On_Audit_Report" }
+            ],
+            "parts": [
+              {
+                "id": "wd-log-003_smt",
+                "name": "statement",
+                "prose": "Failed login events must be tracked and alerts must fire when failed attempts exceed 10 per user within a 15-minute window."
+              },
+              {
+                "id": "wd-log-003_gdn",
+                "name": "guidance",
+                "prose": "Failed login tracking relies on the Sign-On Audit report data. The alert threshold should be calibrated to the organization's baseline — too low generates noise; too high misses attacks. The threshold is a detection control, not a lockout control (lockout is WD-CON-004). Both controls should be active simultaneously."
+              },
+              {
+                "id": "wd-log-003_obj",
+                "name": "objective",
+                "prose": "1. Verify failed login events are captured in the Sign-On Audit report with 'Status = Failure' entries.\n2. Verify SIEM has a rule configured to alert on > 10 failed logins per user in 15 minutes.\n3. Verify the alert routes to the Security Operations team.\n4. Test the alert by generating controlled failed logins in a test account."
+              },
+              {
+                "id": "wd-log-003_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Ingest the Sign-On Audit RaaS report into SIEM.\n2. Create a SIEM correlation rule: IF count(login_failure) by user > 10 WITHIN 15min THEN alert.\n3. Route alert to SOC queue with high priority.\n4. Include source IP in alert context to support rapid investigation.\n5. Tune threshold based on baseline after 30 days of observation."
+              },
+              {
+                "id": "wd-log-003_def",
+                "name": "default-value",
+                "prose": "Workday does not generate alerts on failed login patterns. Alert logic must be implemented in the SIEM consuming Workday audit data."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-tdr-001", "rel": "related", "text": "SSCF-TDR-001: Real-Time Threat Policy Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-log-004",
+            "title": "Administrative Action Audit Trail",
+            "props": [
+              { "name": "label", "value": "WD-LOG-004" },
+              { "name": "sort-id", "value": "log-04" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-LOG-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Workday_Audit_Report" }
+            ],
+            "parts": [
+              {
+                "id": "wd-log-004_smt",
+                "name": "statement",
+                "prose": "All administrative actions — including security group changes, domain policy modifications, and authentication policy updates — must be captured in an audit trail accessible for review."
+              },
+              {
+                "id": "wd-log-004_gdn",
+                "name": "guidance",
+                "prose": "Workday's audit trail (accessible via the Workday Audit report) records all configuration changes with actor, action, timestamp, and before/after state where available. This is a critical SOX ITGC control — auditors will request evidence that configuration changes were tracked and authorized. The audit trail must be exported to SIEM and retained for at least 12 months (7 years for SOX-scoped records)."
+              },
+              {
+                "id": "wd-log-004_obj",
+                "name": "objective",
+                "prose": "1. Access the Workday Audit report (or Workday_Audit_Report RaaS endpoint) and sample the last 90 days.\n2. Verify the following event types appear: Security Group changes, Domain Security Policy changes, Authentication Policy changes, User account creation/termination.\n3. Verify each entry contains: actor user ID, action performed, timestamp (UTC), object affected.\n4. Verify audit data is exported to SIEM.\n5. Verify the Security Team can query audit data without Workday admin access."
+              },
+              {
+                "id": "wd-log-004_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Enable RaaS export of the Workday Audit Report for SIEM ingestion.\n2. Configure SIEM alerts for high-risk admin actions: security group permission changes, authentication policy modifications, ISU creation.\n3. Retain exported audit logs in SIEM for 12 months minimum (7 years for SOX-scoped records).\n4. Grant the Security Team read-only access to the Workday Audit Report domain."
+              },
+              {
+                "id": "wd-log-004_def",
+                "name": "default-value",
+                "prose": "Workday maintains an audit trail internally. Export, SIEM integration, and alerting must be configured by the customer."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-log-002", "rel": "related", "text": "SSCF-LOG-002: Administrative and Configuration Audit Logging" }
+            ]
+          },
+          {
+            "id": "wd-log-005",
+            "title": "Audit Log Retention Configuration",
+            "props": [
+              { "name": "label", "value": "WD-LOG-005" },
+              { "name": "sort-id", "value": "log-05" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-LOG-003" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "Workday native retention settings and SIEM retention configuration are not queryable via public API; requires admin review." }
+            ],
+            "parts": [
+              {
+                "id": "wd-log-005_smt",
+                "name": "statement",
+                "prose": "Workday audit and activity logs must be retained for a minimum of 12 months accessible ('hot') and 36 months in archival ('cold') storage. SOX-scoped records require 7-year retention."
+              },
+              {
+                "id": "wd-log-005_gdn",
+                "name": "guidance",
+                "prose": "Workday's native log retention may be shorter than regulatory requirements. Organizations must export logs to a SIEM or long-term storage that meets the applicable retention period. SOX Sections 802 and 1102 require financial records to be retained for 7 years. HIPAA requires audit controls and access logs for 6 years. Ensure the retention policy is documented and tested via recovery exercises."
+              },
+              {
+                "id": "wd-log-005_obj",
+                "name": "objective",
+                "prose": "1. Review the organization's log retention policy for Workday (manual review of SIEM configuration).\n2. Verify the SIEM retention is set to meet the highest applicable regulatory requirement.\n3. Verify cold storage archival exists for records beyond the hot retention window.\n4. Verify a log restoration test has been performed within the past 12 months.\n5. Verify audit logs cannot be deleted without dual-approval in the SIEM."
+              },
+              {
+                "id": "wd-log-005_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Configure SIEM hot storage for Workday logs to 12 months minimum.\n2. Configure SIEM cold storage (S3 Glacier, Azure Archive, etc.) for 36 months minimum (7 years for SOX).\n3. Enable write-once (WORM) storage for cold archive to prevent tampering.\n4. Document the retention configuration in the SIEM runbook.\n5. Conduct an annual restoration drill: restore a 2-year-old log sample and verify integrity."
+              },
+              {
+                "id": "wd-log-005_def",
+                "name": "default-value",
+                "prose": "Workday retains internal logs for a period defined by Workday's data retention policy, which may not meet organizational or regulatory requirements. Customer-controlled export and retention is required."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-log-003", "rel": "related", "text": "SSCF-LOG-003: Audit Retention and Integrity" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ckm",
+        "class": "domain",
+        "title": "Cryptography and Key Management",
+        "controls": [
+          {
+            "id": "wd-ckm-001",
+            "title": "TLS Enforcement for Integrations (WS-Security)",
+            "props": [
+              { "name": "label", "value": "WD-CKM-001" },
+              { "name": "sort-id", "value": "ckm-01" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-CKM-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "TLS and WS-Security configuration for integrations requires manual review of integration system definitions and Workday network configuration." }
+            ],
+            "parts": [
+              {
+                "id": "wd-ckm-001_smt",
+                "name": "statement",
+                "prose": "All integrations connecting to Workday must use TLS 1.2 or higher. SOAP-based integrations must use WS-Security headers. Unencrypted or HTTP-only integration endpoints are prohibited."
+              },
+              {
+                "id": "wd-ckm-001_gdn",
+                "name": "guidance",
+                "prose": "Workday enforces TLS for all its API endpoints by default. However, integrations that Workday calls outbound (e.g., Studio integrations, EIB outbound) must also use TLS-secured endpoints. WS-Security provides message-level security for SOAP integrations including credential encryption and message signing. All integration endpoints registered in Workday must use HTTPS with valid certificates."
+              },
+              {
+                "id": "wd-ckm-001_obj",
+                "name": "objective",
+                "prose": "1. Enumerate all active integrations (EIB, Studio, Core Connector) configured in Workday.\n2. For each outbound integration endpoint: verify the endpoint URL uses HTTPS (not HTTP).\n3. For SOAP integrations: verify WS-Security is configured with credentials or tokens in the security header.\n4. Verify no integration uses TLS 1.0 or TLS 1.1 endpoints.\n5. Verify integration system certificates are valid and not expired."
+              },
+              {
+                "id": "wd-ckm-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Audit all active integration systems in Setup > Integrations > Integration System.\n2. Update any integration using HTTP endpoints to HTTPS; reject or disable integrations without TLS.\n3. Configure WS-Security on SOAP integrations: add the Security element with Username/Password or X.509 token.\n4. Test TLS version compliance using an SSL scanner against integration endpoints.\n5. Add certificate expiry monitoring for all integration system certificates."
+              },
+              {
+                "id": "wd-ckm-001_def",
+                "name": "default-value",
+                "prose": "Workday's own API endpoints enforce HTTPS. Outbound integration endpoint security depends on the external system and must be validated by the customer."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-ckm-001", "rel": "related", "text": "SSCF-CKM-001: API Credential and Token Lifecycle" }
+            ]
+          },
+          {
+            "id": "wd-ckm-002",
+            "title": "BYOK (Bring Your Own Key) Configuration",
+            "props": [
+              { "name": "label", "value": "WD-CKM-002" },
+              { "name": "sort-id", "value": "ckm-02" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CKM-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "BYOK/KMS configuration is a tenant-level setting not exposed via public API; requires Workday admin review and vendor confirmation." }
+            ],
+            "parts": [
+              {
+                "id": "wd-ckm-002_smt",
+                "name": "statement",
+                "prose": "Organizations handling regulated data (HIPAA, financial) must evaluate and document their decision on Workday BYOK (Bring Your Own Key). If BYOK is adopted, key management procedures must be defined and key rotation must occur at least annually."
+              },
+              {
+                "id": "wd-ckm-002_gdn",
+                "name": "guidance",
+                "prose": "Workday's Key Management Service (KMS) manages encryption keys for data at rest by default. Workday offers a BYOK capability that allows customers to retain control of root encryption keys via a customer-managed KMS (AWS KMS, Azure Key Vault). BYOK is optional but required for some regulated industries. Whether or not BYOK is adopted, the organization must document the decision and understand Workday's key management controls."
+              },
+              {
+                "id": "wd-ckm-002_obj",
+                "name": "objective",
+                "prose": "1. Determine whether BYOK is enabled for the Workday tenant (requires Workday admin confirmation or Workday support inquiry).\n2. If BYOK is enabled: verify the customer KMS is configured, key rotation is scheduled annually, and key access is restricted to authorized administrators.\n3. If BYOK is not enabled: verify the decision is documented with a risk acceptance rationale and Workday's default KMS controls are acknowledged.\n4. Verify no encryption keys are stored in Workday configuration files or integration credentials."
+              },
+              {
+                "id": "wd-ckm-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Contact your Workday account team to determine BYOK availability for your subscription tier.\n2. If adopting BYOK: engage Workday Professional Services to configure BYOK with your KMS provider.\n3. Document the BYOK configuration including KMS provider, key ARN/ID, rotation schedule, and access controls.\n4. If not adopting BYOK: document the risk acceptance in the security risk register with Workday's encryption assurance documentation as supporting evidence."
+              },
+              {
+                "id": "wd-ckm-002_def",
+                "name": "default-value",
+                "prose": "Workday manages encryption keys by default using its own KMS. BYOK is an optional customer-managed capability."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-ckm-001", "rel": "related", "text": "SSCF-CKM-001: API Credential and Token Lifecycle" }
+            ]
+          },
+          {
+            "id": "wd-ckm-003",
+            "title": "ISU Credential Rotation Policy",
+            "props": [
+              { "name": "label", "value": "WD-CKM-003" },
+              { "name": "sort-id", "value": "ckm-03" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-CKM-001" },
+              { "name": "collection-method", "value": "soap" },
+              { "name": "soap-service", "value": "Human_Resources" },
+              { "name": "soap-operation", "value": "Get_Workday_Account" }
+            ],
+            "parts": [
+              {
+                "id": "wd-ckm-003_smt",
+                "name": "statement",
+                "prose": "Integration System User (ISU) passwords must be rotated at least every 90 days. Refresh tokens issued to OAuth API clients must be rotated at least annually."
+              },
+              {
+                "id": "wd-ckm-003_gdn",
+                "name": "guidance",
+                "prose": "ISU credentials are long-lived service account passwords. Unlike user passwords, there is no forced expiry by default. Unrotated ISU credentials represent a persistent risk — a compromised ISU credential could provide long-term unauthorized API access without detection. Credentials must be stored in a PAM/secrets manager. Rotation should be automated where the PAM tool supports it."
+              },
+              {
+                "id": "wd-ckm-003_obj",
+                "name": "objective",
+                "prose": "1. Enumerate all ISUs via Get_Workday_Account SOAP operation.\n2. For each ISU: query the password last-changed date (if available via SOAP) or check the PAM system for rotation date.\n3. Flag any ISU whose password has not been rotated within 90 days.\n4. For OAuth refresh tokens: enumerate from Setup > OAuth 2.0 and verify token issue dates.\n5. Flag OAuth refresh tokens older than 12 months."
+              },
+              {
+                "id": "wd-ckm-003_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Register all ISU credentials in the enterprise PAM/secrets manager.\n2. Configure automated 90-day rotation in the PAM tool; test that integration continues to function after rotation.\n3. For OAuth refresh tokens: set a 12-month rotation reminder in the team calendar and document the rotation procedure.\n4. Implement a check in the integration deployment pipeline to reject hardcoded credentials and require PAM-sourced secrets.\n5. After rotation, verify the integration logs no authentication errors."
+              },
+              {
+                "id": "wd-ckm-003_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce ISU password rotation. Passwords persist indefinitely unless changed by an administrator."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-ckm-001", "rel": "related", "text": "SSCF-CKM-001: API Credential and Token Lifecycle" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dsp",
+        "class": "domain",
+        "title": "Data Security and Privacy",
+        "controls": [
+          {
+            "id": "wd-dsp-001",
+            "title": "Sensitive Domain Permission Review",
+            "props": [
+              { "name": "label", "value": "WD-DSP-001" },
+              { "name": "sort-id", "value": "dsp-01" },
+              { "name": "severity", "value": "critical" },
+              { "name": "sscf-control", "value": "SSCF-DSP-001" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Sensitive_Domain_Access_Audit" }
+            ],
+            "parts": [
+              {
+                "id": "wd-dsp-001_smt",
+                "name": "statement",
+                "prose": "Access to sensitive Workday data domains — including Social Security Number, Compensation, Benefits, Date of Birth, and Government ID — must be restricted to roles with documented business need and reviewed quarterly."
+              },
+              {
+                "id": "wd-dsp-001_gdn",
+                "name": "guidance",
+                "prose": "Workday organizes sensitive data into domain security policies. The most sensitive domains include: Worker Data: Social Security Number, Compensation Data, Benefits Administration, and Personal Information. Security groups with 'Get' or 'View' access to these domains must be inventoried and recertified quarterly. Under HIPAA, access to health-related data fields must be logged and auditable. Under GDPR, access to PII must be restricted to the minimum necessary."
+              },
+              {
+                "id": "wd-dsp-001_obj",
+                "name": "objective",
+                "prose": "1. Run the 'Sensitive_Domain_Access_Audit' RaaS report or use 'Domain Security Policies for Functional Area' for: SSN, Compensation, Benefits, Date of Birth, Government ID, Health domains.\n2. List all security groups with any access level (Get/View/Modify) to these domains.\n3. For each group: verify a documented business justification exists.\n4. Identify groups with access exceeding their documented scope.\n5. Verify quarterly review has been performed within the last 90 days."
+              },
+              {
+                "id": "wd-dsp-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Use 'Domain Security Policies for Functional Area' report to enumerate current access for sensitive domains.\n2. Remove domain access from groups without documented justification.\n3. Implement field-level masking for SSN and Government ID where Workday supports it (display as last-4 by default).\n4. Schedule quarterly access reviews using Workday's built-in review tools or an external GRC platform.\n5. Configure audit alerts when any security group gains access to sensitive domains."
+              },
+              {
+                "id": "wd-dsp-001_def",
+                "name": "default-value",
+                "prose": "Workday provides domain security policies for sensitive data but does not restrict access to these domains by default. Configuration is at customer discretion."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-dsp-001", "rel": "related", "text": "SSCF-DSP-001: Sensitive Data Access Control" }
+            ]
+          },
+          {
+            "id": "wd-dsp-002",
+            "title": "Data Export and Download Controls",
+            "props": [
+              { "name": "label", "value": "WD-DSP-002" },
+              { "name": "sort-id", "value": "dsp-02" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-DSP-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Data_Export_Activity_Report" }
+            ],
+            "parts": [
+              {
+                "id": "wd-dsp-002_smt",
+                "name": "statement",
+                "prose": "Bulk data export capabilities (report downloads, EIB exports, RaaS endpoints) must be restricted to authorized roles and export activity must be logged and monitored."
+              },
+              {
+                "id": "wd-dsp-002_gdn",
+                "name": "guidance",
+                "prose": "Workday's reporting capabilities allow bulk export of workforce and financial data. Unrestricted export capabilities are a primary data exfiltration risk. Domain security policies control who can run and download reports. Sensitive reports (those including SSN, compensation, or personal data) must be restricted to named roles. RaaS endpoints must require authentication and be inventoried. Large exports should trigger SIEM alerts."
+              },
+              {
+                "id": "wd-dsp-002_obj",
+                "name": "objective",
+                "prose": "1. Identify reports containing sensitive data (SSN, compensation, benefits, health data).\n2. Verify each sensitive report has domain security policy access restricted to authorized security groups.\n3. Verify RaaS endpoints for sensitive reports require authentication (not publicly accessible).\n4. Review export activity log for bulk downloads in the past 90 days — flag anomalous export volume.\n5. Verify Export domain policy is not granted to all users."
+              },
+              {
+                "id": "wd-dsp-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Audit all reports containing sensitive fields; restrict 'View Report' domain access to necessary security groups.\n2. Configure RaaS endpoint authentication for all sensitive reports.\n3. Implement SIEM alerting for reports downloaded more than X times per day by a single user (threshold based on baseline).\n4. Implement a Data Loss Prevention (DLP) policy for Workday data if the organization's DLP tooling supports SaaS connectors.\n5. Document all authorized RaaS endpoints in the integration inventory."
+              },
+              {
+                "id": "wd-dsp-002_def",
+                "name": "default-value",
+                "prose": "Workday report export controls are determined by domain security policy access. No organization-wide export restriction is enforced by default."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-dsp-002", "rel": "related", "text": "SSCF-DSP-002: Data Export and Exfiltration Controls" }
+            ]
+          },
+          {
+            "id": "wd-dsp-003",
+            "title": "Third-Party Integration Data Access Scope",
+            "props": [
+              { "name": "label", "value": "WD-DSP-003" },
+              { "name": "sort-id", "value": "dsp-03" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-DSP-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Integration_Data_Access_Audit" }
+            ],
+            "parts": [
+              {
+                "id": "wd-dsp-003_smt",
+                "name": "statement",
+                "prose": "Third-party integrations accessing Workday data must be scoped to the minimum data fields required for their function. Access to sensitive fields (SSN, compensation, health) must be explicitly approved and documented."
+              },
+              {
+                "id": "wd-dsp-003_gdn",
+                "name": "guidance",
+                "prose": "Workday integrations (EIB, Studio, Core Connectors, API clients) receive data access via their associated ISSG domain permissions. Over-scoped integrations represent a supply chain data risk. An integration receiving unnecessary access to SSN or compensation data is a potential HIPAA or privacy regulation violation. The data accessed by each integration must be inventoried and reviewed annually."
+              },
+              {
+                "id": "wd-dsp-003_obj",
+                "name": "objective",
+                "prose": "1. Enumerate all active integrations and their associated ISSGs.\n2. For each ISSG: list the domain permissions held, including any sensitive domains.\n3. Compare each integration's domain access to its documented data requirements.\n4. Flag integrations with access to sensitive domains not required for their stated purpose.\n5. Verify an annual data access review has been completed for all integrations."
+              },
+              {
+                "id": "wd-dsp-003_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Create an integration data access register listing: integration name, purpose, ISSG, domains accessed, data fields accessed.\n2. Remove ISSG domain access not required for the integration's function — test in sandbox first.\n3. For integrations accessing sensitive data: require annual review and approval from the Data Privacy Officer.\n4. Document all integration data flows in the organization's data map for GDPR Article 30 Records of Processing Activities."
+              },
+              {
+                "id": "wd-dsp-003_def",
+                "name": "default-value",
+                "prose": "Workday integration data access is determined by ISSG domain permissions configured by the customer. No data minimization enforcement exists by default."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-dsp-002", "rel": "related", "text": "SSCF-DSP-002: Data Export and Exfiltration Controls" }
+            ]
+          },
+          {
+            "id": "wd-dsp-004",
+            "title": "PII Field Access Governance",
+            "props": [
+              { "name": "label", "value": "WD-DSP-004" },
+              { "name": "sort-id", "value": "dsp-04" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-DSP-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "PII field-level masking and display configuration requires review in Workday Setup; not exposed via public API." }
+            ],
+            "parts": [
+              {
+                "id": "wd-dsp-004_smt",
+                "name": "statement",
+                "prose": "Personally Identifiable Information (PII) fields in Workday — including SSN, government ID, date of birth, home address, and direct deposit account numbers — must be masked by default and only unmasked for authorized roles with documented justification."
+              },
+              {
+                "id": "wd-dsp-004_gdn",
+                "name": "guidance",
+                "prose": "Workday supports field-level masking for sensitive PII fields. By default, SSN may be displayed in partial form (last 4 digits). Full display of SSN and other sensitive PII should require an explicit domain permission and the unmasking action should be logged. GDPR and CCPA require data minimization — users should only see PII they have a legitimate need to access. Health information fields are subject to HIPAA minimum necessary standard."
+              },
+              {
+                "id": "wd-dsp-004_obj",
+                "name": "objective",
+                "prose": "1. Review PII field display settings in Workday Setup for: SSN, Government ID, Date of Birth, Home Address, Bank Account Number.\n2. Verify SSN is masked (last-4 only) for all roles without explicit 'View SSN' justification.\n3. Verify 'View Full SSN' domain is granted only to documented roles (e.g., Payroll Administrator).\n4. Verify field unmasking actions are logged in the audit trail.\n5. Verify a data minimization review has been performed within the past 12 months."
+              },
+              {
+                "id": "wd-dsp-004_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Review domain security policies for: 'Worker Data: Social Security Number', 'Worker Data: Government Identifier', 'Worker Data: Home Address'.\n2. Restrict full-view access to the minimum required roles.\n3. Enable audit logging for PII field access events.\n4. Conduct annual PII access review: identify all roles with full PII access and verify necessity.\n5. Document PII data flows in the organization's data privacy record (GDPR Article 30 ROPA)."
+              },
+              {
+                "id": "wd-dsp-004_def",
+                "name": "default-value",
+                "prose": "Workday provides PII masking capabilities but access to full PII values is controlled by domain security policies that must be configured by the customer."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-dsp-001", "rel": "related", "text": "SSCF-DSP-001: Sensitive Data Access Control" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "tdr",
+        "class": "domain",
+        "title": "Threat Detection and Response",
+        "controls": [
+          {
+            "id": "wd-tdr-001",
+            "title": "Authentication Anomaly Alert Configuration",
+            "props": [
+              { "name": "label", "value": "WD-TDR-001" },
+              { "name": "sort-id", "value": "tdr-01" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-TDR-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "SIEM alert configuration for Workday authentication anomalies is external to Workday; requires review of SIEM rules and runbooks." }
+            ],
+            "parts": [
+              {
+                "id": "wd-tdr-001_smt",
+                "name": "statement",
+                "prose": "Automated alerts must be configured in the SIEM to detect Workday authentication anomalies: impossible travel, off-hours admin login, bulk data access, and concurrent sessions from different geographies."
+              },
+              {
+                "id": "wd-tdr-001_gdn",
+                "name": "guidance",
+                "prose": "Detection of authentication anomalies relies on ingesting Workday Sign-On Audit logs into a SIEM and applying behavioral analytics or rule-based detection. Workday itself does not natively integrate with SIEM — log forwarding is via RaaS export or Workday's data lake capabilities. The most important detection scenarios for Workday are: impossible travel (user authenticates from two geographies within a short window), bulk compensation or SSN data access, and privileged admin actions outside business hours."
+              },
+              {
+                "id": "wd-tdr-001_obj",
+                "name": "objective",
+                "prose": "1. Verify Workday Sign-On Audit logs are being ingested into the SIEM.\n2. Verify SIEM rules are active for: (a) impossible travel (>500mi in <1 hour), (b) bulk sensitive field access (>100 SSN/compensation records in 10 minutes), (c) admin actions outside 06:00–22:00 local time, (d) concurrent sessions from different countries.\n3. Verify alert routing sends detections to the SOC queue.\n4. Review the last 90 days for any triggered alerts and verify triage occurred within SLA."
+              },
+              {
+                "id": "wd-tdr-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Configure Workday Sign-On Audit RaaS export to SIEM with near-real-time polling (5-minute intervals).\n2. Create SIEM detection rules for the scenarios listed in the objective.\n3. Include user, source IP, event type, and timestamp in all SIEM alert payloads.\n4. Create runbooks for each detection scenario with escalation contacts and investigation steps.\n5. Test each detection rule quarterly by generating controlled test events in the Workday sandbox."
+              },
+              {
+                "id": "wd-tdr-001_def",
+                "name": "default-value",
+                "prose": "Workday does not natively generate anomaly-based security alerts. Detection logic must be implemented in a SIEM consuming Workday audit data."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-tdr-001", "rel": "related", "text": "SSCF-TDR-001: Real-Time Threat Policy Enforcement" }
+            ]
+          },
+          {
+            "id": "wd-tdr-002",
+            "title": "Transaction Security Policy Enforcement",
+            "props": [
+              { "name": "label", "value": "WD-TDR-002" },
+              { "name": "sort-id", "value": "tdr-02" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-TDR-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "Workday does not have a native Transaction Security Policy feature equivalent to Salesforce. This control assesses compensating controls via SIEM and business process approvals." }
+            ],
+            "parts": [
+              {
+                "id": "wd-tdr-002_smt",
+                "name": "statement",
+                "prose": "Compensating technical controls must be in place to detect and respond to high-risk Workday transactions in real time, including bulk payroll changes, mass worker data updates, and security configuration changes."
+              },
+              {
+                "id": "wd-tdr-002_gdn",
+                "name": "guidance",
+                "prose": "Unlike Salesforce, Workday does not have a native Transaction Security Policy engine that can automatically block high-risk operations. High-risk transaction controls are implemented via: (1) Business Process approval requirements (SOD - WD-IAM-006), (2) SIEM-based detection alerts (WD-TDR-001), and (3) post-hoc audit review of the Workday Audit Report. Organizations should define a set of high-risk transaction patterns and verify each has a corresponding detective or preventive control."
+              },
+              {
+                "id": "wd-tdr-002_obj",
+                "name": "objective",
+                "prose": "1. Define the list of high-risk Workday transactions for the organization (e.g., mass compensation change, payroll configuration change, security group modification).\n2. For each high-risk transaction: verify a preventive control (BP approval requirement) or detective control (SIEM alert) is in place.\n3. Verify the Business Process Security Policy for mass data change events requires dual approval.\n4. Verify SIEM alerts exist for bulk transaction patterns.\n5. Verify a quarterly review of high-risk transaction audit logs is performed by the Security Team."
+              },
+              {
+                "id": "wd-tdr-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Define the high-risk transaction inventory with the Security Team and business stakeholders.\n2. For each high-risk transaction: add an approval step in the Business Process Security Policy requiring dual authorization.\n3. Configure SIEM alerts for bulk transaction patterns using Workday Audit Report data.\n4. Establish a quarterly review cycle for the Workday Audit Report covering all high-risk transaction categories.\n5. Document compensating controls for any high-risk transaction that cannot have a preventive control due to business constraints."
+              },
+              {
+                "id": "wd-tdr-002_def",
+                "name": "default-value",
+                "prose": "Workday does not have a native real-time transaction security policy engine. High-risk transaction controls must be implemented via Business Process approvals and external SIEM detection."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-tdr-001", "rel": "related", "text": "SSCF-TDR-001: Real-Time Threat Policy Enforcement" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "gov",
+        "class": "domain",
+        "title": "Governance, Risk, and Compliance",
+        "controls": [
+          {
+            "id": "wd-gov-001",
+            "title": "Pending Security Policy Activation Governance",
+            "props": [
+              { "name": "label", "value": "WD-GOV-001" },
+              { "name": "sort-id", "value": "gov-01" },
+              { "name": "severity", "value": "high" },
+              { "name": "sscf-control", "value": "SSCF-GOV-001" },
+              { "name": "collection-method", "value": "manual" },
+              { "name": "manual-reason", "value": "Pending security policy changes status requires Workday admin UI review; not exposed via public API." }
+            ],
+            "parts": [
+              {
+                "id": "wd-gov-001_smt",
+                "name": "statement",
+                "prose": "All Workday security policy changes must be activated via the 'Activate All Pending Security Policy Changes' task within 24 hours of being made. Unactivated pending changes represent an undefined security posture."
+              },
+              {
+                "id": "wd-gov-001_gdn",
+                "name": "guidance",
+                "prose": "Workday's security model requires a two-step process: making a change to a domain security policy or authentication policy, then running 'Activate All Pending Security Policy Changes' to apply it. Pending changes that are never activated mean the configuration appears to have changed in the UI but the change is not in effect. This creates confusion during audits and security reviews. All pending changes must be resolved (activated or reverted) promptly."
+              },
+              {
+                "id": "wd-gov-001_obj",
+                "name": "objective",
+                "prose": "1. Check for pending security policy changes via Setup > Security > Pending Security Policy Changes (manual review).\n2. Verify no pending changes are older than 24 hours.\n3. For any pending changes found: determine if they represent intentional staged changes or forgotten activations.\n4. Verify a process exists to alert the Security Team when pending changes remain unactivated for more than 4 hours.\n5. Review the activation history to confirm all recent security changes were properly activated."
+              },
+              {
+                "id": "wd-gov-001_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Create a Workday scheduled report that flags pending security policy changes older than 4 hours.\n2. Route the report notification to the Security Team.\n3. Establish a policy that all security policy changes must be activated or reverted within 24 hours.\n4. During change management: activate pending security changes as the final step of the change process before closing the change ticket.\n5. Educate Workday Security Administrators on the requirement to activate changes promptly."
+              },
+              {
+                "id": "wd-gov-001_def",
+                "name": "default-value",
+                "prose": "Workday does not automatically activate pending security policy changes or alert on stale pending changes. Activation is a manual step required by the Security Administrator."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-gov-001", "rel": "related", "text": "SSCF-GOV-001: Exception Governance and Risk Acceptance" }
+            ]
+          },
+          {
+            "id": "wd-gov-002",
+            "title": "Security Configuration Change Management",
+            "props": [
+              { "name": "label", "value": "WD-GOV-002" },
+              { "name": "sort-id", "value": "gov-02" },
+              { "name": "severity", "value": "moderate" },
+              { "name": "sscf-control", "value": "SSCF-CON-002" },
+              { "name": "collection-method", "value": "raas" },
+              { "name": "raas-report", "value": "Workday_Audit_Report" }
+            ],
+            "parts": [
+              {
+                "id": "wd-gov-002_smt",
+                "name": "statement",
+                "prose": "All Workday security configuration changes — including domain security policy edits, authentication policy changes, and security group modifications — must be made via an approved change management process with documented authorization."
+              },
+              {
+                "id": "wd-gov-002_gdn",
+                "name": "guidance",
+                "prose": "Unauthorized or undocumented security configuration changes are a key SOX ITGC finding. Every change to Workday's security configuration must correspond to an approved change request in the ITSM tool. Emergency changes must be reviewed and approved retroactively within 24 hours. The Workday Audit Report provides evidence of who made which changes — this must be cross-referenced against the change management system during audits."
+              },
+              {
+                "id": "wd-gov-002_obj",
+                "name": "objective",
+                "prose": "1. Extract security configuration changes from the Workday Audit Report for the past 90 days.\n2. For each change: verify a corresponding approved change request exists in the ITSM tool.\n3. Flag any security configuration change without a corresponding change request (unauthorized change).\n4. Verify emergency changes were reviewed and approved within 24 hours retroactively.\n5. Verify the Security Team performs a monthly audit of the Workday security change log."
+              },
+              {
+                "id": "wd-gov-002_imp",
+                "name": "implementation-guidance",
+                "prose": "1. Establish a change management process for Workday security changes: require a change request ticket before making any security configuration change.\n2. Configure SIEM to alert on security configuration changes in Workday (via Workday Audit Report ingestion).\n3. Perform a monthly reconciliation: compare Workday Audit Report security changes against change management records.\n4. For unauthorized changes found: follow the security incident response process.\n5. Include Workday security configuration changes in the quarterly ITGC evidence package for SOX audits."
+              },
+              {
+                "id": "wd-gov-002_def",
+                "name": "default-value",
+                "prose": "Workday does not enforce change management workflows for security configuration changes. All authorized Workday Security Administrators can make security changes without a change request."
+              }
+            ],
+            "links": [
+              { "href": "../../sscf/sscf_catalog.json#sscf-con-002", "rel": "related", "text": "SSCF-CON-002: Drift Detection and Baseline Deviation Management" }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "title": "SSCF Catalog",
+          "rlinks": [{ "href": "../../sscf/sscf_catalog.json" }]
+        },
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "title": "CCM v4.1 Reference",
+          "rlinks": [{ "href": "../../ccm/ccm_v4.1_oscal_ref.yaml" }]
+        },
+        {
+          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "title": "SSCF to CCM Mapping",
+          "rlinks": [{ "href": "../../sscf/sscf_to_ccm_mapping.yaml" }]
+        },
+        {
+          "uuid": "d4e5f6a7-b8c9-0123-defa-234567890123",
+          "title": "Workday Connector Blueprint",
+          "rlinks": [{ "href": "../../skills/workday_connect/BLUEPRINT.md" }]
+        }
+      ]
+    }
+  }
+}

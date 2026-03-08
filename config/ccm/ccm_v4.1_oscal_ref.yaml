@@ -1,0 +1,67 @@
+# ccm_v4.1_oscal_ref.yaml
+# Reference record for CSA Cloud Controls Matrix v4.1 OSCAL publication.
+# This file is a pointer — the CCM catalog is NOT copied into this repo.
+# Use the download URL to obtain the machine-readable OSCAL bundle.
+#
+# Usage in reports: cite this record when producing regulatory crosswalk tables.
+# The sscf_to_ccm_mapping.yaml in config/sscf/ provides the SSCF → CCM bridge.
+
+framework: CSA Cloud Controls Matrix
+version: "4.1"
+oscal_version: "1.1.2"
+published: "2023-09-01"
+
+download_url: "https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1"
+oscal_bundle_url: "https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1"
+
+formats_available:
+  - JSON
+  - YAML
+  - OSCAL
+  - XLSX
+
+domains:
+  - id: AIS
+    title: Application & Interface Security
+  - id: BCR
+    title: Business Continuity Management & Operational Resilience
+  - id: CCC
+    title: Change Control & Configuration Management
+  - id: CEK
+    title: Cryptography, Encryption & Key Management
+  - id: DSP
+    title: Data Security & Privacy Lifecycle Management
+  - id: GRC
+    title: Governance, Risk & Compliance
+  - id: HRS
+    title: Human Resources Security
+  - id: IAM
+    title: Identity & Access Management
+  - id: IPY
+    title: Interoperability & Portability
+  - id: IVS
+    title: Infrastructure & Virtualization Security
+  - id: LOG
+    title: Logging & Monitoring
+  - id: SEF
+    title: Security Incident Management, E-Discovery & Cloud Forensics
+  - id: STA
+    title: Supply Chain Management, Transparency & Accountability
+  - id: TVM
+    title: Threat & Vulnerability Management
+  - id: UEM
+    title: Universal Endpoint Management
+
+regulatory_crosswalk_included:
+  - SOX
+  - HIPAA
+  - SOC2_TSC
+  - ISO_27001_2022
+  - NIST_SP_800-53_r5
+  - PCI_DSS_v4
+  - GDPR
+  - CIS_Controls_v8
+  - ENISA_IAF
+  - BSI_C5
+
+total_controls: 197

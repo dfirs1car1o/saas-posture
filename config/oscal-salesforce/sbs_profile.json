@@ -1,0 +1,147 @@
+{
+  "profile": {
+    "uuid": "b8c9d0e1-f2a3-4567-bcde-567890123456",
+    "metadata": {
+      "title": "SBS → SSCF Implementation Profile",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL Profile expressing the Security Benchmark for Salesforce (SBS) as an implementation of the SSCF catalog. Each SBS control is an implementation-level instantiation of one or more SSCF controls. Use this profile to trace SBS findings to SSCF domains and onward to CCM v4.1 regulatory crosswalk.",
+      "roles": [
+        { "id": "creator", "title": "Profile Author" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "creator", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "imports": [
+      {
+        "href": "sbs_catalog.json",
+        "include-all": {}
+      }
+    ],
+    "merge": {
+      "combine": {
+        "method": "merge"
+      },
+      "flat": {}
+    },
+    "modify": {
+      "set-parameters": [],
+      "alters": [
+        {
+          "control-id": "sbs-auth-001",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-IAM-001" },
+                { "name": "sscf-parent", "value": "SSCF-IAM-003" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-acs-001",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-IAM-002" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-acs-002",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-IAM-002" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-int-003",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-CKM-001" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-int-004",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-LOG-003" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-data-002",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-DSP-001" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sbs-dep-003",
+          "adds": [
+            {
+              "position": "ending",
+              "props": [
+                { "name": "sscf-parent", "value": "SSCF-LOG-002" },
+                { "name": "sscf-parent", "value": "SSCF-CON-002" },
+                { "name": "platform", "value": "salesforce" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "c9d0e1f2-a3b4-5678-cdef-678901234567",
+          "title": "SSCF Catalog",
+          "rlinks": [{ "href": "../sscf/sscf_catalog.json" }]
+        },
+        {
+          "uuid": "d0e1f2a3-b4c5-6789-defa-789012345678",
+          "title": "CCM v4.1 Reference",
+          "rlinks": [{ "href": "../ccm/ccm_v4.1_oscal_ref.yaml" }]
+        },
+        {
+          "uuid": "e1f2a3b4-c5d6-7890-efab-890123456789",
+          "title": "SSCF to CCM Mapping",
+          "rlinks": [{ "href": "../sscf/sscf_to_ccm_mapping.yaml" }]
+        }
+      ]
+    }
+  }
+}

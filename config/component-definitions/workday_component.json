@@ -1,0 +1,336 @@
+{
+  "component-definition": {
+    "uuid": "e6f7a8b9-c0d1-2345-efab-678901234568",
+    "metadata": {
+      "title": "Workday HCM/Finance Platform Component Definition",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL component definition for Workday HCM and Finance (Financials) deployments. Specifies collection methods, evidence queries, and pass/fail criteria for each WSCC v1.0 / SSCF v1.0 control applicable to Workday. Collection methods: SOAP (WWS v39+), RaaS (REST-based Reports-as-a-Service), REST (Staffing v6), manual questionnaire. All automated collection uses OAuth 2.0 Client Credentials (no WS-Security BasicAuth). ISSG domain permissions are specified per control.",
+      "roles": [
+        { "id": "maintainer", "title": "WSCC Maintainer" },
+        { "id": "assessor", "title": "Security Assessor" },
+        { "id": "issg-admin", "title": "Workday ISSG Administrator" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "maintainer", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "import-component-definitions": [],
+    "components": [
+      {
+        "uuid": "f7a8b9c0-d1e2-3456-fabc-789012345679",
+        "type": "software",
+        "title": "Workday HCM and Finance Platform",
+        "description": "Workday Human Capital Management (HCM) and/or Workday Financials SaaS deployment assessed against the WSCC v1.0 security control baseline (SSCF sub-profile).",
+        "purpose": "Enterprise HCM, payroll, and financial management SaaS platform.",
+        "props": [
+          { "name": "vendor", "value": "Workday, Inc." },
+          { "name": "product-family", "value": "Workday HCM / Workday Financials" },
+          { "name": "deployment-model", "value": "SaaS (multi-tenant)" },
+          { "name": "auth-method", "value": "OAuth 2.0 Client Credentials" },
+          { "name": "collector-skill", "value": "skills/workday_connect/workday_connect.py" },
+          { "name": "profile-ref", "value": "config/workday/wscc_v1_profile.json" },
+          { "name": "soap-version", "value": "WWS v39+" },
+          { "name": "issg-required", "value": "true" }
+        ],
+        "links": [
+          {
+            "href": "../workday/wscc_v1_profile.json",
+            "rel": "profile",
+            "text": "WSCC v1.0 SSCF Sub-Profile"
+          },
+          {
+            "href": "../workday/workday_catalog.json",
+            "rel": "related",
+            "text": "WSCC v0.2.0 30-Control Workday Catalog"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "a8b9c0d1-e2f3-4567-abcd-890123456789",
+            "source": "../workday/wscc_v1_profile.json",
+            "description": "Workday control implementation evidence specifications for WSCC v1.0 / SSCF v1.0.",
+            "implemented-requirements": [
+              {
+                "uuid": "b1111111-0001-0001-0001-000000000001",
+                "control-id": "sscf-iam-001",
+                "description": "MFA enforcement verified via Workday Authentication Policy configuration.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Authentication_Policies" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Configuration" },
+                  { "name": "evidence-field", "value": "Authentication_Policy.MFA_Required" },
+                  { "name": "pass-criteria", "value": "MFA_Required=true for all non-ISU user types" },
+                  { "name": "fail-criteria", "value": "MFA_Required=false or not configured for human users" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-IAM-003" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0002-0002-0002-000000000002",
+                "control-id": "sscf-iam-002",
+                "description": "Privileged security group membership and review assessed via Security Group APIs.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Security_Groups" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Groups; View System Users" },
+                  { "name": "evidence-field", "value": "Security_Group_Members, Security_Group_Permissions" },
+                  { "name": "pass-criteria", "value": "Privileged security groups have documented members with annual certification" },
+                  { "name": "fail-criteria", "value": "Security group memberships not reviewed in > 12 months or undocumented members" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-IAM-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0003-0003-0003-000000000003",
+                "control-id": "sscf-iam-003",
+                "description": "SSO configuration verified via Authentication Policy SSO requirement flag.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Authentication_Policies" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Configuration" },
+                  { "name": "evidence-field", "value": "Authentication_Policy.SSO_Enabled, Authentication_Policy.Allow_Password_Login" },
+                  { "name": "pass-criteria", "value": "SSO_Enabled=true; Allow_Password_Login=false for non-ISU accounts" },
+                  { "name": "fail-criteria", "value": "SSO not required OR local password login enabled for human user accounts" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-IAM-007" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0004-0004-0004-000000000004",
+                "control-id": "sscf-iam-004",
+                "description": "User lifecycle assessed via worker termination workflow and inactive user detection.",
+                "props": [
+                  { "name": "collection-method", "value": "rest" },
+                  { "name": "rest-endpoint", "value": "/staffing/v6/workers?statuses=Terminated&limit=100" },
+                  { "name": "issg-permission", "value": "View Worker; View Staffing Data" },
+                  { "name": "evidence-field", "value": "workers[].termination_date, workers[].user.account_status" },
+                  { "name": "pass-criteria", "value": "Terminated workers have disabled Workday accounts within 24 hours of termination date" },
+                  { "name": "fail-criteria", "value": "Terminated workers with active Workday accounts > 24 hours post-termination" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-IAM-004" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0005-0005-0005-000000000005",
+                "control-id": "sscf-iam-005",
+                "description": "ISU (Integration System User) governance assessed via ISU inventory and permission review.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Integration_System_Users" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Integration System Users; View API Clients" },
+                  { "name": "evidence-field", "value": "ISU.Name, ISU.Security_Groups, ISU.Last_Used" },
+                  { "name": "pass-criteria", "value": "All ISUs have named owners, scoped ISSG permissions, and credential rotation <= 90 days" },
+                  { "name": "fail-criteria", "value": "ISUs without owners, with excessive permissions, or credentials not rotated within 90 days" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-IAM-006" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0006-0006-0006-000000000006",
+                "control-id": "sscf-iam-006",
+                "description": "Session timeout assessed via Workday Session Timeout configuration.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Security_Configuration" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Configuration" },
+                  { "name": "evidence-field", "value": "Security_Configuration.Session_Timeout_Minutes" },
+                  { "name": "pass-criteria", "value": "Session_Timeout_Minutes <= 480 (8 hours)" },
+                  { "name": "fail-criteria", "value": "Session_Timeout_Minutes > 480 OR session timeout not configured" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-CON-004" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0101-0101-0101-000000000101",
+                "control-id": "sscf-con-001",
+                "description": "Security baseline assessed via Workday tenant security configuration audit.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Security_Configuration" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Configuration" },
+                  { "name": "evidence-field", "value": "Security_Configuration.*" },
+                  { "name": "pass-criteria", "value": "All baseline security settings meet WSCC minimum thresholds (see workday_catalog.json)" },
+                  { "name": "fail-criteria", "value": "Any critical baseline control fails assessment threshold" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-CON-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0102-0102-0102-000000000102",
+                "control-id": "sscf-con-003",
+                "description": "OAuth API client credential lifecycle assessed via API Client audit.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_API_Clients" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View API Clients" },
+                  { "name": "evidence-field", "value": "API_Client.Client_Name, API_Client.Created_Date, API_Client.Last_Modified" },
+                  { "name": "pass-criteria", "value": "All API clients use OAuth 2.0 Client Credentials; client secrets rotated <= 90 days" },
+                  { "name": "fail-criteria", "value": "API clients using deprecated auth methods or client secrets not rotated within policy" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-CKM-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0201-0201-0201-000000000201",
+                "control-id": "sscf-dsp-001",
+                "description": "Sensitive HCM data access restricted via business process security policies.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Business_Process_Security_Policies" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Business Process Security Policies" },
+                  { "name": "evidence-field", "value": "Business_Process_Security_Policy.Allowed_Security_Groups" },
+                  { "name": "pass-criteria", "value": "Sensitive data business processes restricted to documented security groups" },
+                  { "name": "fail-criteria", "value": "Sensitive data BPs accessible to all-users or undocumented security groups" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-DSP-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0202-0202-0202-000000000202",
+                "control-id": "sscf-dsp-002",
+                "description": "Data export controls assessed via Workday Report permissions and RaaS access restrictions.",
+                "props": [
+                  { "name": "collection-method", "value": "raas" },
+                  { "name": "raas-report", "value": "Custom_Report_Security_Audit" },
+                  { "name": "issg-permission", "value": "Run Security Audit Reports" },
+                  { "name": "evidence-field", "value": "Report.Allowed_Users, Report.Data_Classifications" },
+                  { "name": "pass-criteria", "value": "Sensitive reports restricted to documented security groups; bulk RaaS access requires ISSG approval" },
+                  { "name": "fail-criteria", "value": "Sensitive data reports with open access or no classification" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-DSP-002" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0401-0401-0401-000000000401",
+                "control-id": "sscf-log-001",
+                "description": "Security audit logging enabled for authentication, admin, and data access events.",
+                "props": [
+                  { "name": "collection-method", "value": "raas" },
+                  { "name": "raas-report", "value": "Security_Audit_Log" },
+                  { "name": "issg-permission", "value": "Run Security Audit Reports; View Security Log" },
+                  { "name": "evidence-field", "value": "User_Activity_Logging.Enabled, Audit_Log.Event_Types" },
+                  { "name": "pass-criteria", "value": "User activity logging enabled; authentication and data access events captured and forwarded to SIEM" },
+                  { "name": "fail-criteria", "value": "User activity logging disabled or critical event types not captured" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-LOG-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0402-0402-0402-000000000402",
+                "control-id": "sscf-log-002",
+                "description": "Admin configuration changes logged via Workday Configuration Change Audit.",
+                "props": [
+                  { "name": "collection-method", "value": "raas" },
+                  { "name": "raas-report", "value": "Configuration_Change_Audit_Log" },
+                  { "name": "issg-permission", "value": "Run Security Audit Reports" },
+                  { "name": "evidence-field", "value": "Audit_Event.Changed_By, Audit_Event.Change_Type, Audit_Event.Timestamp" },
+                  { "name": "pass-criteria", "value": "All security configuration changes logged with actor and timestamp; SIEM alerts configured" },
+                  { "name": "fail-criteria", "value": "Configuration changes not logged or SIEM alerts not configured for security changes" },
+                  { "name": "assessment-scope", "value": "automated+manual" },
+                  { "name": "wscc-control-ref", "value": "WD-LOG-002" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0403-0403-0403-000000000403",
+                "control-id": "sscf-log-003",
+                "description": "Audit log retention verified via Workday log retention settings and SIEM policy.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "evidence-field", "value": "Workday_Log_Retention_Policy, SIEM_Retention_Configuration" },
+                  { "name": "pass-criteria", "value": "Workday audit logs retained >= 12 months; SIEM provides >= 36 months cold storage" },
+                  { "name": "fail-criteria", "value": "Log retention below minimum regulatory requirement or SIEM cold storage not configured" },
+                  { "name": "assessment-scope", "value": "manual" },
+                  { "name": "wscc-control-ref", "value": "WD-LOG-003" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0501-0501-0501-000000000501",
+                "control-id": "sscf-sef-001",
+                "description": "Automated threat controls via Workday login restrictions and anomaly policy.",
+                "props": [
+                  { "name": "collection-method", "value": "soap" },
+                  { "name": "soap-operation", "value": "Get_Login_Restriction_Policies" },
+                  { "name": "soap-service", "value": "Security_Management" },
+                  { "name": "issg-permission", "value": "View Security Configuration" },
+                  { "name": "evidence-field", "value": "Login_Restriction_Policy.Blocked_IP_Ranges, Login_Restriction_Policy.Device_Trust" },
+                  { "name": "pass-criteria", "value": "IP allowlist or blocklist configured; unmanaged device access restricted or step-up required" },
+                  { "name": "fail-criteria", "value": "No login restrictions configured; unrestricted access from any network or device" },
+                  { "name": "assessment-scope", "value": "automated" },
+                  { "name": "wscc-control-ref", "value": "WD-TDR-001" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0502-0502-0502-000000000502",
+                "control-id": "sscf-sef-002",
+                "description": "Alert triage verified via SIEM alert routing documentation and SOC SLA evidence.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "evidence-field", "value": "SOC_Runbook, SIEM_Alert_Rules, MTTA_Evidence" },
+                  { "name": "pass-criteria", "value": "Documented SOC runbook for Workday alerts; MTTA for critical alerts <= 15 minutes" },
+                  { "name": "fail-criteria", "value": "No documented alert SLA or Workday alerts not routed to SOC queue" },
+                  { "name": "assessment-scope", "value": "manual" },
+                  { "name": "wscc-control-ref", "value": "WD-TDR-002" }
+                ]
+              },
+              {
+                "uuid": "b1111111-0503-0503-0503-000000000503",
+                "control-id": "sscf-sef-005",
+                "description": "Exception governance assessed via risk register and exception approval documentation.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "evidence-field", "value": "Risk_Register, Exception_Approvals, Compensating_Controls_Documentation" },
+                  { "name": "pass-criteria", "value": "All active exceptions have dual approval, compensating controls, and expiry dates < 12 months" },
+                  { "name": "fail-criteria", "value": "Exceptions without expiry dates, unapproved exceptions, or no risk register entry" },
+                  { "name": "assessment-scope", "value": "manual" },
+                  { "name": "wscc-control-ref", "value": "WD-GOV-001" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "c4d5e6f7-a8b9-0123-cdef-456789012345",
+          "title": "WSCC v1.0 Profile",
+          "rlinks": [
+            { "href": "../workday/wscc_v1_profile.json" }
+          ]
+        },
+        {
+          "uuid": "k1l2m3n4-o5p6-7890-klmn-234567890123",
+          "title": "workday_connect.py — Workday Evidence Collector",
+          "rlinks": [
+            { "href": "../../skills/workday_connect/workday_connect.py" }
+          ]
+        },
+        {
+          "uuid": "l2m3n4o5-p6q7-8901-lmno-345678901234",
+          "title": "Workday ISSG Permission Setup (BLUEPRINT.md)",
+          "rlinks": [
+            { "href": "../../skills/workday_connect/BLUEPRINT.md" }
+          ]
+        }
+      ]
+    }
+  }
+}

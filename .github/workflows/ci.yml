@@ -1,0 +1,154 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install ruff
+      - run: ruff check skills/ scripts/ harness/
+      - run: ruff format --check skills/ scripts/ harness/
+
+  sast:
+    name: bandit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install bandit[toml]
+      - name: Run Bandit (HIGH severity = fail)
+        # -lll = HIGH+ severity, -ii = MEDIUM+ confidence
+        run: bandit -r skills/ scripts/ harness/ -lll -ii
+
+  dependency-audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install pip-audit
+      - run: pip install -e .
+      - name: Audit installed packages
+        run: pip-audit --desc on
+
+  validate-env:
+    name: validate_env (layout + packages)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install -e .
+
+      - name: Run pre-flight check (non-credential checks only)
+        run: |
+          python3 scripts/validate_env.py --ci --json > /tmp/preflight.json 2>/dev/null || true
+          python3 - <<'PYEOF'
+          import json, sys
+          with open("/tmp/preflight.json") as f:
+              data = json.load(f)
+          cred_skip = {
+              "SF_USERNAME", "SF_PASSWORD", "SF_SECURITY_TOKEN",
+              "ANTHROPIC_API_KEY", "OPENAI_API_KEY", ".env",
+              "anthropic-key-format", "openai-key-format",
+              "SF_DOMAIN", "SF_INSTANCE_URL",
+          }
+          failures = [
+              r for r in data
+              if r["status"] == "fail" and r["hard"] and r["name"] not in cred_skip
+          ]
+          if failures:
+              print("FAIL:", [r["name"] + ": " + r["message"] for r in failures])
+              sys.exit(1)
+          print("OK — all non-credential pre-flight checks pass")
+          PYEOF
+
+  license-check:
+    name: pip-licenses (no GPL/AGPL/LGPL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install pip-licenses
+      - run: pip install -e .
+
+      - name: Check for copyleft licenses
+        run: |
+          pip-licenses --format=json --output-file=/tmp/licenses.json
+          python3 - <<'PYEOF'
+          import json, sys
+          with open("/tmp/licenses.json") as f:
+              packages = json.load(f)
+          # Match both human-readable names and SPDX short identifiers (case-insensitive)
+          blocked_families = {"gpl", "lgpl", "agpl"}
+          # Explicitly reviewed and approved LGPL packages (dynamically linked in Python —
+          # LGPL permits use without source disclosure if the library is unmodified).
+          lgpl_allowlist = {
+              "docxtpl",  # LGPL-2.1-only; wraps python-docx for Jinja2 templating;
+                          # used unmodified for DOCX report generation. Reviewed 2026-03-02.
+              "fpdf2",    # LGPL-3.0-only; pure-Python PDF generation; used unmodified
+                          # for report-gen PDF output (internal tooling). Reviewed 2026-03-03.
+          }
+          violations = [
+              f"  {p['Name']} {p['Version']}: {p['License']}"
+              for p in packages
+              if any(b in p.get("License", "").lower() for b in blocked_families)
+              and p["Name"].lower() not in lgpl_allowlist
+          ]
+          if violations:
+              print(f"FAIL: {len(violations)} package(s) with unapproved copyleft license:")
+              for v in violations:
+                  print(v)
+              sys.exit(1)
+          print(f"OK — {len(packages)} package(s) checked, no unapproved copyleft licenses found")
+          PYEOF
+
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install -e . && pip install pytest pytest-mock PyYAML click qdrant-client mem0ai responses
+      - name: Run tests (if any exist)
+        env:
+          QDRANT_IN_MEMORY: "1"
+        run: |
+          if [ -d tests/ ]; then
+            pytest tests/ -v
+          else
+            echo "No tests directory yet — skipping"
+          fi

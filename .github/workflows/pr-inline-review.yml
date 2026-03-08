@@ -1,0 +1,67 @@
+name: pr-inline-review
+
+on:
+  pull_request:
+    paths:
+      - "skills/**"
+      - "scripts/**"
+      - ".github/workflows/pr-inline-review.yml"
+
+permissions:
+  contents: read
+  # pull-requests: write not needed — ruff/bandit use ::error annotation syntax
+  # which goes through the runner, not the GitHub API.
+
+jobs:
+  ruff-inline:
+    name: Ruff (inline PR annotations)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install ruff
+
+      - name: Ruff annotations on changed files
+        run: ruff check skills/ scripts/ --output-format=github
+
+  bandit-inline:
+    name: Bandit SAST (inline PR annotations)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install bandit[toml]
+
+      - name: Bandit JSON output
+        # MEDIUM+ severity, MEDIUM+ confidence — full annotation coverage
+        # || true so the step doesn't fail (annotations are informational here)
+        run: bandit -r skills/ scripts/ -ll -ii -f json -o /tmp/bandit.json || true
+
+      - name: Emit GitHub annotations
+        run: |
+          python3 - <<'PYEOF'
+          import json, sys
+          try:
+              with open("/tmp/bandit.json") as f:
+                  data = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError):
+              print("No bandit output found")
+              sys.exit(0)
+          for r in data.get("results", []):
+              sev = r["issue_severity"]
+              conf = r["issue_confidence"]
+              fname = r["filename"]
+              line = r["line_number"]
+              msg = r["issue_text"]
+              test = r["test_id"]
+              level = "error" if sev == "HIGH" else "warning"
+              print(f"::{level} file={fname},line={line}::{test}: [{sev}/{conf}] {msg}")
+          PYEOF

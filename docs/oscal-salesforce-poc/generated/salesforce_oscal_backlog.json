@@ -1,0 +1,1113 @@
+{
+  "assessment_id": "ACME-SF-COLLECTOR-MOCK-2026-02-24",
+  "generated_at_utc": "2026-02-24T18:39:07.728525+00:00",
+  "catalog_version": "0.4.0",
+  "framework": "CSA_SSCF",
+  "summary": {
+    "catalog_controls": 45,
+    "findings_total": 45,
+    "mapped_findings": 45,
+    "unmapped_findings": 0,
+    "invalid_mapping_entries": 0,
+    "status_counts": {
+      "pass": 24,
+      "fail": 9,
+      "partial": 12,
+      "not_applicable": 0
+    },
+    "mapping_confidence_counts": {
+      "high": 45
+    }
+  },
+  "mapped_items": [
+    {
+      "legacy_control_id": "SBS-ACS-001",
+      "sbs_control_id": "SBS-ACS-001",
+      "sbs_title": "Enforce a Documented Permission Set Model",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-15",
+      "remediation": "Investigate non-compliance for SBS-ACS-001 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-002",
+      "sbs_control_id": "SBS-ACS-002",
+      "sbs_title": "Documented Justification for All `API-Enabled` Authorizations",
+      "status": "pass",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "API-enabled authorization justification maps to privileged access governance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-003",
+      "sbs_control_id": "SBS-ACS-003",
+      "sbs_title": "Documented Justification for `Approve Uninstalled Connected Apps` Permission",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-03-17",
+      "remediation": "Investigate non-compliance for SBS-ACS-003 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-004",
+      "sbs_control_id": "SBS-ACS-004",
+      "sbs_title": "Documented Justification for All Super Admin\u2013Equivalent Users",
+      "status": "pass",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-005",
+      "sbs_control_id": "SBS-ACS-005",
+      "sbs_title": "Only Use Custom Profiles for Active Users",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-005/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-006",
+      "sbs_control_id": "SBS-ACS-006",
+      "sbs_title": "Documented Justification for `Use Any API Client` Permission",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-03-20",
+      "remediation": "Investigate non-compliance for SBS-ACS-006 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-006/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-007",
+      "sbs_control_id": "SBS-ACS-007",
+      "sbs_title": "Maintain Inventory of Non-Human Identities",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-007/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-008",
+      "sbs_control_id": "SBS-ACS-008",
+      "sbs_title": "Restrict Broad Privileges for Non-Human Identities",
+      "status": "fail",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "due_date": "2026-03-22",
+      "remediation": "Investigate non-compliance for SBS-ACS-008 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-008/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-009",
+      "sbs_control_id": "SBS-ACS-009",
+      "sbs_title": "Implement Compensating Controls for Privileged Non-Human Identities",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-009/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-010",
+      "sbs_control_id": "SBS-ACS-010",
+      "sbs_title": "Enforce Periodic Access Review and Recertification",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-010/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-011",
+      "sbs_control_id": "SBS-ACS-011",
+      "sbs_title": "Enforce Governance of Access and Authorization Changes",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-03-25",
+      "remediation": "Investigate non-compliance for SBS-ACS-011 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-011/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-ACS-012",
+      "sbs_control_id": "SBS-ACS-012",
+      "sbs_title": "Classify Users for Login Hours Restrictions",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-012/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-002",
+          "mapping_strength": "direct",
+          "rationale": "Access model governance maps to privileged governance and periodic review."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-AUTH-001",
+      "sbs_control_id": "SBS-AUTH-001",
+      "sbs_title": "Enable Organization-Wide SSO Enforcement Setting",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-003",
+          "mapping_strength": "direct",
+          "rationale": "Org-wide SSO enforcement maps directly to federation and SSO assurance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-003"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-AUTH-002",
+      "sbs_control_id": "SBS-AUTH-002",
+      "sbs_title": "Govern and Document All Users Permitted to Bypass Single Sign-On",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-03-28",
+      "remediation": "Investigate non-compliance for SBS-AUTH-002 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-001",
+          "mapping_strength": "direct",
+          "rationale": "Authentication controls align to MFA and strong interactive access enforcement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-AUTH-003",
+      "sbs_control_id": "SBS-AUTH-003",
+      "sbs_title": "Prohibit Broad or Unrestricted Profile Login IP Ranges",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-03-29",
+      "remediation": "Investigate non-compliance for SBS-AUTH-003 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-001",
+          "mapping_strength": "direct",
+          "rationale": "Login IP hardening reduces unauthorized auth attempts and account compromise risk."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-AUTH-004",
+      "sbs_control_id": "SBS-AUTH-004",
+      "sbs_title": "Enforce Strong Multi-Factor Authentication for External Users with Substantial Access to Sensitive Data",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "due_date": "2026-03-30",
+      "remediation": "Investigate non-compliance for SBS-AUTH-004 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "identity_access_management",
+          "sscf_control_id": "SSCF-IAM-001",
+          "mapping_strength": "direct",
+          "rationale": "Authentication controls align to MFA and strong interactive access enforcement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-IAM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CODE-001",
+      "sbs_control_id": "SBS-CODE-001",
+      "sbs_title": "Mandatory Peer Review for Salesforce Code Changes",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "partial",
+          "rationale": "Secure SDLC and code hardening support baseline configuration assurance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CODE-002",
+      "sbs_control_id": "SBS-CODE-002",
+      "sbs_title": "Pre-Merge Static Code Analysis for Apex and LWC",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-04-01",
+      "remediation": "Investigate non-compliance for SBS-CODE-002 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "partial",
+          "rationale": "Secure SDLC and code hardening support baseline configuration assurance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CODE-003",
+      "sbs_control_id": "SBS-CODE-003",
+      "sbs_title": "Implement Persistent Apex Application Logging",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "partial",
+          "rationale": "Secure SDLC and code hardening support baseline configuration assurance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CODE-004",
+      "sbs_control_id": "SBS-CODE-004",
+      "sbs_title": "Prevent Sensitive Data in Application Logs",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "partial",
+          "rationale": "Secure SDLC and code hardening support baseline configuration assurance."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CPORTAL-001",
+      "sbs_control_id": "SBS-CPORTAL-001",
+      "sbs_title": "Prevent Parameter-Based Record Access in Portal Apex",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-04-04",
+      "remediation": "Investigate non-compliance for SBS-CPORTAL-001 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-CPORTAL-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "partial",
+          "rationale": "External-user portal controls protect sensitive record exposure."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-CPORTAL-002",
+      "sbs_control_id": "SBS-CPORTAL-002",
+      "sbs_title": "Restrict Guest User Record Access",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-CPORTAL-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "partial",
+          "rationale": "External-user portal controls protect sensitive record exposure."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DATA-001",
+      "sbs_control_id": "SBS-DATA-001",
+      "sbs_title": "Implement Mechanisms to Detect Regulated Data in Long Text Area Fields",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-04-06",
+      "remediation": "Investigate non-compliance for SBS-DATA-001 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "direct",
+          "rationale": "Data controls directly align to sensitive data handling and protection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DATA-002",
+      "sbs_control_id": "SBS-DATA-002",
+      "sbs_title": "Maintain an Inventory of Long Text Area Fields Containing Regulated Data",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "direct",
+          "rationale": "Regulated data inventory maps directly to sensitive data protection and accountability."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DATA-003",
+      "sbs_control_id": "SBS-DATA-003",
+      "sbs_title": "Maintain Tested Backup and Recovery for Salesforce Data and Metadata",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "direct",
+          "rationale": "Data controls directly align to sensitive data handling and protection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DATA-004",
+      "sbs_control_id": "SBS-DATA-004",
+      "sbs_title": "Require Field History Tracking for Sensitive Fields",
+      "status": "partial",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-04-09",
+      "remediation": "Investigate non-compliance for SBS-DATA-004 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-001",
+          "mapping_strength": "direct",
+          "rationale": "Data controls directly align to sensitive data handling and protection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DEP-001",
+      "sbs_control_id": "SBS-DEP-001",
+      "sbs_title": "Require a Designated Deployment Identity for Metadata Changes",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-002",
+          "mapping_strength": "direct",
+          "rationale": "Deployment controls align to drift management and unauthorized change detection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DEP-002",
+      "sbs_control_id": "SBS-DEP-002",
+      "sbs_title": "Establish and Maintain a List of High-Risk Metadata Types Prohibited from Direct Production Editing",
+      "status": "pass",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-002",
+          "mapping_strength": "direct",
+          "rationale": "Deployment controls align to drift management and unauthorized change detection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DEP-003",
+      "sbs_control_id": "SBS-DEP-003",
+      "sbs_title": "Monitor and Alert on Unauthorized Modifications to High-Risk Metadata",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-15",
+      "remediation": "Investigate non-compliance for SBS-DEP-003 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "logging_monitoring",
+          "sscf_control_id": "SSCF-LOG-002",
+          "mapping_strength": "direct",
+          "rationale": "Unauthorized metadata change detection maps to admin/config audit logging and monitoring."
+        },
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-002",
+          "mapping_strength": "direct",
+          "rationale": "Unauthorized changes are a baseline drift management use case."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-LOG-002",
+        "SSCF-CON-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DEP-005",
+      "sbs_control_id": "SBS-DEP-005",
+      "sbs_title": "Implement Secret Scanning for Salesforce Source Repositories",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-03-16",
+      "remediation": "Investigate non-compliance for SBS-DEP-005 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-005/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-002",
+          "mapping_strength": "direct",
+          "rationale": "Deployment controls align to drift management and unauthorized change detection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-DEP-006",
+      "sbs_control_id": "SBS-DEP-006",
+      "sbs_title": "Configure Salesforce CLI Connected App with Token Expiration Policies",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-03-17",
+      "remediation": "Investigate non-compliance for SBS-DEP-006 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-006/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-002",
+          "mapping_strength": "direct",
+          "rationale": "Deployment controls align to drift management and unauthorized change detection."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-FILE-001",
+      "sbs_control_id": "SBS-FILE-001",
+      "sbs_title": "Require Expiry Dates on Public Content Links",
+      "status": "pass",
+      "severity": "low",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-002",
+          "mapping_strength": "direct",
+          "rationale": "Public file link controls directly reduce data leakage and exfiltration pathways."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-FILE-002",
+      "sbs_control_id": "SBS-FILE-002",
+      "sbs_title": "Require Passwords on Public Content Links for Sensitive Content",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-19",
+      "remediation": "Investigate non-compliance for SBS-FILE-002 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-002",
+          "mapping_strength": "direct",
+          "rationale": "Public file link controls directly reduce data leakage and exfiltration pathways."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-FILE-003",
+      "sbs_control_id": "SBS-FILE-003",
+      "sbs_title": "Periodic Review and Cleanup of Public Content Links",
+      "status": "pass",
+      "severity": "low",
+      "owner": "SaaS Security Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-002",
+          "mapping_strength": "direct",
+          "rationale": "Public file link controls directly reduce data leakage and exfiltration pathways."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-FDNS-001",
+      "sbs_control_id": "SBS-FDNS-001",
+      "sbs_title": "Centralized Security System of Record",
+      "status": "pass",
+      "severity": "low",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-FDNS-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "governance_risk_compliance",
+          "sscf_control_id": "SSCF-GOV-001",
+          "mapping_strength": "partial",
+          "rationale": "Foundational governance controls map to exception governance and accountable operation."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-GOV-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-INT-001",
+      "sbs_control_id": "SBS-INT-001",
+      "sbs_title": "Enforce Governance of Browser Extensions Accessing Salesforce",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "due_date": "2026-03-22",
+      "remediation": "Investigate non-compliance for SBS-INT-001 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-002",
+          "mapping_strength": "partial",
+          "rationale": "Integration controls reduce exfiltration risk and unmanaged data movement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-INT-002",
+      "sbs_control_id": "SBS-INT-002",
+      "sbs_title": "Inventory and Justification of Remote Site Settings",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "data_security_privacy",
+          "sscf_control_id": "SSCF-DSP-002",
+          "mapping_strength": "partial",
+          "rationale": "Integration controls reduce exfiltration risk and unmanaged data movement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-DSP-002"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-INT-003",
+      "sbs_control_id": "SBS-INT-003",
+      "sbs_title": "Inventory and Justification of Named Credentials",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-03-24",
+      "remediation": "Investigate non-compliance for SBS-INT-003 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "cryptography_key_management",
+          "sscf_control_id": "SSCF-CKM-001",
+          "mapping_strength": "direct",
+          "rationale": "Named credential inventory and governance map to credential lifecycle control."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CKM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-INT-004",
+      "sbs_control_id": "SBS-INT-004",
+      "sbs_title": "Retain API Total Usage Event Logs for 30 Days",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "logging_monitoring",
+          "sscf_control_id": "SSCF-LOG-003",
+          "mapping_strength": "direct",
+          "rationale": "API event retention directly maps to audit retention and investigation integrity."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-LOG-003"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-OAUTH-001",
+      "sbs_control_id": "SBS-OAUTH-001",
+      "sbs_title": "Require Formal Installation of Connected Apps",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "GRC and Audit",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "cryptography_key_management",
+          "sscf_control_id": "SSCF-CKM-001",
+          "mapping_strength": "direct",
+          "rationale": "OAuth and token controls map to credential lifecycle and token hardening."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CKM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-OAUTH-002",
+      "sbs_control_id": "SBS-OAUTH-002",
+      "sbs_title": "Require Profile or Permission Set Access Control for Connected Apps",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-27",
+      "remediation": "Investigate non-compliance for SBS-OAUTH-002 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "cryptography_key_management",
+          "sscf_control_id": "SSCF-CKM-001",
+          "mapping_strength": "direct",
+          "rationale": "OAuth and token controls map to credential lifecycle and token hardening."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CKM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-OAUTH-003",
+      "sbs_control_id": "SBS-OAUTH-003",
+      "sbs_title": "Add Criticality Classification of OAuth-Enabled Connected Apps",
+      "status": "pass",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-003/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "cryptography_key_management",
+          "sscf_control_id": "SSCF-CKM-001",
+          "mapping_strength": "direct",
+          "rationale": "OAuth and token controls map to credential lifecycle and token hardening."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CKM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-OAUTH-004",
+      "sbs_control_id": "SBS-OAUTH-004",
+      "sbs_title": "Due Diligence Documentation for High-Risk Connected App Vendors",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "",
+      "remediation": "",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-004/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "cryptography_key_management",
+          "sscf_control_id": "SSCF-CKM-001",
+          "mapping_strength": "direct",
+          "rationale": "OAuth and token controls map to credential lifecycle and token hardening."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CKM-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-SECCONF-001",
+      "sbs_control_id": "SBS-SECCONF-001",
+      "sbs_title": "Establish a Salesforce Health Check Baseline",
+      "status": "fail",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "due_date": "2026-03-30",
+      "remediation": "Investigate non-compliance for SBS-SECCONF-001 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-SECCONF-001/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "direct",
+          "rationale": "Health-check baselines align to secure configuration baseline enforcement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    },
+    {
+      "legacy_control_id": "SBS-SECCONF-002",
+      "sbs_control_id": "SBS-SECCONF-002",
+      "sbs_title": "Review and Remediate Salesforce Health Check Deviations",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-31",
+      "remediation": "Investigate non-compliance for SBS-SECCONF-002 and implement control hardening per runbook.",
+      "evidence_ref": "collector://salesforce/prod/SBS-SECCONF-002/snapshot-2026-02-24",
+      "mapping_notes": "Direct collector mapping (SBS control ID emitted by collector).",
+      "mapping_confidence": "high",
+      "sscf_mappings": [
+        {
+          "sscf_domain": "configuration_hardening",
+          "sscf_control_id": "SSCF-CON-001",
+          "mapping_strength": "direct",
+          "rationale": "Health-check baselines align to secure configuration baseline enforcement."
+        }
+      ],
+      "sscf_control_ids": [
+        "SSCF-CON-001"
+      ]
+    }
+  ],
+  "unmapped_items": [],
+  "invalid_mapping_entries": []
+}

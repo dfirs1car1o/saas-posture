@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "uuid": "a2b3c4d5-e6f7-8901-abcd-ef2345678901",
+    "metadata": {
+      "title": "SSCF v1.0 Profile — Full Control Selection",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL profile expressing the complete SSCF v1.0 control set (36 controls, 6 domains). Platform-specific profiles (SBS for Salesforce, WSCC for Workday) import from this profile and select their applicable subset. This profile selects all controls from the SSCF v1.0 catalog without modification, making all controls available for downstream profile inheritance.",
+      "roles": [
+        { "id": "creator", "title": "Profile Author" },
+        { "id": "maintainer", "title": "Control Framework Maintainer" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "creator", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] },
+        { "role-id": "maintainer", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "imports": [
+      {
+        "href": "./sscf_v1_catalog.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "sscf-con-001", "sscf-con-002", "sscf-con-003", "sscf-con-004", "sscf-con-005", "sscf-con-006",
+              "sscf-dsp-001", "sscf-dsp-002", "sscf-dsp-003", "sscf-dsp-004", "sscf-dsp-005", "sscf-dsp-006",
+              "sscf-iam-001", "sscf-iam-002", "sscf-iam-003", "sscf-iam-004", "sscf-iam-005", "sscf-iam-006", "sscf-iam-007", "sscf-iam-008",
+              "sscf-ipy-001", "sscf-ipy-002", "sscf-ipy-003", "sscf-ipy-004", "sscf-ipy-005",
+              "sscf-log-001", "sscf-log-002", "sscf-log-003", "sscf-log-004", "sscf-log-005", "sscf-log-006",
+              "sscf-sef-001", "sscf-sef-002", "sscf-sef-003", "sscf-sef-004", "sscf-sef-005"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "title": "CSA Cloud Controls Matrix v4.1",
+          "rlinks": [
+            { "href": "https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1" }
+          ]
+        }
+      ]
+    }
+  }
+}

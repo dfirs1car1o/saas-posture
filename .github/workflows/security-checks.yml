@@ -1,0 +1,60 @@
+name: security-checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  bandit:
+    name: Bandit SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install bandit[toml]
+
+      - name: Run Bandit (HIGH severity = hard fail)
+        # -lll = HIGH+ severity, -ii = MEDIUM+ confidence
+        # MEDIUM findings surface in pr-inline-review.yml as annotations only
+        run: bandit -r skills/ scripts/ -lll -ii
+
+  pip-audit:
+    name: pip-audit (dependency CVEs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install pip-audit uv
+      - run: uv pip install --system -e . 2>/dev/null || pip install -e .
+
+      - name: Audit installed packages
+        run: pip-audit --desc on
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0   # full history for leak detection
+
+      - name: Install gitleaks CLI
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz \
+            | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run Gitleaks
+        run: gitleaks detect --source . --log-level warn --redact

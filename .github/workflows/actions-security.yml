@@ -1,0 +1,84 @@
+name: actions-security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: zizmor (workflow injection + permissions)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install zizmor
+
+      - name: Run zizmor on all workflow files
+        # Fails on HIGH severity findings (expression injection, dangerous permissions,
+        # unpinned third-party actions). MEDIUM findings surface as warnings.
+        run: zizmor --format sarif .github/workflows/ > zizmor-results.sarif || true
+
+      - name: Fail on HIGH findings
+        run: |
+          python3 - <<'PYEOF'
+          import json, sys
+          try:
+              with open("zizmor-results.sarif") as f:
+                  sarif = json.load(f)
+          except Exception:
+              print("No SARIF output — skipping gate")
+              sys.exit(0)
+          high_findings = []
+          for run in sarif.get("runs", []):
+              for result in run.get("results", []):
+                  level = result.get("level", "")
+                  if level == "error":
+                      msg = result.get("message", {}).get("text", "")
+                      locations = result.get("locations", [])
+                      loc = ""
+                      if locations:
+                          phys = locations[0].get("physicalLocation", {})
+                          uri = phys.get("artifactLocation", {}).get("uri", "")
+                          line = phys.get("region", {}).get("startLine", "")
+                          loc = f"{uri}:{line}"
+                      high_findings.append(f"  {loc}: {msg}")
+          if high_findings:
+              print(f"FAIL: {len(high_findings)} HIGH severity finding(s) from zizmor:")
+              for f in high_findings:
+                  print(f)
+              sys.exit(1)
+          else:
+              print("OK — no HIGH severity workflow findings")
+          PYEOF
+
+  actionlint:
+    name: actionlint (workflow syntax)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Install actionlint
+        run: |
+          version="1.7.3"
+          checksum="37252b4d440b56374b0fc1726e05fd7452d30d6d774f6e9b52e65bb64475f9db"
+          curl -sSfL \
+            "https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz" \
+            -o /tmp/actionlint.tar.gz
+          echo "${checksum}  /tmp/actionlint.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/actionlint.tar.gz actionlint
+          sudo mv actionlint /usr/local/bin/
+
+      - name: Run actionlint on workflow files
+        # SC2016 false positive: Go template syntax {{$var}} in format string looks
+        # like an unexpanded shell variable to shellcheck — it is not.
+        run: |
+          # shellcheck disable=SC2016
+          actionlint -format '{{range $err := .}}::error file={{$err.Filepath}},line={{$err.Line}},col={{$err.Column}}::{{$err.Message}}{{end}}' .github/workflows/*.yml

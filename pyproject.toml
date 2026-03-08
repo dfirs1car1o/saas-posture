@@ -1,0 +1,52 @@
+[project]
+name = "saas-sec-agents"
+version = "0.2.0"
+description = "SaaS Security multi-agent AI system for OSCAL/SSCF assessments"
+requires-python = ">=3.11"
+dependencies = [
+  "openai>=1.0.0",
+  "simple-salesforce>=1.12.6",
+  "click>=8.1.0",
+  "pydantic>=2.8.0",
+  "PyYAML>=6.0.2",
+  "python-dotenv>=1.0.0",
+  "PyJWT[crypto]>=2.8.0",
+  "mem0ai>=0.1.0",
+  "qdrant-client>=1.10.0",
+  "requests>=2.32.0",
+  "lxml>=5.2.0",
+  "python-docx>=1.1.0",
+  "jsonschema>=4.23.0",
+  "opensearch-py>=2.4.0",
+]
+
+[project.scripts]
+sfdc-connect = "skills.sfdc_connect.sfdc_connect:cli"
+workday-connect = "skills.workday_connect.workday_connect:cli"
+oscal-assess = "skills.oscal_assess.oscal_assess:cli"
+sscf-benchmark = "skills.sscf_benchmark.sscf_benchmark:cli"
+agent-loop = "harness.loop:cli"
+report-gen = "skills.report_gen.report_gen:cli"
+nist-review = "skills.nist_review.nist_review:cli"
+
+[tool.setuptools.packages.find]
+include = ["skills*", "harness*"]
+
+[tool.uv]
+dev-dependencies = [
+  "ruff>=0.6.0",
+  "pytest>=8.0.0",
+  "pytest-mock>=3.14.0",
+  "responses>=0.25.0",
+  "diagrams>=0.23.4",
+  "zizmor>=1.0.0",
+  "pip-licenses>=5.0.0",
+  "cyclonedx-bom>=4.0.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

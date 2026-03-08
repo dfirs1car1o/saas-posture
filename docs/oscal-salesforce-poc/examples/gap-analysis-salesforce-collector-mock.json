@@ -1,0 +1,373 @@
+{
+  "assessment_id": "ACME-SF-COLLECTOR-MOCK-2026-02-24",
+  "platform": "salesforce",
+  "assessment_time_utc": "2026-02-24T13:30:00+00:00",
+  "environment": "prod",
+  "assessor": "salesforce_collector_mock_v1",
+  "summary": {
+    "total_controls": 45,
+    "pass": 24,
+    "fail": 9,
+    "partial": 12,
+    "not_applicable": 0
+  },
+  "findings": [
+    {
+      "control_id": "SBS-ACS-001",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-001/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-ACS-001 and implement control hardening per runbook.",
+      "due_date": "2026-03-15"
+    },
+    {
+      "control_id": "SBS-ACS-002",
+      "status": "pass",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-002/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-003",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-003/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-ACS-003 and implement control hardening per runbook.",
+      "due_date": "2026-03-17"
+    },
+    {
+      "control_id": "SBS-ACS-004",
+      "status": "pass",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-004/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-005",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-005/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-006",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-006/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-ACS-006 and implement control hardening per runbook.",
+      "due_date": "2026-03-20"
+    },
+    {
+      "control_id": "SBS-ACS-007",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-007/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-008",
+      "status": "fail",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-008/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-ACS-008 and implement control hardening per runbook.",
+      "due_date": "2026-03-22"
+    },
+    {
+      "control_id": "SBS-ACS-009",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-009/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-010",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-010/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-ACS-011",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-011/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-ACS-011 and implement control hardening per runbook.",
+      "due_date": "2026-03-25"
+    },
+    {
+      "control_id": "SBS-ACS-012",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-ACS-012/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-AUTH-001",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-AUTH-002",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-002/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-AUTH-002 and implement control hardening per runbook.",
+      "due_date": "2026-03-28"
+    },
+    {
+      "control_id": "SBS-AUTH-003",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-003/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-AUTH-003 and implement control hardening per runbook.",
+      "due_date": "2026-03-29"
+    },
+    {
+      "control_id": "SBS-AUTH-004",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-AUTH-004/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-AUTH-004 and implement control hardening per runbook.",
+      "due_date": "2026-03-30"
+    },
+    {
+      "control_id": "SBS-CODE-001",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-CODE-002",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-002/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-CODE-002 and implement control hardening per runbook.",
+      "due_date": "2026-04-01"
+    },
+    {
+      "control_id": "SBS-CODE-003",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-003/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-CODE-004",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-CODE-004/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-CPORTAL-001",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-CPORTAL-001/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-CPORTAL-001 and implement control hardening per runbook.",
+      "due_date": "2026-04-04"
+    },
+    {
+      "control_id": "SBS-CPORTAL-002",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-CPORTAL-002/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-DATA-001",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-001/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-DATA-001 and implement control hardening per runbook.",
+      "due_date": "2026-04-06"
+    },
+    {
+      "control_id": "SBS-DATA-002",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-002/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-DATA-003",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-003/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-DATA-004",
+      "status": "partial",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-DATA-004/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-DATA-004 and implement control hardening per runbook.",
+      "due_date": "2026-04-09"
+    },
+    {
+      "control_id": "SBS-DEP-001",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-DEP-002",
+      "status": "pass",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-002/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-DEP-003",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-003/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-DEP-003 and implement control hardening per runbook.",
+      "due_date": "2026-03-15"
+    },
+    {
+      "control_id": "SBS-DEP-005",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-005/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-DEP-005 and implement control hardening per runbook.",
+      "due_date": "2026-03-16"
+    },
+    {
+      "control_id": "SBS-DEP-006",
+      "status": "fail",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-DEP-006/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-DEP-006 and implement control hardening per runbook.",
+      "due_date": "2026-03-17"
+    },
+    {
+      "control_id": "SBS-FILE-001",
+      "status": "pass",
+      "severity": "low",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-FILE-002",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-002/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-FILE-002 and implement control hardening per runbook.",
+      "due_date": "2026-03-19"
+    },
+    {
+      "control_id": "SBS-FILE-003",
+      "status": "pass",
+      "severity": "low",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-FILE-003/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-FDNS-001",
+      "status": "pass",
+      "severity": "low",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-FDNS-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-INT-001",
+      "status": "partial",
+      "severity": "medium",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-001/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-INT-001 and implement control hardening per runbook.",
+      "due_date": "2026-03-22"
+    },
+    {
+      "control_id": "SBS-INT-002",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-002/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-INT-003",
+      "status": "fail",
+      "severity": "medium",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-003/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-INT-003 and implement control hardening per runbook.",
+      "due_date": "2026-03-24"
+    },
+    {
+      "control_id": "SBS-INT-004",
+      "status": "pass",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-INT-004/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-OAUTH-001",
+      "status": "pass",
+      "severity": "critical",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-001/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-OAUTH-002",
+      "status": "partial",
+      "severity": "critical",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-002/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-OAUTH-002 and implement control hardening per runbook.",
+      "due_date": "2026-03-27"
+    },
+    {
+      "control_id": "SBS-OAUTH-003",
+      "status": "pass",
+      "severity": "high",
+      "owner": "SaaS Security Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-003/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-OAUTH-004",
+      "status": "pass",
+      "severity": "medium",
+      "owner": "Security Operations Monitoring Team",
+      "evidence_ref": "collector://salesforce/prod/SBS-OAUTH-004/snapshot-2026-02-24"
+    },
+    {
+      "control_id": "SBS-SECCONF-001",
+      "status": "fail",
+      "severity": "high",
+      "owner": "GRC and Audit",
+      "evidence_ref": "collector://salesforce/prod/SBS-SECCONF-001/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-SECCONF-001 and implement control hardening per runbook.",
+      "due_date": "2026-03-30"
+    },
+    {
+      "control_id": "SBS-SECCONF-002",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "evidence_ref": "collector://salesforce/prod/SBS-SECCONF-002/snapshot-2026-02-24",
+      "remediation": "Investigate non-compliance for SBS-SECCONF-002 and implement control hardening per runbook.",
+      "due_date": "2026-03-31"
+    }
+  ]
+}

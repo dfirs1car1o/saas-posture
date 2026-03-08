@@ -1,0 +1,27 @@
+{
+  "index_patterns": ["sscf-findings-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "assessment_id":    { "type": "keyword" },
+        "org":              { "type": "keyword" },
+        "platform":         { "type": "keyword" },
+        "generated_at_utc": { "type": "date" },
+        "control_id":       { "type": "keyword" },
+        "sbs_title":        { "type": "text", "fields": { "keyword": { "type": "keyword" } } },
+        "domain":           { "type": "keyword" },
+        "severity":         { "type": "keyword" },
+        "status":           { "type": "keyword" },
+        "owner":            { "type": "keyword" },
+        "due_date":         { "type": "date", "format": "yyyy-MM-dd||strict_date_optional_time" },
+        "poam_status":      { "type": "keyword" },
+        "mapping_confidence": { "type": "keyword" },
+        "remediation":      { "type": "text" }
+      }
+    }
+  }
+}

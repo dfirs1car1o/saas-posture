@@ -1,0 +1,177 @@
+{
+  "profile": {
+    "uuid": "c4d5e6f7-a8b9-0123-cdef-456789012345",
+    "metadata": {
+      "title": "Workday Security Control Catalog (WSCC) v1.0 — SSCF Sub-Profile",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL profile expressing the Workday Security Control Catalog (WSCC) as a platform-specific sub-profile of SSCF v1.0. Selects all SSCF controls applicable to Workday HCM and Finance deployments. Adds Workday-specific platform notes (ISSG, SOAP/RaaS/REST collection methods, OAuth 2.0 Client Credentials) to relevant controls. This profile is the control basis for the workday_component.json component definition. Controls are collected via workday_connect.py using OAuth 2.0 and ISSG domain permissions.",
+      "roles": [
+        { "id": "creator", "title": "Profile Author" },
+        { "id": "maintainer", "title": "WSCC Maintainer" },
+        { "id": "platform-owner", "title": "Workday Platform Owner" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "creator", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] },
+        { "role-id": "maintainer", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "imports": [
+      {
+        "href": "../sscf/sscf_v1_profile.json",
+        "include-controls": [
+          {
+            "with-ids": [
+              "sscf-con-001",
+              "sscf-con-002",
+              "sscf-con-003",
+              "sscf-con-004",
+              "sscf-con-005",
+              "sscf-dsp-001",
+              "sscf-dsp-002",
+              "sscf-dsp-003",
+              "sscf-dsp-004",
+              "sscf-dsp-005",
+              "sscf-iam-001",
+              "sscf-iam-002",
+              "sscf-iam-003",
+              "sscf-iam-004",
+              "sscf-iam-005",
+              "sscf-iam-006",
+              "sscf-iam-007",
+              "sscf-iam-008",
+              "sscf-ipy-001",
+              "sscf-ipy-002",
+              "sscf-ipy-003",
+              "sscf-log-001",
+              "sscf-log-002",
+              "sscf-log-003",
+              "sscf-log-004",
+              "sscf-log-005",
+              "sscf-sef-001",
+              "sscf-sef-002",
+              "sscf-sef-003",
+              "sscf-sef-005"
+            ]
+          }
+        ]
+      }
+    ],
+    "merge": {
+      "as-is": true
+    },
+    "modify": {
+      "set-parameters": [],
+      "alters": [
+        {
+          "control-id": "sscf-iam-001",
+          "adds": [
+            {
+              "position": "ending",
+              "parts": [
+                {
+                  "id": "sscf-iam-001_wd_note",
+                  "name": "platform-note",
+                  "prose": "Workday-specific: MFA enforcement is assessed via Workday Authentication Policy (WD-IAM-003). Collector queries Security_Configuration/MFA_Required and ISU authentication settings. ISSG domain permission 'View Security Configuration' required. Policy applies to both Human Users and ISU (Integration System Users)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sscf-iam-002",
+          "adds": [
+            {
+              "position": "ending",
+              "parts": [
+                {
+                  "id": "sscf-iam-002_wd_note",
+                  "name": "platform-note",
+                  "prose": "Workday-specific: Privileged access is assessed via Security Group assignments (WD-IAM-001) and Staffing access roles. Collector queries Get_Security_Groups and Get_Workers_for_Security_Group SOAP endpoints. ISSG domain permissions: 'View Security Groups', 'View System Users'. Quarterly certification is performed via Workday Certification Campaigns or exported to GRC tool."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sscf-iam-003",
+          "adds": [
+            {
+              "position": "ending",
+              "parts": [
+                {
+                  "id": "sscf-iam-003_wd_note",
+                  "name": "platform-note",
+                  "prose": "Workday-specific: SSO is assessed via WD-IAM-007 (Authentication Policy SSO requirement). Collector checks Authentication_Policy for 'Require SSO' flag. ISU accounts use OAuth 2.0 Client Credentials and are exempt from SSO requirement but must have UI login disabled (WD-IAM-002)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sscf-con-003",
+          "adds": [
+            {
+              "position": "ending",
+              "parts": [
+                {
+                  "id": "sscf-con-003_wd_note",
+                  "name": "platform-note",
+                  "prose": "Workday-specific: API credentials are OAuth 2.0 Client Credentials issued via API Client configuration (WD-IAM-005). ISU credential rotation is assessed via credential_last_changed dates (WD-CKM-003). Collector requires ISSG 'View API Clients' and 'View Integration System Users' permissions. client_secret is cleared from memory immediately after token acquisition."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "control-id": "sscf-log-001",
+          "adds": [
+            {
+              "position": "ending",
+              "parts": [
+                {
+                  "id": "sscf-log-001_wd_note",
+                  "name": "platform-note",
+                  "prose": "Workday-specific: Security audit logging is assessed via WD-LOG-001 (Workday Security Audit Reporting). Collector queries User_Activity_Logging and Security_Log_Configuration via RaaS. ISSG domain permissions: 'Run Security Audit Reports', 'View Security Log'. Logs should be exported to SIEM via Workday Prism Analytics or direct RaaS export."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "title": "CSA Cloud Controls Matrix v4.1",
+          "rlinks": [
+            { "href": "https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1" }
+          ]
+        },
+        {
+          "uuid": "h8i9j0k1-l2m3-4567-hijk-890123456789",
+          "title": "Workday WSCC v0.2.0 Catalog (30-control Workday baseline)",
+          "rlinks": [
+            { "href": "../workday/workday_catalog.json" }
+          ]
+        },
+        {
+          "uuid": "i9j0k1l2-m3n4-5678-ijkl-901234567890",
+          "title": "Workday ISSG Permission Setup Guide",
+          "rlinks": [
+            { "href": "../../skills/workday_connect/BLUEPRINT.md" }
+          ]
+        }
+      ]
+    }
+  }
+}

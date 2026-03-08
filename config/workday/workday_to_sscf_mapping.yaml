@@ -1,0 +1,246 @@
+# workday_to_sscf_mapping.yaml
+# Workday Security Control Catalog (WSCC) → SSCF domain mappings
+#
+# Structure mirrors sbs_to_sscf_mapping.yaml for pipeline compatibility.
+# The oscal_gap_map.py script reads this file to enrich backlog items
+# with SSCF domain scores and CCM regulatory references.
+#
+# Collection methods:
+#   soap   — readable via Workday Web Services SOAP API
+#   raas   — readable via pre-configured Reports-as-a-Service endpoint
+#   manual — requires manual questionnaire; collector returns not_applicable with note
+
+version: 1
+framework: CSA_SSCF
+platform: workday
+catalog_ref: config/workday/workday_catalog.json
+owner: security_engineering
+status: draft
+
+defaults_by_domain:
+  identity_access_management:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: Workday IAM controls govern security group assignments and privileged access governance.
+
+  configuration_hardening:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Workday hardening controls enforce the security baseline for authentication and session policy.
+
+  logging_monitoring:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-001
+      mapping_strength: direct
+      rationale: Workday logging controls enforce security telemetry and audit trail requirements.
+
+  cryptography_key_management:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: Workday credential and key controls govern ISU rotation and TLS enforcement.
+
+  data_security_privacy:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: direct
+      rationale: Workday data controls restrict and monitor access to sensitive HR and financial data.
+
+  threat_detection_response:
+    - sscf_domain: threat_detection_response
+      sscf_control_id: SSCF-TDR-001
+      mapping_strength: partial
+      rationale: Workday threat detection relies on SIEM-based controls over audit log data.
+
+  governance_risk_compliance:
+    - sscf_domain: governance_risk_compliance
+      sscf_control_id: SSCF-GOV-001
+      mapping_strength: direct
+      rationale: Workday governance controls enforce change management and policy activation discipline.
+
+control_overrides:
+  WD-IAM-001:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: Security group overprivilege maps directly to privileged access governance and review.
+
+  WD-IAM-002:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: ISU least privilege maps to privileged access governance — ISUs are service-level privileged accounts.
+
+  WD-IAM-003:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-001
+      mapping_strength: direct
+      rationale: MFA enforcement via authentication policy maps directly to MFA enforcement control.
+
+  WD-IAM-004:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-003
+      mapping_strength: direct
+      rationale: SSO/federation configuration maps directly to federation and SSO assurance.
+
+  WD-IAM-005:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: Privileged role governance maps directly to privileged access governance and review.
+
+  WD-IAM-006:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: SOD on business processes is a core component of privileged access governance.
+
+  WD-IAM-007:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: partial
+      rationale: Inactive account review is a component of access lifecycle governance.
+
+  WD-IAM-008:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: OAuth client scope restriction maps to API credential lifecycle governance.
+
+  WD-CON-001:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Password complexity maps to security baseline enforcement.
+
+  WD-CON-002:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Password expiration and history maps to security baseline enforcement.
+
+  WD-CON-003:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Session timeout maps to security baseline enforcement.
+
+  WD-CON-004:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Account lockout maps to security baseline enforcement.
+
+  WD-CON-005:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: partial
+      rationale: IP allowlisting is a network-layer hardening control supporting the security baseline.
+
+  WD-CON-006:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Authentication policy scope and coverage is a foundational hardening baseline control.
+
+  WD-LOG-001:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-001
+      mapping_strength: direct
+      rationale: User activity logging enablement maps directly to security telemetry enablement.
+
+  WD-LOG-002:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-001
+      mapping_strength: direct
+      rationale: Sign-on audit reporting is a core security telemetry requirement.
+
+  WD-LOG-003:
+    - sscf_domain: threat_detection_response
+      sscf_control_id: SSCF-TDR-001
+      mapping_strength: partial
+      rationale: Failed login tracking is a detection control for brute-force and credential attacks.
+
+  WD-LOG-004:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-002
+      mapping_strength: direct
+      rationale: Administrative audit trail maps directly to administrative and configuration audit logging.
+
+  WD-LOG-005:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-003
+      mapping_strength: direct
+      rationale: Audit log retention maps directly to retention and integrity control.
+
+  WD-CKM-001:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: TLS and WS-Security enforcement maps to credential and transport security lifecycle.
+
+  WD-CKM-002:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: partial
+      rationale: BYOK is an advanced key management control within the credential lifecycle domain.
+
+  WD-CKM-003:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: ISU credential rotation maps directly to API credential lifecycle governance.
+
+  WD-DSP-001:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: direct
+      rationale: Sensitive domain permission review maps directly to sensitive data access control.
+
+  WD-DSP-002:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-002
+      mapping_strength: direct
+      rationale: Data export controls map directly to export and exfiltration prevention.
+
+  WD-DSP-003:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-002
+      mapping_strength: direct
+      rationale: Third-party integration data scope maps to exfiltration controls via supply chain risk.
+
+  WD-DSP-004:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: direct
+      rationale: PII field access governance maps directly to sensitive data access control.
+
+  WD-TDR-001:
+    - sscf_domain: threat_detection_response
+      sscf_control_id: SSCF-TDR-001
+      mapping_strength: direct
+      rationale: Authentication anomaly alerting maps directly to real-time threat policy enforcement.
+
+  WD-TDR-002:
+    - sscf_domain: threat_detection_response
+      sscf_control_id: SSCF-TDR-001
+      mapping_strength: partial
+      rationale: Transaction controls via business process approvals are compensating detective controls.
+
+  WD-GOV-001:
+    - sscf_domain: governance_risk_compliance
+      sscf_control_id: SSCF-GOV-001
+      mapping_strength: direct
+      rationale: Pending policy activation governance maps directly to exception and change governance.
+
+  WD-GOV-002:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-002
+      mapping_strength: direct
+      rationale: Security configuration change management maps directly to drift detection and baseline deviation management.
+    - sscf_domain: governance_risk_compliance
+      sscf_control_id: SSCF-GOV-001
+      mapping_strength: partial
+      rationale: Change management governance overlaps with exception governance and risk acceptance processes.

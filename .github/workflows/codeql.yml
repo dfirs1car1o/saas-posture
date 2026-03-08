@@ -1,0 +1,53 @@
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly on Mondays at 08:00 UTC
+    - cron: "0 8 * * 1"
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL Python Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@c793b717bc78562f491db7b0e93a3a178b099162  # v4
+        with:
+          languages: python
+          # Focus on skills/ and scripts/ — the real code
+          config: |
+            paths:
+              - skills
+              - scripts
+            paths-ignore:
+              - docs
+              - config
+              - contexts
+              - agents
+            query-filters:
+              # workday_connect writes password POLICY values (Minimum_Password_Length,
+              # Password_Expiration_Days) as security assessment evidence — not credentials.
+              # client_secret is del'd after token acquisition and never stored in output.
+              - exclude:
+                  id: py/clear-text-storage-sensitive-data
+                  path: skills/workday_connect/workday_connect.py
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@c793b717bc78562f491db7b0e93a3a178b099162  # v4
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@c793b717bc78562f491db7b0e93a3a178b099162  # v4
+        with:
+          category: "/language:python"

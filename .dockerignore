@@ -1,0 +1,33 @@
+# Never bake credentials or generated outputs into the image
+.env
+*.pem
+*.key
+*.p12
+
+# Generated assessment outputs (mounted as volume at runtime)
+docs/oscal-salesforce-poc/generated/
+
+# Python artifacts
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Git
+.git/
+.gitignore
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# CI
+.github/
+
+# Node (MCP tooling)
+node_modules/

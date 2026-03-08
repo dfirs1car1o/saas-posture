@@ -1,0 +1,34 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.log
+
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+terraform.tfvars
+*.tfvars
+!.example.tfvars
+
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
+
+# Build artifacts
+*.egg-info/
+
+# Generated assessment outputs (real evidence committed intentionally, test artifacts excluded)
+docs/oscal-salesforce-poc/generated/*/
+!docs/oscal-salesforce-poc/generated/*.json
+
+# report-gen deliverables output (generated artifacts, not tracked)
+docs/oscal-salesforce-poc/deliverables/
+
+# Claude Code session state
+.claude/
+
+# Internal session docs — contain local paths and personal info; stored in Obsidian vault
+NEXT_SESSION.md
+NEXT_SESSION_PROMPTS.md

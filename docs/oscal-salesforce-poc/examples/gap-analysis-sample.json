@@ -1,0 +1,32 @@
+{
+  "assessment_id": "ACME-SF-GAP-2026-02-24",
+  "assessment_time_utc": "2026-02-24T12:00:00Z",
+  "assessor": "SaaS Security Assurance Team",
+  "findings": [
+    {
+      "control_id": "SF-EM-RULE-001",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Salesforce Platform Owner",
+      "due_date": "2026-03-31",
+      "evidence_ref": "gap-analysis://SF-EM-RULE-001"
+    },
+    {
+      "control_id": "SF-TSP-001",
+      "status": "fail",
+      "severity": "critical",
+      "owner": "SaaS Security Team",
+      "due_date": "2026-03-15",
+      "evidence_ref": "gap-analysis://SF-TSP-001"
+    },
+    {
+      "control_id": "SF-TSP-004",
+      "status": "partial",
+      "severity": "high",
+      "owner": "Security Operations Monitoring Team",
+      "due_date": "2026-03-22",
+      "evidence_ref": "gap-analysis://SF-TSP-004"
+    }
+  ]
+}
+

@@ -1,0 +1,291 @@
+{
+  "component-definition": {
+    "uuid": "d5e6f7a8-b9c0-1234-defa-567890123456",
+    "metadata": {
+      "title": "Salesforce Platform Component Definition",
+      "last-modified": "2026-03-07T00:00:00Z",
+      "version": "1.0.0",
+      "oscal-version": "1.1.2",
+      "remarks": "OSCAL component definition for Salesforce CRM/Platform deployments. Specifies collection methods, evidence queries, and pass/fail criteria for each SSCF v1.0 control applicable to Salesforce. Used by sfdc_connect.py as a catalog-driven evidence specification. Collection methods: SOQL (REST API), Tooling API, Metadata API, SecurityHealthCheck API, manual questionnaire.",
+      "roles": [
+        { "id": "maintainer", "title": "SBS Maintainer" },
+        { "id": "assessor", "title": "Security Assessor" }
+      ],
+      "parties": [
+        {
+          "uuid": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "type": "organization",
+          "name": "Security Team"
+        }
+      ],
+      "responsible-parties": [
+        { "role-id": "maintainer", "party-uuids": ["b2c3d4e5-f6a7-8901-bcde-f12345678901"] }
+      ]
+    },
+    "import-component-definitions": [],
+    "components": [
+      {
+        "uuid": "e6f7a8b9-c0d1-2345-efab-678901234567",
+        "type": "software",
+        "title": "Salesforce CRM Platform",
+        "description": "Salesforce Sales Cloud, Service Cloud, or Platform (Lightning) SaaS deployment assessed against the SBS v1.0 security control baseline.",
+        "purpose": "CRM, case management, and business process automation SaaS platform.",
+        "props": [
+          { "name": "vendor", "value": "Salesforce, Inc." },
+          { "name": "product-family", "value": "Salesforce Platform" },
+          { "name": "deployment-model", "value": "SaaS (multi-tenant)" },
+          { "name": "auth-method", "value": "JWT Bearer / SAML SSO" },
+          { "name": "collector-skill", "value": "skills/sfdc_connect/sfdc_connect.py" },
+          { "name": "profile-ref", "value": "config/salesforce/sbs_v1_profile.json" }
+        ],
+        "links": [
+          {
+            "href": "../salesforce/sbs_v1_profile.json",
+            "rel": "profile",
+            "text": "SBS v1.0 SSCF Sub-Profile"
+          }
+        ],
+        "control-implementations": [
+          {
+            "uuid": "f7a8b9c0-d1e2-3456-fabc-789012345678",
+            "source": "../salesforce/sbs_v1_profile.json",
+            "description": "Salesforce control implementation evidence specifications for SBS v1.0.",
+            "implemented-requirements": [
+              {
+                "uuid": "a1111111-0001-0001-0001-000000000001",
+                "control-id": "sscf-iam-001",
+                "description": "MFA enforcement verified via Salesforce Security Health Check and Profile/Permission Set API.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+tooling" },
+                  { "name": "api-endpoint", "value": "tooling/query?q=SELECT+Risk+FROM+SecurityHealthCheckRisks+WHERE+RiskType='MFA'" },
+                  { "name": "pass-criteria", "value": "EnableMfaDirectUi=true OR MFA enforced via IdP SSO" },
+                  { "name": "fail-criteria", "value": "EnableMfaDirectUi=false AND local login enabled for non-break-glass accounts" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0002-0002-0002-000000000002",
+                "control-id": "sscf-iam-002",
+                "description": "Privileged role assignments verified via Profile, PermissionSet, and SetupAuditTrail SOQL.",
+                "props": [
+                  { "name": "collection-method", "value": "soql" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+ProfileId,Profile.Name,IsActive+FROM+User+WHERE+IsActive=true" },
+                  { "name": "pass-criteria", "value": "All admin profiles have documented approvals; PermissionSet assignments reviewed < 12 months" },
+                  { "name": "fail-criteria", "value": "Active System Administrator profiles without documented recertification" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0003-0003-0003-000000000003",
+                "control-id": "sscf-iam-003",
+                "description": "SSO configuration verified via Salesforce SSO Settings and SAML Metadata API.",
+                "props": [
+                  { "name": "collection-method", "value": "metadata+soql" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Metadata+FROM+SsoSettings+LIMIT+1" },
+                  { "name": "pass-criteria", "value": "SsoSettings.IsSsoEnabled=true; LocalLoginEnabled=false for standard profiles" },
+                  { "name": "fail-criteria", "value": "SSO not enabled OR local password login enabled for non-System profiles" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0004-0004-0004-000000000004",
+                "control-id": "sscf-iam-004",
+                "description": "User lifecycle assessed via inactive user detection and last-login analysis.",
+                "props": [
+                  { "name": "collection-method", "value": "soql" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Id,Username,LastLoginDate,IsActive+FROM+User+WHERE+IsActive=true" },
+                  { "name": "pass-criteria", "value": "No active users with LastLoginDate > 90 days ago without documented exception" },
+                  { "name": "fail-criteria", "value": "Active accounts with LastLoginDate > 90 days (stale) or terminated users still active" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0005-0005-0005-000000000005",
+                "control-id": "sscf-iam-005",
+                "description": "Service account governance assessed via Connected App and integration user audit.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+tooling" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Name,CreatedDate,OwnerId+FROM+ConnectedApplication" },
+                  { "name": "pass-criteria", "value": "All Connected Apps have named owners; no unnamed or orphaned integration users" },
+                  { "name": "fail-criteria", "value": "Connected Apps without active owners or with excessive scope" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0006-0006-0006-000000000006",
+                "control-id": "sscf-iam-006",
+                "description": "Session timeout verified via Salesforce Security Settings (session timeout value).",
+                "props": [
+                  { "name": "collection-method", "value": "metadata" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Metadata+FROM+SecuritySettings+LIMIT+1" },
+                  { "name": "pass-criteria", "value": "SessionSettings.sessionTimeout <= 8 hours (28800 seconds)" },
+                  { "name": "fail-criteria", "value": "SessionSettings.sessionTimeout > 8 hours OR sessionTimeout not configured" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0007-0007-0007-000000000007",
+                "control-id": "sscf-iam-007",
+                "description": "JIT access via Salesforce Delegated Administration or Permission Set Groups with time-limited grants.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "pass-criteria", "value": "Documented JIT process exists with approval workflow and automatic expiry" },
+                  { "name": "fail-criteria", "value": "No JIT process; standing admin accounts used for all elevated access" },
+                  { "name": "assessment-scope", "value": "manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0008-0008-0008-000000000008",
+                "control-id": "sscf-iam-008",
+                "description": "External/guest access controls assessed via Experience Cloud and guest user profile settings.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+manual" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Name,IsActive,UserType+FROM+User+WHERE+UserType='Guest'" },
+                  { "name": "pass-criteria", "value": "Guest users have time-bound licenses; no Guest users with admin permissions" },
+                  { "name": "fail-criteria", "value": "Guest users with Create/Edit/Delete data permissions or no expiry date" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0101-0101-0101-000000000101",
+                "control-id": "sscf-con-001",
+                "description": "Security baseline assessed via Salesforce Security Health Check API.",
+                "props": [
+                  { "name": "collection-method", "value": "tooling" },
+                  { "name": "api-endpoint", "value": "tooling/query?q=SELECT+Score+FROM+SecurityHealthCheck" },
+                  { "name": "pass-criteria", "value": "SecurityHealthCheck.Score >= 70 AND critical risks = 0" },
+                  { "name": "fail-criteria", "value": "Score < 70 OR any Critical-severity Health Check risk present" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0102-0102-0102-000000000102",
+                "control-id": "sscf-con-002",
+                "description": "Drift detection assessed via SetupAuditTrail for recent configuration changes.",
+                "props": [
+                  { "name": "collection-method", "value": "soql" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Action,CreatedBy.Name,CreatedDate,Display+FROM+SetupAuditTrail+ORDER+BY+CreatedDate+DESC+LIMIT+500" },
+                  { "name": "pass-criteria", "value": "Security-relevant config changes have corresponding change tickets; no unauthorized changes detected" },
+                  { "name": "fail-criteria", "value": "Security config changes without documented approval in trailing 90 days" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0103-0103-0103-000000000103",
+                "control-id": "sscf-con-003",
+                "description": "API credential lifecycle assessed via Connected App and Named Credential review.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+tooling" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Name,OauthTokenEndpoint,ConsumerKey+FROM+ConnectedApplication" },
+                  { "name": "pass-criteria", "value": "All Connected Apps use JWT or OAuth 2.0; no long-lived passwords in Named Credentials > 90 days" },
+                  { "name": "fail-criteria", "value": "Username/password credentials in Named Credentials exceeding 90-day rotation limit" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0201-0201-0201-000000000201",
+                "control-id": "sscf-dsp-001",
+                "description": "Sensitive data access assessed via field-level security and profile object permissions.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+tooling" },
+                  { "name": "api-endpoint", "value": "tooling/query?q=SELECT+Field,PermissionsRead,PermissionsEdit+FROM+FieldPermissions+WHERE+SobjectType='Contact'" },
+                  { "name": "pass-criteria", "value": "PII fields restricted to documented roles; field-level encryption enabled where supported" },
+                  { "name": "fail-criteria", "value": "PII fields readable by standard user profiles without documented business need" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0202-0202-0202-000000000202",
+                "control-id": "sscf-dsp-002",
+                "description": "Data export controls assessed via report export permissions and data loader access.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+manual" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+PermissionsViewAllData,PermissionsExportReport+FROM+PermissionSet+WHERE+IsOwnedByProfile=false" },
+                  { "name": "pass-criteria", "value": "ExportReport permission restricted to documented roles; bulk API access limited to integration users" },
+                  { "name": "fail-criteria", "value": "ExportReport or ViewAllData permissions granted to non-documented user classes" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0401-0401-0401-000000000401",
+                "control-id": "sscf-log-001",
+                "description": "Security telemetry assessed via EventLogFile availability and SIEM integration status.",
+                "props": [
+                  { "name": "collection-method", "value": "soql" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+EventType,CreatedDate,LogFileLength+FROM+EventLogFile+ORDER+BY+CreatedDate+DESC+LIMIT+100" },
+                  { "name": "pass-criteria", "value": "EventLogFile enabled for Login, API, ReportExport, SetupAuditTrail event types; SIEM integration active" },
+                  { "name": "fail-criteria", "value": "EventMonitoring not enabled OR critical event types missing OR no SIEM integration" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0402-0402-0402-000000000402",
+                "control-id": "sscf-log-002",
+                "description": "Admin audit logging assessed via SetupAuditTrail completeness and alert configuration.",
+                "props": [
+                  { "name": "collection-method", "value": "soql+manual" },
+                  { "name": "api-endpoint", "value": "services/data/v59.0/query/?q=SELECT+Action,Section,CreatedBy.Name,CreatedDate+FROM+SetupAuditTrail+WHERE+CreatedDate=LAST_N_DAYS:30" },
+                  { "name": "pass-criteria", "value": "SetupAuditTrail captures all security-relevant admin actions; SIEM alerts configured for high-risk changes" },
+                  { "name": "fail-criteria", "value": "No SIEM alerts on MFA changes, profile changes, or security setting modifications" },
+                  { "name": "assessment-scope", "value": "automated+manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0403-0403-0403-000000000403",
+                "control-id": "sscf-log-003",
+                "description": "Audit retention verified via EventLogFile retention settings and SIEM retention policy.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "pass-criteria", "value": "Salesforce EventLogFile retention >= 30 days (Shield); SIEM hot retention >= 12 months; cold >= 36 months" },
+                  { "name": "fail-criteria", "value": "EventLogFile default 1-day retention without SIEM forwarding; retention below regulatory minimum" },
+                  { "name": "assessment-scope", "value": "manual" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0501-0501-0501-000000000501",
+                "control-id": "sscf-sef-001",
+                "description": "Threat policy enforcement assessed via Transaction Security policies and login restrictions.",
+                "props": [
+                  { "name": "collection-method", "value": "tooling+soql" },
+                  { "name": "api-endpoint", "value": "tooling/query?q=SELECT+Name,State,Actions+FROM+TransactionSecurityPolicy" },
+                  { "name": "pass-criteria", "value": "Transaction Security policies active for bulk export, impossible travel, unmanaged device access" },
+                  { "name": "fail-criteria", "value": "No Transaction Security policies configured OR policies in Warn-only mode without SOC routing" },
+                  { "name": "assessment-scope", "value": "automated" }
+                ]
+              },
+              {
+                "uuid": "a1111111-0502-0502-0502-000000000502",
+                "control-id": "sscf-sef-002",
+                "description": "Alert triage verified via SIEM alert routing documentation and SOC SLA evidence.",
+                "props": [
+                  { "name": "collection-method", "value": "manual" },
+                  { "name": "pass-criteria", "value": "Documented SOC runbook for Salesforce alerts; MTTA for critical alerts <= 15 minutes" },
+                  { "name": "fail-criteria", "value": "No documented alert SLA or Salesforce alerts not routed to SOC queue" },
+                  { "name": "assessment-scope", "value": "manual" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "back-matter": {
+      "resources": [
+        {
+          "uuid": "b3c4d5e6-f7a8-9012-bcde-f34567890123",
+          "title": "SBS v1.0 Profile",
+          "rlinks": [
+            { "href": "../salesforce/sbs_v1_profile.json" }
+          ]
+        },
+        {
+          "uuid": "j0k1l2m3-n4o5-6789-jklm-012345678901",
+          "title": "sfdc_connect.py — Salesforce Evidence Collector",
+          "rlinks": [
+            { "href": "../../skills/sfdc_connect/sfdc_connect.py" }
+          ]
+        }
+      ]
+    }
+  }
+}

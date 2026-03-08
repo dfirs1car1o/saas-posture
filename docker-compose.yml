@@ -1,0 +1,115 @@
+# saas-sec-agents — full platform stack
+#
+# Services:
+#   opensearch      — document store (Apache 2.0)
+#   dashboards      — OpenSearch Dashboards UI at http://localhost:5601
+#   dashboard-init  — one-shot: imports index patterns + saved dashboards on first start
+#   agent           — saas-sec-agents CLI (runs on demand, not as a daemon)
+#
+# Usage:
+#   docker compose up -d                          # start opensearch + dashboards
+#   docker compose run --rm agent agent-loop run \
+#     --platform workday --org acme --approve-critical
+#   docker compose run --rm agent python scripts/workday_dry_run_demo.py --org acme
+#   open http://localhost:5601                    # view dashboards
+
+services:
+
+  # ── OpenSearch ──────────────────────────────────────────────────────────────
+  opensearch:
+    image: opensearchproject/opensearch:2.19.4
+    container_name: saas-sec-opensearch
+    environment:
+      DISABLE_SECURITY_PLUGIN: "true"        # dev only — remove for production
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    volumes:
+      - os-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qv '\"status\":\"red\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── OpenSearch Dashboards ───────────────────────────────────────────────────
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:2.19.4
+    container_name: saas-sec-dashboards
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5601/api/status | grep -q '\"state\":\"green\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+    restart: unless-stopped
+
+  # ── Dashboard init (one-shot) ───────────────────────────────────────────────
+  # Waits for dashboards to be ready, then imports index patterns + saved objects
+  dashboard-init:
+    image: curlimages/curl:latest
+    container_name: saas-sec-dashboard-init
+    depends_on:
+      dashboards:
+        condition: service_healthy
+    volumes:
+      - ./config/opensearch:/config:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "[init] Creating index templates..."
+        curl -sf -X PUT http://opensearch:9200/_index_template/sscf-runs \
+          -H "Content-Type: application/json" \
+          -d @/config/index-template-runs.json
+        curl -sf -X PUT http://opensearch:9200/_index_template/sscf-findings \
+          -H "Content-Type: application/json" \
+          -d @/config/index-template-findings.json
+        echo ""
+        echo "[init] Importing saved objects (index patterns + dashboards)..."
+        curl -sf -X POST "http://dashboards:5601/api/saved_objects/_import?overwrite=true" \
+          -H "osd-xsrf: true" \
+          --form file=@/config/dashboards.ndjson
+        echo ""
+        echo "[init] Done. Open http://localhost:5601"
+    restart: on-failure
+
+  # ── Agent (on-demand, not a daemon) ────────────────────────────────────────
+  agent:
+    build: .
+    container_name: saas-sec-agent
+    env_file: .env
+    environment:
+      OPENSEARCH_URL: "http://opensearch:9200"
+    volumes:
+      # Reports persist on host
+      - ./docs/oscal-salesforce-poc/generated:/app/docs/oscal-salesforce-poc/generated
+      # SF private key (JWT auth) — mount read-only
+      - ${SF_PRIVATE_KEY_PATH:-/dev/null}:/run/secrets/sf_key.pem:ro
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    profiles:
+      - agent    # only starts when explicitly requested (docker compose run --rm agent ...)
+    stdin_open: true
+    tty: true
+
+volumes:
+  os-data:
+    driver: local

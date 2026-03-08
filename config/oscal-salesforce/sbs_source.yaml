@@ -1,0 +1,9 @@
+version: 1
+benchmark_name: Security Benchmark for Salesforce
+benchmark_short_name: SBS
+release_tag: v0.4.1
+xml_url: https://github.com/Salesforce-Security-Benchmark/docs-site/releases/download/v0.4.1/sbs-controls.xml
+notes:
+  - Pin to release tags for deterministic control catalogs.
+  - Refresh only through controlled change request.
+

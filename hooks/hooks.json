@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "description": "Session lifecycle hooks for the OSCAL/SSCF multi-agent system. These scripts persist state so context loss does not kill an assessment.",
+  "hooks": [
+    {
+      "name": "session-start",
+      "trigger": "session-start",
+      "script": "hooks/session-start.js",
+      "description": "Load previous org context, detect environment, check git state, print active objectives from NEXT_SESSION_PROMPTS.md.",
+      "runs": "at the start of every session"
+    },
+    {
+      "name": "session-end",
+      "trigger": "session-end",
+      "script": "hooks/session-end.js",
+      "description": "Persist all generated findings to docs/oscal-salesforce-poc/generated/, extract patterns from this session, update NEXT_SESSION.md, commit generated artifacts.",
+      "runs": "before the session closes"
+    },
+    {
+      "name": "pre-compact",
+      "trigger": "suggest-compact",
+      "script": "hooks/pre-compact.js",
+      "description": "Save current in-progress assessment state before context compression. Writes a checkpoint JSON to docs/oscal-salesforce-poc/generated/checkpoint.json.",
+      "runs": "when tool call count approaches 50, before context is compressed"
+    },
+    {
+      "name": "post-edit-python",
+      "trigger": "post-edit",
+      "script": "hooks/post-edit-python.sh",
+      "description": "Run ruff format and ruff check --fix on any edited Python file. Keeps code clean without manual formatting.",
+      "runs": "after any Python file is edited",
+      "glob": "**/*.py"
+    }
+  ],
+  "notes": [
+    "Hooks are not MCPs. They are scripts called at lifecycle events.",
+    "session-start.js is the most critical hook — it re-establishes context identity after a fresh session.",
+    "pre-compact.js is the safety net — without it, a context compression mid-assessment loses in-progress state.",
+    "All hooks must be idempotent. Running them twice must not corrupt state."
+  ]
+}

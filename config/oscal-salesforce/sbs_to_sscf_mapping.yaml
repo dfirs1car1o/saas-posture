@@ -1,0 +1,103 @@
+version: 1
+framework: CSA_SSCF
+owner: security_engineering
+status: draft
+
+defaults_by_category:
+  Foundations:
+    - sscf_domain: governance_risk_compliance
+      sscf_control_id: SSCF-GOV-001
+      mapping_strength: partial
+      rationale: Foundational governance controls map to exception governance and accountable operation.
+  OAuth Security:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: OAuth and token controls map to credential lifecycle and token hardening.
+  Integrations:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-002
+      mapping_strength: partial
+      rationale: Integration controls reduce exfiltration risk and unmanaged data movement.
+  Access Controls:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: Access model governance maps to privileged governance and periodic review.
+  Authentication:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-001
+      mapping_strength: direct
+      rationale: Authentication controls align to MFA and strong interactive access enforcement.
+  Code Security:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: partial
+      rationale: Secure SDLC and code hardening support baseline configuration assurance.
+  Customer Portals:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: partial
+      rationale: External-user portal controls protect sensitive record exposure.
+  Data Security:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: direct
+      rationale: Data controls directly align to sensitive data handling and protection.
+  File Security:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-002
+      mapping_strength: direct
+      rationale: Public file link controls directly reduce data leakage and exfiltration pathways.
+  Deployments:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-002
+      mapping_strength: direct
+      rationale: Deployment controls align to drift management and unauthorized change detection.
+  Security Configuration:
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-001
+      mapping_strength: direct
+      rationale: Health-check baselines align to secure configuration baseline enforcement.
+
+control_overrides:
+  SBS-AUTH-001:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-003
+      mapping_strength: direct
+      rationale: Org-wide SSO enforcement maps directly to federation and SSO assurance.
+  SBS-AUTH-003:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-001
+      mapping_strength: direct
+      rationale: Login IP hardening reduces unauthorized auth attempts and account compromise risk.
+  SBS-INT-004:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-003
+      mapping_strength: direct
+      rationale: API event retention directly maps to audit retention and investigation integrity.
+  SBS-INT-003:
+    - sscf_domain: cryptography_key_management
+      sscf_control_id: SSCF-CKM-001
+      mapping_strength: direct
+      rationale: Named credential inventory and governance map to credential lifecycle control.
+  SBS-DATA-002:
+    - sscf_domain: data_security_privacy
+      sscf_control_id: SSCF-DSP-001
+      mapping_strength: direct
+      rationale: Regulated data inventory maps directly to sensitive data protection and accountability.
+  SBS-ACS-002:
+    - sscf_domain: identity_access_management
+      sscf_control_id: SSCF-IAM-002
+      mapping_strength: direct
+      rationale: API-enabled authorization justification maps to privileged access governance.
+  SBS-DEP-003:
+    - sscf_domain: logging_monitoring
+      sscf_control_id: SSCF-LOG-002
+      mapping_strength: direct
+      rationale: Unauthorized metadata change detection maps to admin/config audit logging and monitoring.
+    - sscf_domain: configuration_hardening
+      sscf_control_id: SSCF-CON-002
+      mapping_strength: direct
+      rationale: Unauthorized changes are a baseline drift management use case.
+

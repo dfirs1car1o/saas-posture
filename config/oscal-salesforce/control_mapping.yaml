@@ -1,0 +1,35 @@
+version: 1
+mapping_policy:
+  strategy: exact_legacy_control_id
+  owner: security_engineering
+  status: draft
+
+mappings:
+  - legacy_control_id: SF-EM-RULE-001
+    sbs_control_id: SBS-AUTH-001
+    mapping_confidence: medium
+    notes: "Draft mapping: failed login monitoring and centralized auth hardening."
+  - legacy_control_id: SF-EM-RULE-002
+    sbs_control_id: SBS-INT-004
+    mapping_confidence: medium
+    notes: "Draft mapping: high-volume export/API event telemetry retention."
+  - legacy_control_id: SF-EM-RULE-003
+    sbs_control_id: SBS-INT-003
+    mapping_confidence: medium
+    notes: "Draft mapping: suspicious API behavior and integration control hygiene."
+  - legacy_control_id: SF-TSP-001
+    sbs_control_id: SBS-AUTH-003
+    mapping_confidence: medium
+    notes: "Draft mapping: risky auth/location controls."
+  - legacy_control_id: SF-TSP-002
+    sbs_control_id: SBS-DATA-002
+    mapping_confidence: medium
+    notes: "Draft mapping: suspicious export controls tied to regulated data awareness."
+  - legacy_control_id: SF-TSP-003
+    sbs_control_id: SBS-ACS-002
+    mapping_confidence: medium
+    notes: "Draft mapping: API authorization governance pattern."
+  - legacy_control_id: SF-TSP-004
+    sbs_control_id: SBS-DEP-003
+    mapping_confidence: medium
+    notes: "Draft mapping: monitoring unauthorized high-risk configuration changes."

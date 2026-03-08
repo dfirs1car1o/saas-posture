@@ -1,0 +1,37 @@
+{
+  "index_patterns": ["sscf-runs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "assessment_id":    { "type": "keyword" },
+        "org":              { "type": "keyword" },
+        "platform":         { "type": "keyword" },
+        "generated_at_utc": { "type": "date" },
+        "overall_score":    { "type": "float" },
+        "overall_status":   { "type": "keyword" },
+        "nist_verdict":     { "type": "keyword" },
+        "assessment_owner": { "type": "keyword" },
+        "counts": {
+          "properties": {
+            "pass":           { "type": "integer" },
+            "fail":           { "type": "integer" },
+            "partial":        { "type": "integer" },
+            "not_applicable": { "type": "integer" }
+          }
+        },
+        "domains": {
+          "type": "nested",
+          "properties": {
+            "domain":  { "type": "keyword" },
+            "score":   { "type": "float" },
+            "status":  { "type": "keyword" }
+          }
+        }
+      }
+    }
+  }
+}

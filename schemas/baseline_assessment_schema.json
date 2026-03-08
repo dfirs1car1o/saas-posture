@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/baseline_assessment_schema.json",
+  "$version": "2.0",
+  "title": "SaaS Baseline Assessment Result (v2)",
+  "description": "Platform-agnostic assessment result schema for SSCF-based SaaS security assessments. Supports Salesforce, Workday, and future platforms. Findings chain: platform control → SSCF control → CCM v4.1 → SOX/HIPAA/SOC2.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "assessment_id",
+    "platform",
+    "assessment_time_utc",
+    "assessor",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0",
+      "description": "Schema version. Must be '2.0' for this schema."
+    },
+    "assessment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for this assessment run."
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["salesforce", "workday", "servicenow"],
+      "description": "SaaS platform assessed."
+    },
+    "oscal_catalog_ref": {
+      "type": "string",
+      "description": "Path or URL to the OSCAL catalog used for this assessment (e.g., config/oscal-salesforce/sbs_catalog.json)."
+    },
+    "assessment_time_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of assessment execution."
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["dev", "test", "prod"],
+      "description": "Target environment label."
+    },
+    "assessor": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the agent or system that performed the assessment."
+    },
+    "assessment_owner": {
+      "type": "string",
+      "description": "Named individual responsible for this assessment (for NIST GOVERN compliance)."
+    },
+    "data_source": {
+      "type": "string",
+      "description": "Description of data source used (e.g., 'sfdc-connect v1.0 REST/SOQL API', 'workday-connect SOAP WWS v40')."
+    },
+    "ai_generated_findings_notice": {
+      "type": "string",
+      "description": "Disclosure notice when findings were produced by an AI assessor."
+    },
+    "assessment_scope": {
+      "type": "object",
+      "description": "Which controls were in scope and why some were excluded.",
+      "properties": {
+        "controls_in_scope": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "controls_excluded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exclusion_reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_controls": { "type": "integer", "minimum": 0 },
+        "pass": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 },
+        "partial": { "type": "integer", "minimum": 0 },
+        "not_applicable": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "control_id",
+          "status",
+          "severity",
+          "evidence_source",
+          "sscf_mappings"
+        ],
+        "properties": {
+          "control_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Platform-specific control identifier (e.g., SBS-AUTH-001, WD-IAM-001)."
+          },
+          "title": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail", "partial", "not_applicable"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "moderate", "low"],
+            "description": "Control severity. Use 'moderate' (not 'medium') for consistency."
+          },
+          "evidence_source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "API call, query, or report that produced the evidence."
+          },
+          "evidence_ref": {
+            "type": "string",
+            "description": "Optional path or identifier for raw evidence artifact."
+          },
+          "observed_value": {
+            "description": "The actual value or state observed during assessment."
+          },
+          "expected_value": {
+            "description": "The expected (compliant) value or state."
+          },
+          "remediation": {
+            "type": "string",
+            "description": "Actionable remediation steps."
+          },
+          "owner": {
+            "type": "string",
+            "description": "Team or individual responsible for remediation."
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Remediation due date (auto-populated by severity: critical=7d, high=30d, moderate=90d, low=180d)."
+          },
+          "assessment_id": {
+            "type": "string",
+            "description": "Assessment run ID (denormalized for convenience)."
+          },
+          "generated_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sscf_mappings": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Mappings to SSCF controls. The pipeline uses these to calculate domain scores and chain to CCM regulatory references.",
+            "items": {
+              "type": "object",
+              "required": ["sscf_domain", "sscf_control_id", "mapping_strength", "rationale"],
+              "properties": {
+                "sscf_domain": {
+                  "type": "string",
+                  "enum": [
+                    "identity_access_management",
+                    "logging_monitoring",
+                    "threat_detection_response",
+                    "cryptography_key_management",
+                    "data_security_privacy",
+                    "configuration_hardening",
+                    "governance_risk_compliance"
+                  ]
+                },
+                "sscf_control_id": {
+                  "type": "string",
+                  "pattern": "^SSCF-[A-Z]{2,6}-[0-9]{3}$",
+                  "description": "SSCF control ID (e.g., SSCF-IAM-001)."
+                },
+                "mapping_strength": {
+                  "type": "string",
+                  "enum": ["direct", "partial", "informative"]
+                },
+                "mapping_confidence": {
+                  "type": "string",
+                  "enum": ["high", "medium", "low"],
+                  "description": "Confidence in the mapping accuracy."
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ccm_controls": {
+                  "type": "array",
+                  "description": "CCM v4.1 controls derived from sscf_to_ccm_mapping.yaml. Populated by the gap map step.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "domain": { "type": "string" },
+                      "regulatory_highlights": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "platform_data": {
+            "type": "object",
+            "description": "Platform-specific extension data. Not validated — use for Salesforce sfdc-expert flags, Workday RaaS availability, etc.",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
