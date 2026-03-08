@@ -7,6 +7,7 @@ Document structure (all sections except LLM narrative are Python-rendered):
   Executive Scorecard           — overall score + severity × status matrix   [HARNESS]
   OSCAL Framework Provenance    — catalog → profile → component → CCM chain  [HARNESS]
   Domain Posture                — ASCII bar chart of SSCF domain scores      [HARNESS]
+  CCM v4.1 Regulatory Crosswalk — per-CCM-control regulatory citations       [HARNESS]
   Immediate Actions             — top-10 critical/fail findings              [HARNESS]
   Executive Summary + Analysis  — LLM narrative                              [LLM]
   Full Control Matrix           — sorted findings table (all controls)       [HARNESS]
@@ -380,6 +381,100 @@ def _render_domain_chart(sscf: dict) -> str:
         lines.append(f"  {name:<{max_name}}  {bar}  {pct:>4}  {icon} {status_label}")
 
     lines += ["```", ""]
+    return "\n".join(lines)
+
+
+def _render_ccm_crosswalk(backlog: dict) -> str:
+    """Render CCM v4.1 regulatory crosswalk for controls with fail/partial findings.
+
+    Loads config/sscf/sscf_to_ccm_mapping.yaml, intersects with SSCF control IDs
+    referenced by failing findings, and renders a table per CCM control showing
+    which regulatory frameworks apply (SOX, HIPAA, SOC2, ISO 27001, PCI DSS, GDPR).
+    """
+    import yaml  # local import — not all environments have pyyaml at module load
+
+    mapping_path = _REPO / "config" / "sscf" / "sscf_to_ccm_mapping.yaml"
+    if not mapping_path.exists():
+        return ""
+
+    try:
+        raw = yaml.safe_load(mapping_path.read_text())
+    except Exception:
+        return ""
+
+    # Build lookup: sscf_control_id → list of CCM control dicts
+    sscf_to_ccm: dict[str, list[dict]] = {}
+    for entry in raw.get("mappings", []):
+        sscf_id = entry.get("sscf_control_id", "")
+        for ccm in entry.get("ccm_controls", []):
+            sscf_to_ccm.setdefault(sscf_id, []).append(ccm)
+
+    # Collect SSCF control IDs referenced by fail/partial findings
+    failing_sscf: set[str] = set()
+    for item in backlog.get("mapped_items", []):
+        if item.get("status") not in ("fail", "partial"):
+            continue
+        for mapping in item.get("sscf_mappings", []):
+            sid = mapping.get("sscf_control_id", "")
+            if sid:
+                failing_sscf.add(sid)
+
+    if not failing_sscf:
+        return ""
+
+    # Collect unique CCM controls (deduplicated by CCM ID) touched by failing findings
+    seen_ccm: dict[str, dict] = {}
+    ccm_to_sscf: dict[str, list[str]] = {}
+    for sscf_id in sorted(failing_sscf):
+        for ccm in sscf_to_ccm.get(sscf_id, []):
+            cid = ccm["id"]
+            seen_ccm[cid] = ccm
+            ccm_to_sscf.setdefault(cid, []).append(sscf_id)
+
+    if not seen_ccm:
+        return ""
+
+    def _reg_cell(highlights: list[str], prefix: str, strip: str) -> str:
+        """Extract citations for a given framework prefix."""
+        hits = [h[len(strip):] for h in highlights if h.startswith(prefix)]
+        return " · ".join(hits) if hits else "—"
+
+    rows = []
+    for cid in sorted(seen_ccm, key=lambda x: (seen_ccm[x]["domain"], x)):
+        ccm = seen_ccm[cid]
+        hl = ccm.get("regulatory_highlights", [])
+        sscf_refs = ", ".join(sorted(set(ccm_to_sscf.get(cid, []))))
+        rows.append(
+            {
+                "id": cid,
+                "domain": ccm.get("domain", ""),
+                "title": ccm.get("title", ""),
+                "sscf": sscf_refs,
+                "sox": _reg_cell(hl, "SOX_", "SOX_"),
+                "hipaa": _reg_cell(hl, "HIPAA_", "HIPAA_"),
+                "soc2": _reg_cell(hl, "SOC2_", "SOC2_"),
+                "iso": _reg_cell(hl, "ISO27001_", "ISO27001_"),
+                "pci": _reg_cell(hl, "PCI_DSS_", "PCI_DSS_"),
+                "gdpr": _reg_cell(hl, "GDPR_", "GDPR_"),
+            }
+        )
+
+    lines = [
+        "## CCM v4.1 Regulatory Crosswalk",
+        "",
+        "Controls below are CCM v4.1 entries mapped from failing or partial findings in this assessment. "
+        "Each column shows the regulatory reference that applies via the CCM crosswalk "
+        "(SOX ITGC, HIPAA §164, SOC 2 TSC, ISO 27001:2022, PCI DSS v4, GDPR).",
+        "",
+        "| CCM ID | Domain | Title | SSCF Controls | SOX | HIPAA | SOC2 | ISO 27001 | PCI DSS | GDPR |",
+        "|--------|--------|-------|---------------|-----|-------|------|-----------|---------|------|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['id']} | {r['domain']} | {r['title']} | {r['sscf']} "
+            f"| {r['sox']} | {r['hipaa']} | {r['soc2']} | {r['iso']} | {r['pci']} | {r['gdpr']} |"
+        )
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -776,6 +871,7 @@ def generate(
     scorecard = _render_executive_scorecard(backlog_data, sscf_data, org, report_title)
     provenance = _render_oscal_provenance(backlog_data, platform)
     domain_chart = _render_domain_chart(sscf_data) if sscf_data else ""
+    ccm_crosswalk = _render_ccm_crosswalk(backlog_data) if audience == "security" else ""
     priority = _render_priority_findings(backlog_data)
     full_matrix = _render_full_matrix(backlog_data)
     poam = _render_poam(backlog_data) if audience == "security" else ""
@@ -794,6 +890,7 @@ def generate(
             scorecard,
             provenance,
             domain_chart,
+            ccm_crosswalk,
             priority,
             llm_narrative,
             full_matrix,

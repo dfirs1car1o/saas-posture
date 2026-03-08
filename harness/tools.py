@@ -256,6 +256,37 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "backlog_diff",
+        "description": (
+            "Compare two assessment backlogs for the same org and produce a structured drift report. "
+            "Identifies regressions (status worsened), improvements (status improved), resolved findings, "
+            "new findings, and severity escalations. Outputs drift_report.json and drift_report.md. "
+            "Use this before report_gen_generate on a re-assessment to surface drift to stakeholders."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "baseline": {
+                    "type": "string",
+                    "description": "Absolute path to the baseline backlog.json (earlier run)",
+                },
+                "current": {
+                    "type": "string",
+                    "description": "Absolute path to the current backlog.json (latest run)",
+                },
+                "out": {
+                    "type": "string",
+                    "description": "Override output path for drift_report.json (default: next to current backlog)",
+                },
+                "out_md": {
+                    "type": "string",
+                    "description": "Override output path for drift_report.md",
+                },
+            },
+            "required": ["baseline", "current"],
+        },
+    },
+    {
         "name": "sscf_benchmark_benchmark",
         "description": (
             "Benchmark the remediation backlog against the SSCF control index to produce "
@@ -553,6 +584,20 @@ def _dispatch_sfdc_expert(inp: dict[str, Any], out_dir: Path) -> str:  # noqa: A
     )
 
 
+def _dispatch_backlog_diff(inp: dict[str, Any], out_dir: Path) -> str:
+    """Run drift_check.py to compare two backlogs."""
+    baseline = inp.get("baseline")
+    current = inp.get("current")
+    if not baseline or not current:
+        return json.dumps({"status": "error", "message": "baseline and current paths are required"})
+    args = [_PYTHON, "scripts/drift_check.py", "--baseline", baseline, "--current", current]
+    if inp.get("out"):
+        args += ["--out", inp["out"]]
+    if inp.get("out_md"):
+        args += ["--out-md", inp["out_md"]]
+    return _run(args)
+
+
 def _dispatch_finish(inp: dict[str, Any], out_dir: Path) -> str:  # noqa: ARG001
     """Sentinel: orchestrator signals pipeline is complete. Loop will break immediately."""
     return json.dumps({"status": "ok", "pipeline_complete": True, "summary": inp.get("summary", "")})
@@ -583,6 +628,7 @@ def _dispatch_sscf_benchmark(inp: dict[str, Any], out_dir: Path) -> str:
 
 _DISPATCHERS = {
     "finish": _dispatch_finish,
+    "backlog_diff": _dispatch_backlog_diff,
     "workday_connect_collect": _dispatch_workday_connect,
     "sfdc_connect_collect": _dispatch_sfdc_connect,
     "oscal_assess_assess": _dispatch_oscal_assess,
