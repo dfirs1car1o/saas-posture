@@ -104,14 +104,10 @@ def _due_date_delta(baseline: dict | None, current: dict | None) -> int | None:
 
 def diff_backlogs(baseline_data: dict, current_data: dict) -> dict[str, Any]:
     b_items: dict[str, dict] = {
-        i["sbs_control_id"]: i
-        for i in baseline_data.get("mapped_items", [])
-        if "sbs_control_id" in i
+        i["sbs_control_id"]: i for i in baseline_data.get("mapped_items", []) if "sbs_control_id" in i
     }
     c_items: dict[str, dict] = {
-        i["sbs_control_id"]: i
-        for i in current_data.get("mapped_items", [])
-        if "sbs_control_id" in i
+        i["sbs_control_id"]: i for i in current_data.get("mapped_items", []) if "sbs_control_id" in i
     }
 
     all_ids = sorted(set(b_items) | set(c_items))
@@ -143,9 +139,7 @@ def diff_backlogs(baseline_data: dict, current_data: dict) -> dict[str, Any]:
     regressions = [ch for ch in changes if ch["change_type"] == "regression"]
     improvements = [ch for ch in changes if ch["change_type"] == "improvement"]
     severity_changes = [ch for ch in changes if ch["change_type"] == "severity_change"]
-    unchanged_failing = [
-        ch for ch in changes if ch["change_type"] == "unchanged" and ch["current_status"] in _FAILING
-    ]
+    unchanged_failing = [ch for ch in changes if ch["change_type"] == "unchanged" and ch["current_status"] in _FAILING]
 
     b_score = _pass_rate(baseline_data.get("mapped_items", []))
     c_score = _pass_rate(current_data.get("mapped_items", []))
@@ -233,8 +227,12 @@ def _render_md(drift: dict) -> str:
     def _table(items: list[dict], heading: str, icon: str) -> list[str]:
         if not items:
             return []
-        out = [f"## {icon} {heading}", "", "| Control | Title | Status | Severity | Note |",
-               "|---------|-------|--------|----------|------|"]
+        out = [
+            f"## {icon} {heading}",
+            "",
+            "| Control | Title | Status | Severity | Note |",
+            "|---------|-------|--------|----------|------|",
+        ]
         for ch in items:
             b_sta = ch.get("baseline_status") or "—"
             c_sta = ch.get("current_status") or "—"

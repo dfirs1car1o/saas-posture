@@ -17,28 +17,84 @@ PYTHON = sys.executable
 # ---------------------------------------------------------------------------
 
 _BASELINE_ITEMS = [
-    {"sbs_control_id": "SBS-AUTH-001", "sbs_title": "SSO/MFA", "status": "fail", "severity": "critical",
-     "owner": "SecTeam", "due_date": "2026-03-15", "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-AUTH-001",
+        "sbs_title": "SSO/MFA",
+        "status": "fail",
+        "severity": "critical",
+        "owner": "SecTeam",
+        "due_date": "2026-03-15",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
     # fail in baseline → partial in current = improvement (fail→partial)
-    {"sbs_control_id": "SBS-AUTH-002", "sbs_title": "Password Policy", "status": "fail", "severity": "high",
-     "owner": "SecTeam", "due_date": "2026-04-07", "sscf_mappings": [], "sscf_control_ids": []},
-    {"sbs_control_id": "SBS-LOG-001", "sbs_title": "Audit Logging", "status": "pass", "severity": "high",
-     "owner": "SecTeam", "due_date": None, "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-AUTH-002",
+        "sbs_title": "Password Policy",
+        "status": "fail",
+        "severity": "high",
+        "owner": "SecTeam",
+        "due_date": "2026-04-07",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
+    {
+        "sbs_control_id": "SBS-LOG-001",
+        "sbs_title": "Audit Logging",
+        "status": "pass",
+        "severity": "high",
+        "owner": "SecTeam",
+        "due_date": None,
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
 ]
 
 _CURRENT_ITEMS = [
     # SBS-AUTH-001: still failing (unchanged_failing)
-    {"sbs_control_id": "SBS-AUTH-001", "sbs_title": "SSO/MFA", "status": "fail", "severity": "critical",
-     "owner": "SecTeam", "due_date": "2026-03-15", "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-AUTH-001",
+        "sbs_title": "SSO/MFA",
+        "status": "fail",
+        "severity": "critical",
+        "owner": "SecTeam",
+        "due_date": "2026-03-15",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
     # SBS-AUTH-002: improved (fail → partial)
-    {"sbs_control_id": "SBS-AUTH-002", "sbs_title": "Password Policy", "status": "partial", "severity": "high",
-     "owner": "SecTeam", "due_date": "2026-04-07", "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-AUTH-002",
+        "sbs_title": "Password Policy",
+        "status": "partial",
+        "severity": "high",
+        "owner": "SecTeam",
+        "due_date": "2026-04-07",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
     # SBS-LOG-001: regression (pass → fail)
-    {"sbs_control_id": "SBS-LOG-001", "sbs_title": "Audit Logging", "status": "fail", "severity": "high",
-     "owner": "SecTeam", "due_date": "2026-04-07", "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-LOG-001",
+        "sbs_title": "Audit Logging",
+        "status": "fail",
+        "severity": "high",
+        "owner": "SecTeam",
+        "due_date": "2026-04-07",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
     # SBS-ACS-001: new finding
-    {"sbs_control_id": "SBS-ACS-001", "sbs_title": "Permission Sets", "status": "fail", "severity": "high",
-     "owner": "SecTeam", "due_date": "2026-04-07", "sscf_mappings": [], "sscf_control_ids": []},
+    {
+        "sbs_control_id": "SBS-ACS-001",
+        "sbs_title": "Permission Sets",
+        "status": "fail",
+        "severity": "high",
+        "owner": "SecTeam",
+        "due_date": "2026-04-07",
+        "sscf_mappings": [],
+        "sscf_control_ids": [],
+    },
 ]
 
 
@@ -51,8 +107,12 @@ def _make_backlog(items: list, tmp_path: Path, name: str) -> Path:
         "generated_at_utc": "2026-03-08T00:00:00+00:00",
         "catalog_version": "0.4.0",
         "framework": "CSA_SSCF",
-        "summary": {"mapped_findings": len(items), "unmapped_findings": 0,
-                    "status_counts": {}, "mapping_confidence_counts": {}},
+        "summary": {
+            "mapped_findings": len(items),
+            "unmapped_findings": 0,
+            "status_counts": {},
+            "mapping_confidence_counts": {},
+        },
         "mapped_items": items,
         "unmapped_items": [],
         "invalid_mapping_entries": [],
@@ -137,12 +197,21 @@ class TestDriftCLI:
         out_md = tmp_path / "drift.md"
 
         result = subprocess.run(
-            [PYTHON, "scripts/drift_check.py",
-             "--baseline", str(baseline),
-             "--current", str(current),
-             "--out", str(out_json),
-             "--out-md", str(out_md)],
-            capture_output=True, text=True, cwd=REPO,
+            [
+                PYTHON,
+                "scripts/drift_check.py",
+                "--baseline",
+                str(baseline),
+                "--current",
+                str(current),
+                "--out",
+                str(out_json),
+                "--out-md",
+                str(out_md),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO,
         )
         assert result.returncode == 0, f"drift_check failed:\n{result.stderr}"
         assert out_json.exists(), "drift_report.json not written"
@@ -224,12 +293,22 @@ class TestCCMCrosswalk:
 
         out = tmp_path / "report_security.md"
         result = subprocess.run(
-            [PYTHON, "-m", "skills.report_gen.report_gen", "generate",
-             "--backlog", str(_BACKLOG),
-             "--audience", "security",
-             "--out", str(out),
-             "--mock-llm"],
-            capture_output=True, text=True, cwd=REPO,
+            [
+                PYTHON,
+                "-m",
+                "skills.report_gen.report_gen",
+                "generate",
+                "--backlog",
+                str(_BACKLOG),
+                "--audience",
+                "security",
+                "--out",
+                str(out),
+                "--mock-llm",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO,
         )
         assert result.returncode == 0, f"report-gen failed:\n{result.stderr}"
         content = out.read_text()

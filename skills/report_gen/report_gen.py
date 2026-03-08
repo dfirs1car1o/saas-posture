@@ -436,7 +436,7 @@ def _render_ccm_crosswalk(backlog: dict) -> str:
 
     def _reg_cell(highlights: list[str], prefix: str, strip: str) -> str:
         """Extract citations for a given framework prefix."""
-        hits = [h[len(strip):] for h in highlights if h.startswith(prefix)]
+        hits = [h[len(strip) :] for h in highlights if h.startswith(prefix)]
         return " · ".join(hits) if hits else "—"
 
     rows = []
