@@ -1253,6 +1253,21 @@ def generate(
         elif audience == "app-owner":
             banner = _NIST_APPOWNER_NOTE.get(overall, "")
 
+    # ── Companion document reference note (security only) ────────────────────
+    stem = out_path.stem
+    companion_note = ""
+    if audience == "security":
+        companion_note = (
+            "> **Companion Documents**  \n"
+            f"> This report is one of three documents produced by this assessment.  \n"
+            f"> - **`{stem}_annex.docx`** — Full Control Matrix, Plan of Action & Milestones (POA&M), "
+            "OSCAL Framework Provenance, CCM v4.1 Regulatory Crosswalk, ISO 27001:2022 SoA  \n"
+            f"> - **`{stem}_evidence_methodology.docx`** — Per-control table showing the exact API query, "
+            "endpoint, or collection method used to assess each control — use for auditing coverage "
+            "and reproducing results  \n"
+            "> All three files are in the same folder as this document.\n"
+        )
+
     # ── Python-rendered structural sections ──────────────────────────────────
     scorecard = _render_executive_scorecard(backlog_data, sscf_data, org, report_title)
     domain_chart = _render_domain_chart(sscf_data) if sscf_data else ""
@@ -1277,6 +1292,7 @@ def generate(
         p
         for p in [
             banner,
+            companion_note,
             drift_section,
             scorecard,
             domain_chart,
