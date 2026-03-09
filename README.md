@@ -78,22 +78,30 @@ docker compose up -d        # starts OpenSearch + OpenSearch Dashboards
 open http://localhost:5601  # three dashboards auto-imported and ready
 ```
 
-Three pre-built dashboards are loaded automatically — no manual setup:
+Three pre-built dashboards are imported automatically on first start — no manual setup:
 
 | Dashboard | URL | Use for |
 |---|---|---|
-| **SSCF Security Posture Overview** | `/app/dashboards#/view/sscf-main-dashboard` | Combined cross-platform governance view |
-| **Salesforce Security Posture** | `/app/dashboards#/view/sfdc-dashboard` | Salesforce-only findings + SBS quarterly review |
-| **Workday Security Posture** | `/app/dashboards#/view/workday-dashboard` | Workday-only findings + WSCC compliance review |
+| **SSCF Security Posture Overview** | `/app/dashboards#/view/sscf-main-dashboard` | Combined cross-platform view — Salesforce + Workday side-by-side |
+| **Salesforce Security Posture** | `/app/dashboards#/view/sfdc-dashboard` | Salesforce-only findings, SBS quarterly review |
+| **Workday Security Posture** | `/app/dashboards#/view/workday-dashboard` | Workday-only findings, WSCC compliance review |
+
+Each platform dashboard (Salesforce / Workday) contains **14 panels**, all platform-filtered:
+
+```
+Row 1  Score tile (RED/AMBER/GREEN)  ·  Pass count  ·  Fail count  ·  Critical failures  ·  Open POA&M
+Row 2  Top Failing Controls (horizontal bar, colored by severity)  ·  Control Status donut
+Row 3  Risk by Domain (stacked bar, fail/partial only)  ·  Findings by Severity (stacked by status)
+Row 4  Open Items by Owner (accountability bar)  ·  Score Over Time (trend line)
+Row 5  Critical & High failures table  ·  POA&M open items table
+Row 6  Full document table — every fail/partial finding, sortable by any column
+```
 
 After each assessment, export results to populate the dashboards:
 
 ```bash
-# Run a Workday dry-run (no credentials needed)
-python3 scripts/workday_dry_run_demo.py --org acme-workday --env dev
-
-# Export to OpenSearch
-python scripts/export_to_opensearch.py --auto --org acme-workday --date $(date +%Y-%m-%d)
+# Export after a live or dry-run assessment
+python scripts/export_to_opensearch.py --auto --org <org-alias> --date $(date +%Y-%m-%d)
 
 # Or use the interactive runner (handles export automatically)
 python scripts/run_assessment.py
@@ -101,8 +109,8 @@ python scripts/run_assessment.py
 
 The **Docker stack and dashboards are optional** — if your organization already uses Splunk, Elastic,
 Grafana, or a GRC tool, adapt the sink in `scripts/export_to_opensearch.py` to match.
-See [`docs/wiki/OpenSearch-Dashboards.md`](docs/wiki/OpenSearch-Dashboards.md) for the full navigation guide and
-[`docs/wiki/Continuous-Monitoring.md`](docs/wiki/Continuous-Monitoring.md) for scheduling and export options.
+See [`docs/wiki/OpenSearch-Dashboards.md`](docs/wiki/OpenSearch-Dashboards.md) for the full panel reference,
+navigation guide, and [`docs/wiki/Continuous-Monitoring.md`](docs/wiki/Continuous-Monitoring.md) for scheduling.
 
 ## Multi-Agent Architecture
 
