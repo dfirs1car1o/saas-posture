@@ -862,45 +862,46 @@ def _platform_dashboard(
     dash_desc: str,
 ) -> dict:
     panels = [
-        # Row 0
+        # Row 0 — scores + pass/fail/critical counts (POA&M count moved to bottom)
         panel(1, 0, 0, 16, 10, score_id),
-        panel(2, 16, 0, 8, 10, pass_id),
-        panel(3, 24, 0, 8, 10, fail_id),
-        panel(4, 32, 0, 8, 10, crit_count_id),
-        panel(5, 40, 0, 8, 10, poam_count_id),
+        panel(2, 16, 0, 11, 10, pass_id),
+        panel(3, 27, 0, 11, 10, fail_id),
+        panel(4, 38, 0, 10, 10, crit_count_id),
         # Row 1
-        panel(6, 0, 10, 32, 22, top_failing_id),
-        panel(7, 32, 10, 16, 22, status_pie_id),
+        panel(5, 0, 10, 32, 22, top_failing_id),
+        panel(6, 32, 10, 16, 22, status_pie_id),
         # Row 2
-        panel(8, 0, 32, 28, 18, domain_id),
-        panel(9, 28, 32, 20, 18, sev_id),
+        panel(7, 0, 32, 28, 18, domain_id),
+        panel(8, 28, 32, 20, 18, sev_id),
         # Row 3
-        panel(10, 0, 50, 24, 15, owner_id),
-        panel(11, 24, 50, 24, 15, trend_id),
-        # Row 4
-        panel(12, 0, 65, 28, 18, crit_table_id),
-        panel(13, 28, 65, 20, 18, poam_table_id),
+        panel(9, 0, 50, 24, 15, owner_id),
+        panel(10, 24, 50, 24, 15, trend_id),
+        # Row 4 — critical table (full width now that POA&M is at bottom)
+        panel(11, 0, 65, 48, 18, crit_table_id),
         # Row 5 — full failing document view
-        panel(14, 0, 83, 48, 22, search_id, obj_type="search"),
+        panel(12, 0, 83, 48, 22, search_id, obj_type="search"),
         # Row 6 — partial controls with expert review descriptions
-        panel(15, 0, 105, 48, 22, partials_search_id, obj_type="search"),
+        panel(13, 0, 105, 48, 22, partials_search_id, obj_type="search"),
+        # Row 7 — POA&M (count tile + detail table)
+        panel(14, 0, 127, 8, 22, poam_count_id),
+        panel(15, 8, 127, 40, 22, poam_table_id),
     ]
     refs = [
         ref("panel_1", "visualization", score_id),
         ref("panel_2", "visualization", pass_id),
         ref("panel_3", "visualization", fail_id),
         ref("panel_4", "visualization", crit_count_id),
-        ref("panel_5", "visualization", poam_count_id),
-        ref("panel_6", "visualization", top_failing_id),
-        ref("panel_7", "visualization", status_pie_id),
-        ref("panel_8", "visualization", domain_id),
-        ref("panel_9", "visualization", sev_id),
-        ref("panel_10", "visualization", owner_id),
-        ref("panel_11", "visualization", trend_id),
-        ref("panel_12", "visualization", crit_table_id),
-        ref("panel_13", "visualization", poam_table_id),
-        ref("panel_14", "search", search_id),
-        ref("panel_15", "search", partials_search_id),
+        ref("panel_5", "visualization", top_failing_id),
+        ref("panel_6", "visualization", status_pie_id),
+        ref("panel_7", "visualization", domain_id),
+        ref("panel_8", "visualization", sev_id),
+        ref("panel_9", "visualization", owner_id),
+        ref("panel_10", "visualization", trend_id),
+        ref("panel_11", "visualization", crit_table_id),
+        ref("panel_12", "search", search_id),
+        ref("panel_13", "search", partials_search_id),
+        ref("panel_14", "visualization", poam_count_id),
+        ref("panel_15", "visualization", poam_table_id),
     ]
     return dashboard_obj(dash_id, dash_title, dash_desc, panels, refs)
 
