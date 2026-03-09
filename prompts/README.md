@@ -1,6 +1,6 @@
 # Prompting Patterns — OSCAL/SSCF Multi-Agent System
 
-These are the prompting patterns that work well for this system. They apply Peter Steinberger's OpenClaw philosophy: short prompts at expert level, not long waterfall specs.
+These are the prompting patterns that work well for this system. The approach: short prompts at expert level, not long waterfall specs.
 
 ## Starting A Session
 

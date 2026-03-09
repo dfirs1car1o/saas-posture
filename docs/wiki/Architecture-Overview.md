@@ -2,7 +2,7 @@
 
 ## Design Philosophy
 
-**OpenClaw**: CLIs not MCPs. Every tool is a Python CLI callable from the shell. No hidden MCP state. No Docker-required infrastructure. The agent loop is an OpenAI `tool_use` ReAct loop.
+**CLIs not MCPs.** Every tool is a Python CLI callable from the shell. No hidden service state. No Docker-required infrastructure. The agent loop is an OpenAI `tool_use` ReAct loop.
 
 ---
 
