@@ -63,7 +63,7 @@ SF_DOMAIN=login
 
 **Binary:** `oscal-assess`
 **File:** `skills/oscal_assess/oscal_assess.py`
-**Purpose:** Evaluates 45 SBS controls against the collected org configuration.
+**Purpose:** Evaluates 35 SBS controls against the collected org configuration.
 
 ### Commands
 
@@ -183,6 +183,10 @@ report-gen generate \
 
 # Offline / CI mode (no OpenAI API call)
 report-gen generate --backlog backlog.json --audience security --out report.md --mock-llm
+
+# Override ISO 27001:2022 catalog path (optional — auto-detected by default)
+report-gen generate --backlog backlog.json --audience security --out report.md \
+    --iso27001-catalog config/iso27001/iso27001_2022_annex_a_catalog.yaml
 ```
 
 ### Audiences
@@ -190,23 +194,26 @@ report-gen generate --backlog backlog.json --audience security --out report.md -
 | Audience | Formats | Contents |
 |---|---|---|
 | `app-owner` | Markdown | Executive Scorecard, Immediate Actions, plain-language narrative, Full Control Matrix |
-| `security` | Markdown + DOCX | All of the above + OSCAL Provenance + Domain Posture + POA&M + Not Assessed appendix + NIST AI RMF Governance Review |
+| `security` | Markdown + DOCX | All of the above + OSCAL Provenance + Domain Posture + CCM Crosswalk + ISO 27001:2022 SoA + POA&M + Not Assessed appendix + NIST AI RMF Governance Review |
 
 ### Report Structure
 
 ```
 [Gate banner]                  ← ⛔ block / 🚩 flag if NIST verdict requires it
-Executive Scorecard            ← overall score + severity × status matrix   [HARNESS]
-OSCAL Framework Provenance     ← catalog → profile → component → CCM chain  [HARNESS]
-Domain Posture (ASCII chart)   ← bar chart of SSCF domain scores            [HARNESS]
-CCM v4.1 Regulatory Crosswalk  ← fail/partial → SOX/HIPAA/SOC2/ISO/PCI/GDPR[HARNESS]
-                                  (security audience only)
-Immediate Actions (Top 10)     ← sorted critical/fail findings              [HARNESS]
-Executive Summary + Analysis   ← LLM narrative only                         [LLM]
-Full Control Matrix            ← complete sorted findings table              [HARNESS]
-Plan of Action & Milestones    ← POAM-IDs, owners, due dates, status        [HARNESS]
-Not Assessed Controls          ← out-of-scope appendix for auditors         [HARNESS]
-NIST AI RMF Governance Review  ← function table + blockers + recs           [HARNESS]
+Executive Scorecard            ← overall score + severity × status matrix        [HARNESS]
+OSCAL Framework Provenance     ← catalog → profile → ISO 27001:2022 → CCM chain  [HARNESS]
+Domain Posture (ASCII chart)   ← bar chart of SSCF domain scores                 [HARNESS]
+CCM v4.1 Regulatory Crosswalk  ← fail/partial → SOX/HIPAA/SOC2/PCI/GDPR         [HARNESS]
+                                  (security audience only; ISO column = via CCM)
+ISO 27001:2022 SoA             ← Statement of Applicability: all 93 Annex A      [HARNESS]
+                                  controls with applicability, status, SSCF ref,
+                                  owner, evidence (security audience only)
+Immediate Actions (Top 10)     ← sorted critical/fail findings                   [HARNESS]
+Executive Summary + Analysis   ← LLM narrative only                               [LLM]
+Full Control Matrix            ← complete sorted findings table                   [HARNESS]
+Plan of Action & Milestones    ← POAM-IDs, owners, due dates, status             [HARNESS]
+Not Assessed Controls          ← out-of-scope appendix for auditors              [HARNESS]
+NIST AI RMF Governance Review  ← function table + blockers + recs                [HARNESS]
 ```
 
 ### DOCX Generation
@@ -230,11 +237,20 @@ python3 scripts/oscal_gap_map.py \
     --gap-analysis gap_analysis.json \
     --org my-org \
     --out-json backlog.json
+
+# Override ISO 27001:2022 mapping (optional — auto-detected by default)
+python3 scripts/oscal_gap_map.py \
+    --gap-analysis gap_analysis.json \
+    --org my-org \
+    --out-json backlog.json \
+    --iso27001-map config/iso27001/sscf_to_iso27001_mapping.yaml
 ```
 
-Maps `gap_analysis.json` findings to SSCF controls using `config/oscal-salesforce/sbs_to_sscf_mapping.yaml`. Produces `backlog.json` with remediation items, SSCF control references, and `mapping_confidence` (high/medium/low).
+Maps `gap_analysis.json` findings to SSCF controls using `config/oscal-salesforce/sbs_to_sscf_mapping.yaml`. Produces `backlog.json` with remediation items, SSCF control references, `mapping_confidence` (high/medium/low), and ISO 27001:2022 Annex A control enrichment.
 
-Controls starting with `SBS-` are looked up directly — no `control_mapping.yaml` needed.
+Controls starting with `SBS-` are looked up directly — no `control_mapping.yaml` needed. Controls starting with `SSCF-` are mapped directly (Workday/WSCC path — no intermediate translation).
+
+**ISO 27001:2022 enrichment:** Each mapped item gains `iso27001_controls[]` (id, title, theme, mapping_strength, applicability) and `iso27001_control_ids[]` derived from the SSCF→ISO 27001 mapping at `config/iso27001/sscf_to_iso27001_mapping.yaml`. The backlog summary includes an `iso27001_summary` block with counts of unique Annex A controls touched. Skipped if the mapping file is absent.
 
 ---
 

@@ -23,8 +23,8 @@ Phase 5 — Report       report-gen (app-owner + security)  →  Markdown + DOCX
 Phase 6 — Monitor      export_to_opensearch + dashboards  →  OpenSearch trending + 3 dashboards
 ```
 
-**Platform support:** Salesforce (45 SBS controls) · Workday (30 WSCC controls)
-**Framework chain:** Platform control → SSCF domain → CCM v4.1 → SOX / HIPAA / SOC2 / ISO 27001 / NIST 800-53 / PCI DSS / GDPR
+**Platform support:** Salesforce (35 SBS controls) · Workday (30 WSCC controls)
+**Framework chain:** Platform control → SSCF domain → CCM v4.1 → ISO 27001:2022 Annex A (direct) → SOX / HIPAA / SOC2 / NIST 800-53 / PCI DSS / GDPR
 **AI governance:** Every output passes through a NIST AI RMF gate before delivery — distinguishes live collection from stubs, requires human acknowledgment on block verdicts
 
 This system **never writes to any SaaS org**. All evidence stays in `docs/oscal-salesforce-poc/generated/`.
@@ -154,8 +154,10 @@ Reports are assembled from deterministic Python-rendered sections (no hallucinat
 ```
 [Gate banner]                  ← ⛔ block / 🚩 flag if NIST verdict requires it
 Executive Scorecard            ← overall score + severity × status matrix
-OSCAL Framework Provenance     ← catalog → profile → component → CCM chain
+OSCAL Framework Provenance     ← catalog → profile → component → ISO 27001 → CCM chain
 Domain Posture (ASCII chart)   ← bar chart of all SSCF domain scores
+CCM v4.1 Regulatory Crosswalk  ← fail/partial findings → SOX/HIPAA/SOC2/PCI/GDPR
+ISO 27001:2022 SoA             ← full Statement of Applicability (all 93 Annex A controls)
 Immediate Actions              ← top-10 critical/fail findings, sorted by severity
 Executive Summary + Analysis   ← LLM narrative (2 sections only)
 Full Control Matrix            ← complete sorted findings table
@@ -174,6 +176,7 @@ All platform controls chain through SSCF → CCM v4.1 → regulatory crosswalk (
 | Security Benchmark for Salesforce (SBS) | v1.0 | `config/salesforce/sbs_v1_profile.json` (OSCAL sub-profile of SSCF, 35 controls) |
 | Workday Security Control Catalog (WSCC) | v1.0 | `config/workday/wscc_v1_profile.json` (OSCAL sub-profile of SSCF, 30 controls) |
 | CSA CCM | v4.1 | `config/ccm/ccm_v4.1_oscal_ref.yaml` (reference; CCM control IDs embedded in SSCF catalog) |
+| **ISO/IEC 27001:2022** | **2022** | **`config/iso27001/sscf_to_iso27001_mapping.yaml`** (direct Annex A mapping — 29 of 93 controls; full 93-control SoA auto-generated in security reports) |
 | NIST AI RMF | 1.0 | Applied by `nist-review` skill |
 
 ## Repository Layout
@@ -185,8 +188,9 @@ config/
   salesforce/             ← SBS v1.0 OSCAL sub-profile (35 controls) + Salesforce platform notes
   workday/                ← WSCC v1.0 OSCAL sub-profile (30 controls) + Workday/ISSG notes
   component-definitions/  ← OSCAL component definitions: evidence specs per control (Salesforce + Workday)
-  oscal-salesforce/       ← Legacy SBS OSCAL catalog (45 controls) + SSCF mapping
+  oscal-salesforce/       ← Legacy SBS OSCAL catalog + SSCF mapping
   ccm/                    ← CCM v4.1 reference pointer (CCM IDs embedded in SSCF catalog)
+  iso27001/               ← ISO 27001:2022 Annex A direct mapping (36 SSCF → 29 Annex A controls) + 93-control catalog
 contexts/                 ← System prompts for assess/review/research modes
 docs/
   architecture.png        ← Auto-generated reference architecture diagram
@@ -205,7 +209,7 @@ skills/
   nist_review/            ← NIST AI RMF gate (--platform salesforce|workday)
   report_gen/             ← Governance report generator (MD + DOCX)
   workday_connect/        ← Workday HCM/Finance collector (OAuth 2.0, 30 controls, 21 tests)
-tests/                    ← pytest suite (33 tests, fully offline with --mock-llm)
+tests/                    ← pytest suite (43 tests, fully offline with --mock-llm)
 ```
 
 ## Authentication

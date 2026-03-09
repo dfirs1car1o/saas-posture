@@ -206,11 +206,14 @@ flowchart TD
         M1["config/sscf/sscf_to_ccm_mapping.yaml\n✦ SSCF → CCM v4.1 bridge\n✦ Regulatory highlights per CCM control\n✦ Mapping strength: direct · partial"]
         M2["config/ccm/ccm_v4.1_oscal_ref.yaml\n✦ CCM v4.1 reference pointer\n✦ Download URL, domains, control count\n✦ Not copied — linked by reference"]
         M3["config/sscf_control_index.yaml\n✦ Quick-reference index, 36 controls\n✦ Domain · severity · owner · v0 equivalent"]
+        M4["config/iso27001/sscf_to_iso27001_mapping.yaml\n✦ SSCF → ISO 27001:2022 Annex A direct mapping\n✦ 36 SSCF controls → 29 of 93 Annex A controls\n✦ Mapping strength: direct · partial · informative"]
+        M5["config/iso27001/iso27001_2022_annex_a_catalog.yaml\n✦ All 93 Annex A controls (ORG/PEO/PHY/TEC)\n✦ Used by report-gen SoA renderer\n✦ default_applicability per control"]
     end
 
     C1 --> P1 --> P2 --> D1
     P1 --> P3 --> D2
     C1 --> M1 --> M2
+    C1 --> M4 --> M5
 ```
 
 ---
@@ -282,6 +285,49 @@ flowchart LR
 ```
 
 **You do not need to maintain the regulatory crosswalk.** When a new regulation maps to CCM controls, and we reference those CCM controls in our SSCF catalog, the regulatory coverage updates automatically.
+
+---
+
+## ISO 27001:2022 Direct Mapping Layer
+
+In addition to the CCM regulatory crosswalk, this system includes a **direct** ISO/IEC 27001:2022 Annex A mapping at the SSCF level. This is separate from and complementary to the CCM path.
+
+```mermaid
+flowchart LR
+    subgraph SSCF["SSCF Controls"]
+        S1["SSCF-IAM-001\nMFA Enforcement"]
+        S2["SSCF-LOG-001\nTelemetry Collection"]
+    end
+
+    subgraph ISO["ISO 27001:2022 Annex A (Direct)"]
+        I1["8.5 Secure authentication"]
+        I2["5.17 Authentication information"]
+        I3["8.15 Logging"]
+        I4["8.16 Monitoring activities"]
+    end
+
+    subgraph SoA["Statement of Applicability (auto-generated)"]
+        SOA["93 Annex A controls\napplicable / not_assessed_by_api\nworst-case status from findings"]
+    end
+
+    S1 -->|direct| I1
+    S1 -->|direct| I2
+    S2 -->|direct| I3
+    S2 -->|direct| I4
+    ISO --> SoA
+```
+
+**Key distinctions from the CCM path:**
+
+| Aspect | CCM Path | ISO 27001 Direct Path |
+|---|---|---|
+| Config file | `sscf_to_ccm_mapping.yaml` | `sscf_to_iso27001_mapping.yaml` |
+| In report | CCM v4.1 Regulatory Crosswalk table | ISO 27001:2022 Statement of Applicability |
+| Coverage | SOX, HIPAA, SOC2, PCI, GDPR (via CCM IDs) | Full 93-control Annex A SoA |
+| Audience | Security team regulatory crosswalk | Auditors, ISMS certification scope |
+| ISO column | "ISO 27001 (via CCM)" — CCM-inherited | Direct Annex A control mapping |
+
+**29 of 93 Annex A controls** are assessed via API. The remaining 64 — primarily physical (7.x), HR (6.x), and process governance (5.x) — are listed as `not_assessed_by_api` in the SoA with a note that manual evidence is required. This is the correct auditor distinction — they are **not** falsely claimed as `not_applicable`.
 
 ---
 

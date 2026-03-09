@@ -51,7 +51,7 @@ Produces a synthetic weak-org snapshot (no real Salesforce connection needed).
 
 ## Stage 2: OSCAL Assessment (`oscal-assess`)
 
-**What it does:** Evaluates 45 SBS (Salesforce Baseline Security) controls against the collected config.
+**What it does:** Evaluates 35 SBS (Salesforce Baseline Security) controls against the collected config.
 
 **How rules work:**
 
@@ -191,7 +191,7 @@ report-gen generate \
     --out my-org_security_assessment.md   # also writes .docx
 ```
 
-**Output:** `{org}_security_assessment.md` + `{org}_security_assessment.docx` — SSCF domain bar chart, CCM v4.1 regulatory crosswalk (SOX/HIPAA/SOC2/ISO 27001/PCI DSS/GDPR), full control matrix, NIST AI RMF governance review, executive summary, and risk analysis.
+**Output:** `{org}_security_assessment.md` + `{org}_security_assessment.docx` — SSCF domain bar chart, CCM v4.1 regulatory crosswalk (SOX/HIPAA/SOC2/ISO 27001 via CCM/PCI DSS/GDPR), **ISO 27001:2022 Statement of Applicability** (all 93 Annex A controls — 29 assessed via API, 64 manual), full control matrix, NIST AI RMF governance review, executive summary, and risk analysis.
 
 ---
 

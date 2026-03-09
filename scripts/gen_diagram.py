@@ -33,6 +33,7 @@ from pathlib import Path
 
 from diagrams import Cluster, Diagram, Edge
 from diagrams.azure.identity import ActiveDirectory
+from diagrams.generic.network import Firewall
 from diagrams.generic.storage import Storage
 from diagrams.onprem.compute import Server
 from diagrams.programming.flowchart import Document, MultipleDocuments
@@ -63,8 +64,12 @@ def main() -> None:
     ):
         # ── Inputs ───────────────────────────────────────────────────────────
         with Cluster("SaaS Platforms  (read-only)"):
-            sfdc = ActiveDirectory("Salesforce Org\n(Entra ID SSO)")
-            workday = Server("Workday Tenant\n(HCM / Finance)")
+            with Cluster("Salesforce Org"):
+                sfdc = ActiveDirectory("Entra ID SSO\nJWT Bearer · SOAP Auth")
+                sfdc_apis = Firewall("Tooling API\nREST API · Metadata API")
+            with Cluster("Workday Tenant  (HCM / Finance)"):
+                workday = Server("OAuth 2.0\nClient Credentials")
+                wd_apis = Firewall("SOAP · RaaS\nREST API")
 
         # ── OSCAL Config Layer ────────────────────────────────────────────────
         with Cluster("OSCAL Config  (config/)"):
@@ -117,8 +122,10 @@ def main() -> None:
         wd_profile >> Edge(style="dotted", color="navy") >> wd_comp
 
         # ── Data pipeline (solid arrows) ─────────────────────────────────────
-        sfdc >> sfdc_connect >> raw_sfdc
-        workday >> wd_connect >> raw_wd
+        sfdc >> sfdc_apis
+        sfdc_apis >> Edge(color="darkgreen") >> sfdc_connect >> raw_sfdc
+        workday >> wd_apis
+        wd_apis >> Edge(color="darkgreen") >> wd_connect >> raw_wd
         raw_sfdc >> oscal_assess
         raw_wd >> oscal_assess
         sfdc_comp >> Edge(style="dotted", color="orange") >> sfdc_connect
