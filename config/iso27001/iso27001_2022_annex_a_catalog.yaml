@@ -1,0 +1,702 @@
+# iso27001_2022_annex_a_catalog.yaml
+# ISO/IEC 27001:2022 Annex A — Complete information security controls reference
+#
+# 93 controls across 4 themes.
+# Used by report_gen.py _render_iso27001_soa() to produce a complete Statement of
+# Applicability (SoA) showing all 93 controls with applicability decisions —
+# not only those touched by assessment findings.
+#
+# Default applicability by theme when no SSCF mapping exists:
+#   ORG (5.x) — not_assessed_by_api: organizational process controls require manual review
+#   PEO (6.x) — not_assessed_by_api: HR/people controls require manual review
+#   PHY (7.x) — not_assessed_by_api: physical controls are outside SaaS API assessment scope
+#   TEC (8.x) — not_assessed_by_api: tech controls not covered by collector require manual review
+#
+# Controls touched by SSCF mappings (sscf_to_iso27001_mapping.yaml) are marked
+# applicable with their assessment status injected at report generation time.
+
+version: "1.0"
+standard: "ISO/IEC 27001:2022"
+annex_a_title: "Information security controls reference"
+publication_date: "2022-10-25"
+total_controls: 93
+themes:
+  - id: ORG
+    clause: "5"
+    title: Organizational controls
+    count: 37
+  - id: PEO
+    clause: "6"
+    title: People controls
+    count: 8
+  - id: PHY
+    clause: "7"
+    title: Physical controls
+    count: 14
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based configuration assessment."
+  - id: TEC
+    clause: "8"
+    title: Technological controls
+    count: 34
+
+controls:
+
+  # ── 5.x Organizational controls (37) ───────────────────────────────────────
+
+  - id: "5.1"
+    title: Policies for information security
+    theme: ORG
+    purpose: Provide management direction and support for information security.
+    default_applicability: not_assessed_by_api
+    default_reason: "IS policy existence and approval requires document review; not API-collectable."
+
+  - id: "5.2"
+    title: Information security roles and responsibilities
+    theme: ORG
+    purpose: Establish and allocate information security responsibilities.
+    default_applicability: not_assessed_by_api
+    default_reason: "Role and responsibility assignment requires HR/org chart review."
+
+  - id: "5.3"
+    title: Segregation of duties
+    theme: ORG
+    purpose: Reduce risk of fraud and error by separating conflicting roles.
+    default_applicability: not_assessed_by_api
+    default_reason: "SoD verification requires access review and HR confirmation."
+
+  - id: "5.4"
+    title: Management responsibilities
+    theme: ORG
+    purpose: Ensure management directs staff to apply IS policies.
+    default_applicability: not_assessed_by_api
+    default_reason: "Management accountability is a process control; not API-collectable."
+
+  - id: "5.5"
+    title: Contact with authorities
+    theme: ORG
+    purpose: Maintain appropriate contacts with relevant authorities.
+    default_applicability: not_assessed_by_api
+    default_reason: "Regulatory contact records require manual review."
+
+  - id: "5.6"
+    title: Contact with special interest groups
+    theme: ORG
+    purpose: Maintain appropriate contacts with special interest groups.
+    default_applicability: not_assessed_by_api
+    default_reason: "Membership and engagement records require manual review."
+
+  - id: "5.7"
+    title: Threat intelligence
+    theme: ORG
+    purpose: Collect and analyze threat intelligence to manage information security risks.
+    default_applicability: not_assessed_by_api
+    default_reason: "Threat intel processes require SOC documentation review."
+
+  - id: "5.8"
+    title: Information security in project management
+    theme: ORG
+    purpose: Integrate IS into project management processes.
+    default_applicability: not_assessed_by_api
+    default_reason: "Project governance integration requires process documentation review."
+
+  - id: "5.9"
+    title: Inventory of information and other associated assets
+    theme: ORG
+    purpose: Identify information and associated assets; define security responsibilities.
+    default_applicability: not_assessed_by_api
+    default_reason: "Asset inventory completeness requires cross-system verification."
+
+  - id: "5.10"
+    title: Acceptable use of information and other associated assets
+    theme: ORG
+    purpose: Define and document rules for acceptable use of information assets.
+    default_applicability: not_assessed_by_api
+    default_reason: "AUP content and acknowledgment tracking requires document/HR review."
+
+  - id: "5.11"
+    title: Return of assets
+    theme: ORG
+    purpose: Return assets upon termination or change of employment.
+    default_applicability: not_assessed_by_api
+    default_reason: "Asset return process requires HR offboarding record review."
+
+  - id: "5.12"
+    title: Classification of information
+    theme: ORG
+    purpose: Classify information according to security needs.
+    default_applicability: not_assessed_by_api
+    default_reason: "Classification scheme enforcement requires data catalog and policy review."
+
+  - id: "5.13"
+    title: Labelling of information
+    theme: ORG
+    purpose: Apply labelling procedures per classification scheme.
+    default_applicability: not_assessed_by_api
+    default_reason: "Label application requires data sample review; not API-collectable at SaaS layer."
+
+  - id: "5.14"
+    title: Information transfer
+    theme: ORG
+    purpose: Maintain information security rules for internal and external transfers.
+    default_applicability: not_assessed_by_api
+    default_reason: "Transfer controls require DLP configuration review and network policy documentation."
+
+  - id: "5.15"
+    title: Access control
+    theme: ORG
+    purpose: Define and implement rules to control access to information.
+    default_applicability: applicable
+    default_reason: "Access control policy is assessed via IAM and DSP controls mapped to 5.15."
+
+  - id: "5.16"
+    title: Identity management
+    theme: ORG
+    purpose: Manage the full lifecycle of identities.
+    default_applicability: applicable
+    default_reason: "Identity lifecycle is assessed via IAM controls mapped to 5.16."
+
+  - id: "5.17"
+    title: Authentication information
+    theme: ORG
+    purpose: Control management of authentication information.
+    default_applicability: applicable
+    default_reason: "Authentication information governance is assessed via IAM and CON controls."
+
+  - id: "5.18"
+    title: Access rights
+    theme: ORG
+    purpose: Provision, review, modify, and remove access rights.
+    default_applicability: applicable
+    default_reason: "Access rights lifecycle is assessed via IAM controls mapped to 5.18."
+
+  - id: "5.19"
+    title: Information security in supplier relationships
+    theme: ORG
+    purpose: Protect assets accessible to suppliers.
+    default_applicability: applicable
+    default_reason: "Supplier/integration security is assessed via CON and IPY controls."
+
+  - id: "5.20"
+    title: Addressing information security within supplier agreements
+    theme: ORG
+    purpose: Establish and maintain IS requirements in supplier agreements.
+    default_applicability: not_assessed_by_api
+    default_reason: "Agreement content requires contract review; not API-collectable."
+
+  - id: "5.21"
+    title: Managing information security in the ICT supply chain
+    theme: ORG
+    purpose: Define and implement IS requirements for ICT products and services.
+    default_applicability: not_assessed_by_api
+    default_reason: "ICT supply chain management requires vendor documentation review."
+
+  - id: "5.22"
+    title: Monitoring, review and change management of supplier services
+    theme: ORG
+    purpose: Regularly monitor, review, and manage supplier service changes.
+    default_applicability: not_assessed_by_api
+    default_reason: "Supplier monitoring records require manual review."
+
+  - id: "5.23"
+    title: Information security for use of cloud services
+    theme: ORG
+    purpose: Manage IS for acquisition, use, and exit from cloud services.
+    default_applicability: applicable
+    default_reason: "Cloud service security is assessed via IPY and DSP controls."
+
+  - id: "5.24"
+    title: Information security incident management planning and preparation
+    theme: ORG
+    purpose: Plan and prepare for incident management.
+    default_applicability: applicable
+    default_reason: "IR planning is assessed via SEF-003."
+
+  - id: "5.25"
+    title: Assessment and decision on information security events
+    theme: ORG
+    purpose: Assess and decide whether events are classified as incidents.
+    default_applicability: applicable
+    default_reason: "Event assessment and triage process is assessed via SEF controls."
+
+  - id: "5.26"
+    title: Response to information security incidents
+    theme: ORG
+    purpose: Respond to incidents in accordance with documented procedures.
+    default_applicability: applicable
+    default_reason: "Incident response is assessed via SEF-002."
+
+  - id: "5.27"
+    title: Learning from information security incidents
+    theme: ORG
+    purpose: Use incident knowledge to reduce future risk.
+    default_applicability: not_assessed_by_api
+    default_reason: "Post-incident review records require manual verification."
+
+  - id: "5.28"
+    title: Collection of evidence
+    theme: ORG
+    purpose: Establish and implement procedures for collecting evidence.
+    default_applicability: applicable
+    default_reason: "Evidence preservation and forensics readiness is assessed via SEF-004."
+
+  - id: "5.29"
+    title: Information security during disruption
+    theme: ORG
+    purpose: Maintain IS at an agreed level during disruption.
+    default_applicability: not_assessed_by_api
+    default_reason: "Business continuity controls require BCP/DR documentation review."
+
+  - id: "5.30"
+    title: ICT readiness for business continuity
+    theme: ORG
+    purpose: Plan, implement, maintain, and test ICT readiness.
+    default_applicability: not_assessed_by_api
+    default_reason: "ICT continuity testing records require manual review."
+
+  - id: "5.31"
+    title: Legal, statutory, regulatory and contractual requirements
+    theme: ORG
+    purpose: Identify and document legal and regulatory IS obligations.
+    default_applicability: not_assessed_by_api
+    default_reason: "Legal compliance registers require legal/compliance review."
+
+  - id: "5.32"
+    title: Intellectual property rights
+    theme: ORG
+    purpose: Protect intellectual property rights.
+    default_applicability: not_assessed_by_api
+    default_reason: "IP rights management is a legal/governance process; not API-collectable."
+
+  - id: "5.33"
+    title: Protection of records
+    theme: ORG
+    purpose: Protect records from loss, destruction, and unauthorized access.
+    default_applicability: not_assessed_by_api
+    default_reason: "Records management requires policy and system configuration review."
+
+  - id: "5.34"
+    title: Privacy and protection of personal identifiable information
+    theme: ORG
+    purpose: Protect privacy and PII per legal requirements.
+    default_applicability: applicable
+    default_reason: "PII protection is assessed via DSP controls mapped to 5.34."
+
+  - id: "5.35"
+    title: Independent review of information security
+    theme: ORG
+    purpose: Independently review IS approach at planned intervals.
+    default_applicability: not_assessed_by_api
+    default_reason: "Independent review records (audit reports, pen test results) require manual review."
+
+  - id: "5.36"
+    title: Compliance with policies, rules and standards for information security
+    theme: ORG
+    purpose: Regularly review compliance with IS policies and standards.
+    default_applicability: not_assessed_by_api
+    default_reason: "Compliance review process requires management/audit documentation."
+
+  - id: "5.37"
+    title: Documented operating procedures
+    theme: ORG
+    purpose: Document and make available operating procedures for information processing.
+    default_applicability: not_assessed_by_api
+    default_reason: "Operating procedure documentation requires manual review."
+
+  # ── 6.x People controls (8) ────────────────────────────────────────────────
+
+  - id: "6.1"
+    title: Screening
+    theme: PEO
+    purpose: Verify backgrounds of all candidates prior to employment.
+    default_applicability: not_assessed_by_api
+    default_reason: "HR screening records require manual review."
+
+  - id: "6.2"
+    title: Terms and conditions of employment
+    theme: PEO
+    purpose: Define IS responsibilities in employment contracts.
+    default_applicability: not_assessed_by_api
+    default_reason: "Contract content requires HR documentation review."
+
+  - id: "6.3"
+    title: Information security awareness, education and training
+    theme: PEO
+    purpose: Ensure all personnel receive appropriate IS awareness and training.
+    default_applicability: not_assessed_by_api
+    default_reason: "Training completion records require LMS/HR review."
+
+  - id: "6.4"
+    title: Disciplinary process
+    theme: PEO
+    purpose: Formalize disciplinary process for IS policy violations.
+    default_applicability: not_assessed_by_api
+    default_reason: "Disciplinary process documentation requires HR review."
+
+  - id: "6.5"
+    title: Responsibilities after termination or change of employment
+    theme: PEO
+    purpose: Enforce IS responsibilities and duties after employment ends.
+    default_applicability: not_assessed_by_api
+    default_reason: "Post-employment obligations are an HR process control; not API-collectable."
+
+  - id: "6.6"
+    title: Confidentiality or non-disclosure agreements
+    theme: PEO
+    purpose: Protect confidential information through signed agreements.
+    default_applicability: not_assessed_by_api
+    default_reason: "NDA tracking requires contract management review."
+
+  - id: "6.7"
+    title: Remote working
+    theme: PEO
+    purpose: Protect information accessed, processed, or stored at remote locations.
+    default_applicability: not_assessed_by_api
+    default_reason: "Remote working controls span endpoint and network configuration; partial API coverage."
+
+  - id: "6.8"
+    title: Information security event reporting
+    theme: PEO
+    purpose: Enable staff to report IS events through appropriate channels.
+    default_applicability: not_assessed_by_api
+    default_reason: "Reporting channel availability requires process documentation review."
+
+  # ── 7.x Physical controls (14) — not applicable to SaaS API assessment ─────
+
+  - id: "7.1"
+    title: Physical security perimeters
+    theme: PHY
+    purpose: Define and implement physical security perimeters.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.2"
+    title: Physical entry
+    theme: PHY
+    purpose: Control physical access to secure areas.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.3"
+    title: Securing offices, rooms and facilities
+    theme: PHY
+    purpose: Physically secure offices, rooms, and facilities.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.4"
+    title: Physical security monitoring
+    theme: PHY
+    purpose: Continuously monitor premises against unauthorized physical access.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.5"
+    title: Protecting against physical and environmental threats
+    theme: PHY
+    purpose: Protect against physical and environmental threats.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.6"
+    title: Working in secure areas
+    theme: PHY
+    purpose: Design and implement controls for secure areas.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.7"
+    title: Clear desk and clear screen
+    theme: PHY
+    purpose: Define and enforce clear desk and clear screen policies.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.8"
+    title: Equipment siting and protection
+    theme: PHY
+    purpose: Securely site and protect equipment.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.9"
+    title: Security of assets off-premises
+    theme: PHY
+    purpose: Protect off-premises assets.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.10"
+    title: Storage media
+    theme: PHY
+    purpose: Manage storage media lifecycle.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.11"
+    title: Supporting utilities
+    theme: PHY
+    purpose: Protect information processing facilities from power and utility failures.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.12"
+    title: Cabling security
+    theme: PHY
+    purpose: Protect cabling from interception, interference, or damage.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.13"
+    title: Equipment maintenance
+    theme: PHY
+    purpose: Maintain equipment to ensure availability and integrity.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  - id: "7.14"
+    title: Secure disposal or re-use of equipment
+    theme: PHY
+    purpose: Securely dispose of or re-use equipment.
+    default_applicability: not_assessed_by_api
+    default_reason: "Physical controls are outside the scope of SaaS API-based assessment."
+
+  # ── 8.x Technological controls (34) ────────────────────────────────────────
+
+  - id: "8.1"
+    title: User end point devices
+    theme: TEC
+    purpose: Protect information on user endpoint devices.
+    default_applicability: not_assessed_by_api
+    default_reason: "Endpoint configuration requires MDM/EDR platform review; outside SaaS API scope."
+
+  - id: "8.2"
+    title: Privileged access rights
+    theme: TEC
+    purpose: Restrict and manage privileged access rights.
+    default_applicability: applicable
+    default_reason: "Privileged access is assessed via IAM controls mapped to 8.2."
+
+  - id: "8.3"
+    title: Information access restriction
+    theme: TEC
+    purpose: Restrict access to information per access control policy.
+    default_applicability: applicable
+    default_reason: "Information access restriction is assessed via IAM and DSP controls."
+
+  - id: "8.4"
+    title: Access to source code
+    theme: TEC
+    purpose: Restrict access to source code, development tools, and software libraries.
+    default_applicability: not_assessed_by_api
+    default_reason: "Source code access controls require SCM platform review; outside SaaS API scope."
+
+  - id: "8.5"
+    title: Secure authentication
+    theme: TEC
+    purpose: Implement secure authentication technologies and procedures.
+    default_applicability: applicable
+    default_reason: "Secure authentication is assessed via IAM controls mapped to 8.5."
+
+  - id: "8.6"
+    title: Capacity management
+    theme: TEC
+    purpose: Monitor and adjust resource usage to meet capacity requirements.
+    default_applicability: not_assessed_by_api
+    default_reason: "Capacity management requires infrastructure monitoring data; outside SaaS API scope."
+
+  - id: "8.7"
+    title: Protection against malware
+    theme: TEC
+    purpose: Implement malware protection controls.
+    default_applicability: not_assessed_by_api
+    default_reason: "Malware protection is an endpoint and email gateway control; outside SaaS API scope."
+
+  - id: "8.8"
+    title: Management of technical vulnerabilities
+    theme: TEC
+    purpose: Prevent exploitation of technical vulnerabilities.
+    default_applicability: applicable
+    default_reason: "Vulnerability management is assessed via CON controls mapped to 8.8."
+
+  - id: "8.9"
+    title: Configuration management
+    theme: TEC
+    purpose: Establish, document, implement, monitor, and review configurations.
+    default_applicability: applicable
+    default_reason: "Configuration management is the primary domain of CON controls."
+
+  - id: "8.10"
+    title: Information deletion
+    theme: TEC
+    purpose: Ensure stored information is deleted when no longer required.
+    default_applicability: applicable
+    default_reason: "Information deletion is assessed via DSP-005."
+
+  - id: "8.11"
+    title: Data masking
+    theme: TEC
+    purpose: Mask data according to access control policy and regulatory requirements.
+    default_applicability: not_assessed_by_api
+    default_reason: "Data masking configuration requires database/platform-specific review."
+
+  - id: "8.12"
+    title: Data leakage prevention
+    theme: TEC
+    purpose: Detect and prevent unauthorized disclosure of information.
+    default_applicability: applicable
+    default_reason: "Data exfiltration prevention is assessed via DSP-002."
+
+  - id: "8.13"
+    title: Information backup
+    theme: TEC
+    purpose: Maintain and test information backups.
+    default_applicability: not_assessed_by_api
+    default_reason: "Backup configuration and test records require infrastructure and vendor review."
+
+  - id: "8.14"
+    title: Redundancy of information processing facilities
+    theme: TEC
+    purpose: Implement redundancy for availability requirements.
+    default_applicability: not_assessed_by_api
+    default_reason: "Redundancy configuration is a vendor/infrastructure control; outside API scope."
+
+  - id: "8.15"
+    title: Logging
+    theme: TEC
+    purpose: Produce, store, protect, and analyze event logs.
+    default_applicability: applicable
+    default_reason: "Logging configuration is assessed via LOG controls mapped to 8.15."
+
+  - id: "8.16"
+    title: Monitoring activities
+    theme: TEC
+    purpose: Monitor networks, systems, and applications for anomalous behavior.
+    default_applicability: applicable
+    default_reason: "Monitoring activities are assessed via LOG controls mapped to 8.16."
+
+  - id: "8.17"
+    title: Clock synchronization
+    theme: TEC
+    purpose: Synchronize clocks of information processing systems.
+    default_applicability: not_assessed_by_api
+    default_reason: "Clock sync is a platform/infrastructure setting; limited SaaS API exposure."
+
+  - id: "8.18"
+    title: Use of privileged utility programs
+    theme: TEC
+    purpose: Control use of utility programs that override system and application controls.
+    default_applicability: not_assessed_by_api
+    default_reason: "Utility program access controls require admin console review beyond SaaS API scope."
+
+  - id: "8.19"
+    title: Installation of software on operational systems
+    theme: TEC
+    purpose: Control software installation on operational systems.
+    default_applicability: not_assessed_by_api
+    default_reason: "Software installation controls apply to infrastructure/endpoints; outside SaaS API scope."
+
+  - id: "8.20"
+    title: Networks security
+    theme: TEC
+    purpose: Secure, manage, and control networks.
+    default_applicability: not_assessed_by_api
+    default_reason: "Network security configuration requires network infrastructure review."
+
+  - id: "8.21"
+    title: Security of network services
+    theme: TEC
+    purpose: Identify and implement security mechanisms for network services.
+    default_applicability: not_assessed_by_api
+    default_reason: "Network service security requires perimeter and connectivity documentation."
+
+  - id: "8.22"
+    title: Segregation of networks
+    theme: TEC
+    purpose: Segregate networks based on trust levels and functionality.
+    default_applicability: not_assessed_by_api
+    default_reason: "Network segmentation requires infrastructure architecture review."
+
+  - id: "8.23"
+    title: Web filtering
+    theme: TEC
+    purpose: Manage access to external websites to reduce exposure to malicious content.
+    default_applicability: not_assessed_by_api
+    default_reason: "Web filtering is a gateway/proxy control; outside SaaS API scope."
+
+  - id: "8.24"
+    title: Use of cryptography
+    theme: TEC
+    purpose: Define and implement rules on cryptography use.
+    default_applicability: applicable
+    default_reason: "Cryptography use is assessed via CON-003 (credential/token lifecycle)."
+
+  - id: "8.25"
+    title: Secure development life cycle
+    theme: TEC
+    purpose: Apply security rules for software and system development.
+    default_applicability: not_assessed_by_api
+    default_reason: "SDLC controls require development process and toolchain documentation."
+
+  - id: "8.26"
+    title: Application security requirements
+    theme: TEC
+    purpose: Identify, specify, and approve IS requirements for applications.
+    default_applicability: not_assessed_by_api
+    default_reason: "Application security requirements are a design-time control; not API-collectable."
+
+  - id: "8.27"
+    title: Secure system architecture and engineering principles
+    theme: TEC
+    purpose: Establish, document, and apply secure engineering principles.
+    default_applicability: not_assessed_by_api
+    default_reason: "Architecture documentation review is required; outside SaaS API scope."
+
+  - id: "8.28"
+    title: Secure coding
+    theme: TEC
+    purpose: Apply secure coding principles in software development.
+    default_applicability: not_assessed_by_api
+    default_reason: "Secure coding practices require code review and SAST tooling evidence."
+
+  - id: "8.29"
+    title: Security testing in development and acceptance
+    theme: TEC
+    purpose: Define and implement security testing processes in development.
+    default_applicability: not_assessed_by_api
+    default_reason: "Security testing records (pentest reports, SAST results) require manual review."
+
+  - id: "8.30"
+    title: Outsourced development
+    theme: TEC
+    purpose: Direct, monitor, and review outsourced system development.
+    default_applicability: not_assessed_by_api
+    default_reason: "Outsourced development controls require supplier agreement and code review."
+
+  - id: "8.31"
+    title: Separation of development, test and production environments
+    theme: TEC
+    purpose: Separate and protect development, test, and production environments.
+    default_applicability: not_assessed_by_api
+    default_reason: "Environment separation requires configuration review beyond SaaS API scope."
+
+  - id: "8.32"
+    title: Change management
+    theme: TEC
+    purpose: Control changes to information processing facilities and systems.
+    default_applicability: not_assessed_by_api
+    default_reason: "Change management records require ITSM/CMDB review."
+
+  - id: "8.33"
+    title: Test information
+    theme: TEC
+    purpose: Appropriately select, protect, and manage test information.
+    default_applicability: not_assessed_by_api
+    default_reason: "Test data governance requires DLP and data classification review."
+
+  - id: "8.34"
+    title: Protection of information systems during audit testing
+    theme: TEC
+    purpose: Plan and implement protection of information systems during audit testing.
+    default_applicability: not_assessed_by_api
+    default_reason: "Audit-time protection controls are process-based; not API-collectable."

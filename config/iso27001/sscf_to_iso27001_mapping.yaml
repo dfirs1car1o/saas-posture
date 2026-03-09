@@ -1,0 +1,625 @@
+# sscf_to_iso27001_mapping.yaml
+# SSCF v1.0 control → ISO/IEC 27001:2022 Annex A direct bridge
+#
+# Maps each of the 36 SSCF v1.0 controls to one or more ISO 27001:2022 Annex A
+# controls using 2022 clause numbers (5.x / 6.x / 7.x / 8.x).
+#
+# Theme codes:
+#   ORG = 5.x  Organizational controls (37 controls)
+#   PEO = 6.x  People controls (8 controls)
+#   PHY = 7.x  Physical controls (14 controls) — not applicable to SaaS API assessment
+#   TEC = 8.x  Technological controls (34 controls)
+#
+# mapping_strength values:
+#   direct      — the SSCF control is the primary implementation mechanism for the ISO control
+#   partial     — the SSCF control partially addresses the ISO control; other measures required
+#   informative — the SSCF control provides supporting evidence; not the main control vehicle
+#
+# applicability values:
+#   applicable          — this ISO control is relevant to the SaaS platform assessment
+#   not_assessed_by_api — in scope but requires manual / vendor attestation; not API-collectable
+#
+# Note: ISO 27001:2022 Physical controls (7.x) are never applicable to SaaS API-based assessment.
+# All 7.x controls are declared not_assessed_by_api in the full catalog with reason:
+# "Physical controls are outside the scope of SaaS API-based assessment."
+
+version: "1.0"
+standard: "ISO/IEC 27001:2022"
+annex_a_date: "2022-10-25"
+source: "ISO/IEC 27001:2022 Annex A — Information security controls reference"
+sscf_version: "1.0"
+sscf_total_controls: 36
+
+mappings:
+
+  # ── CON — Configuration Hardening ──────────────────────────────────────────
+
+  - sscf_control_id: SSCF-CON-001
+    sscf_title: SaaS Security Baseline Enforcement
+    iso27001_controls:
+      - id: "8.9"
+        title: Configuration management
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Enforcing an approved security baseline is the operational definition of configuration
+          management per Annex A 8.9. Assessment evidence confirms whether the baseline is applied.
+      - id: "8.8"
+        title: Management of technical vulnerabilities
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Baseline enforcement includes assuring vendor-supplied security patches and hardening
+          guidance are applied, overlapping with 8.8 vulnerability management obligations.
+
+  - sscf_control_id: SSCF-CON-002
+    sscf_title: Drift Detection and Baseline Deviation Management
+    iso27001_controls:
+      - id: "8.9"
+        title: Configuration management
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Detecting and remediating unauthorized configuration drift is the continuous assurance
+          component of 8.9. The drift_check pipeline produces the evidence required.
+
+  - sscf_control_id: SSCF-CON-003
+    sscf_title: API Credential and Token Lifecycle
+    iso27001_controls:
+      - id: "5.17"
+        title: Authentication information
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          API keys, OAuth tokens, and service credentials are authentication information.
+          Governing their issuance, rotation, and revocation maps directly to 5.17.
+      - id: "8.24"
+        title: Use of cryptography
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Token signing, JWT verification, and credential encryption are cryptographic
+          implementations supporting 8.24 where applicable.
+
+  - sscf_control_id: SSCF-CON-004
+    sscf_title: Platform Hardening and Security Settings Verification
+    iso27001_controls:
+      - id: "8.9"
+        title: Configuration management
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Vendor hardening guidance implementation and insecure-default remediation
+          are the primary activities described by 8.9.
+
+  - sscf_control_id: SSCF-CON-005
+    sscf_title: Third-Party Integration and Supply Chain Security
+    iso27001_controls:
+      - id: "5.19"
+        title: Information security in supplier relationships
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Connected app inventory and third-party integration risk assessment are the
+          SaaS-layer implementation of 5.19 supplier relationship security.
+      - id: "5.20"
+        title: Addressing information security within supplier agreements
+        theme: ORG
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          Contractual security requirements for integrations (5.20) require review of
+          vendor agreements — not API-collectable; manual review required.
+      - id: "5.22"
+        title: Monitoring, review and change management of supplier services
+        theme: ORG
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          Ongoing supplier service monitoring (5.22) is a process control requiring
+          manual verification against supplier review records.
+
+  - sscf_control_id: SSCF-CON-006
+    sscf_title: Patch and Version Management Assurance
+    iso27001_controls:
+      - id: "8.8"
+        title: Management of technical vulnerabilities
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Tracking and applying security-relevant vendor patches is the core obligation
+          of 8.8 for SaaS platforms where the vendor controls the patch lifecycle.
+
+  # ── DSP — Data Security and Privacy ────────────────────────────────────────
+
+  - sscf_control_id: SSCF-DSP-001
+    sscf_title: Sensitive Data Access Control
+    iso27001_controls:
+      - id: "8.3"
+        title: Information access restriction
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Restricting and monitoring access to sensitive business and personal data
+          is the technological implementation of 8.3 information access restriction.
+      - id: "5.15"
+        title: Access control
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          The access control policy framework (5.15) governs the rules that 8.3
+          technical controls enforce.
+
+  - sscf_control_id: SSCF-DSP-002
+    sscf_title: Data Export and Exfiltration Controls
+    iso27001_controls:
+      - id: "8.12"
+        title: Data leakage prevention
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Preventing unauthorized data exports and exfiltration pathways is the
+          primary definition of data leakage prevention per 8.12.
+
+  - sscf_control_id: SSCF-DSP-003
+    sscf_title: Data Classification and Inventory
+    iso27001_controls:
+      - id: "5.12"
+        title: Classification of information
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Maintaining a data classification map per organizational policy is the
+          direct implementation of 5.12.
+      - id: "5.9"
+        title: Inventory of information and other associated assets
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          The data inventory component of this control provides the asset register
+          evidence required by 5.9.
+
+  - sscf_control_id: SSCF-DSP-004
+    sscf_title: Cross-Border Data Transfer and Residency Controls
+    iso27001_controls:
+      - id: "5.34"
+        title: Privacy and protection of personal identifiable information
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Data sovereignty compliance for regulated personal data (GDPR, CCPA) is
+          the primary driver of cross-border transfer controls, overlapping 5.34.
+      - id: "5.23"
+        title: Information security for use of cloud services
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Data residency requirements enforced through cloud service configuration
+          align with the cloud services security obligations in 5.23.
+
+  - sscf_control_id: SSCF-DSP-005
+    sscf_title: Data Retention and Secure Disposal
+    iso27001_controls:
+      - id: "8.10"
+        title: Information deletion
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Applying retention schedules and secure deletion for SaaS-hosted data
+          maps directly to the information deletion obligations in 8.10.
+
+  - sscf_control_id: SSCF-DSP-006
+    sscf_title: Privacy Rights and Data Subject Access Management
+    iso27001_controls:
+      - id: "5.34"
+        title: Privacy and protection of personal identifiable information
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          DSAR fulfillment within regulatory timeframes is the operational
+          implementation of 5.34 PII protection obligations.
+
+  # ── IAM — Identity and Access Management ───────────────────────────────────
+
+  - sscf_control_id: SSCF-IAM-001
+    sscf_title: Multi-Factor Authentication Enforcement
+    iso27001_controls:
+      - id: "8.5"
+        title: Secure authentication
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          MFA enforcement is the primary technical mechanism for secure authentication
+          per 8.5. Assessment evidence confirms whether MFA is enforced for all
+          workforce and privileged accounts.
+      - id: "5.17"
+        title: Authentication information
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Password and credential policy requirements (5.17) are preconditions
+          for effective MFA assurance.
+
+  - sscf_control_id: SSCF-IAM-002
+    sscf_title: Privileged Access Governance and Review
+    iso27001_controls:
+      - id: "8.2"
+        title: Privileged access rights
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Privileged account approval, least privilege, and periodic recertification
+          are the core obligations of 8.2 privileged access rights management.
+      - id: "5.18"
+        title: Access rights
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          The access review and revocation processes required by 5.18 apply directly
+          to privileged role lifecycle management.
+
+  - sscf_control_id: SSCF-IAM-003
+    sscf_title: Federation and SSO Assurance
+    iso27001_controls:
+      - id: "5.16"
+        title: Identity management
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Enterprise IdP federation is the at-scale implementation of identity
+          management per 5.16. SSO assurance confirms that identity governance
+          policies are enforced at the authentication boundary.
+      - id: "8.5"
+        title: Secure authentication
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          SSO hardening policies (session enforcement, IdP-side MFA) enforce
+          authentication assurance requirements per 8.5.
+
+  - sscf_control_id: SSCF-IAM-004
+    sscf_title: User Lifecycle and Offboarding Controls
+    iso27001_controls:
+      - id: "5.18"
+        title: Access rights
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Timely revocation of access rights on termination or role change is
+          the primary obligation of 5.18 and the core requirement of this control.
+      - id: "6.5"
+        title: Responsibilities after termination or change of employment
+        theme: PEO
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          The HR process obligations of 6.5 (communication of offboarding security
+          responsibilities) require manual verification; not API-collectable.
+
+  - sscf_control_id: SSCF-IAM-005
+    sscf_title: Service Account and Non-Human Identity Governance
+    iso27001_controls:
+      - id: "5.16"
+        title: Identity management
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Service accounts and non-human identities are in-scope for the identity
+          management inventory and governance obligations of 5.16.
+      - id: "8.2"
+        title: Privileged access rights
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Service accounts with elevated permissions are subject to the same
+          privileged access rights controls as human accounts under 8.2.
+
+  - sscf_control_id: SSCF-IAM-006
+    sscf_title: Session Security and Timeout Controls
+    iso27001_controls:
+      - id: "8.5"
+        title: Secure authentication
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Session timeout, concurrent session limits, and token invalidation are
+          components of secure authentication lifecycle management under 8.5.
+      - id: "8.3"
+        title: Information access restriction
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Idle session termination limits unauthorized access to information assets
+          left accessible in unattended sessions (8.3).
+
+  - sscf_control_id: SSCF-IAM-007
+    sscf_title: Just-in-Time Access and Temporary Privilege Elevation
+    iso27001_controls:
+      - id: "8.2"
+        title: Privileged access rights
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          JIT access workflows (request-approve-expire) are the most mature
+          implementation pattern for 8.2 privileged access rights governance.
+
+  - sscf_control_id: SSCF-IAM-008
+    sscf_title: External and Guest Access Controls
+    iso27001_controls:
+      - id: "5.15"
+        title: Access control
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Scoped, time-bound, MFA-enforced access for external parties is an
+          access control policy requirement under 5.15.
+      - id: "5.19"
+        title: Information security in supplier relationships
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Contractor and partner access governance overlaps with supplier relationship
+          security obligations where the external party is a vendor (5.19).
+
+  # ── IPY — Interoperability and Portability ──────────────────────────────────
+
+  - sscf_control_id: SSCF-IPY-001
+    sscf_title: Data Portability and Export Standards
+    iso27001_controls:
+      - id: "5.10"
+        title: Acceptable use of information and other associated assets
+        theme: ORG
+        mapping_strength: informative
+        applicability: applicable
+        implementation_note: >
+          Data export capabilities support acceptable use obligations by ensuring
+          organizations can migrate off a platform if it no longer meets security
+          requirements (5.10 — informative reference only).
+
+  - sscf_control_id: SSCF-IPY-002
+    sscf_title: API Security and Open Interface Governance
+    iso27001_controls:
+      - id: "8.29"
+        title: Security testing in development and acceptance
+        theme: TEC
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          API security testing (8.29) requires review of test records and pentest
+          reports — not API-collectable from the SaaS platform.
+      - id: "5.15"
+        title: Access control
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          API authentication and rate limiting controls enforce the access control
+          policy for programmatic interfaces (5.15).
+
+  - sscf_control_id: SSCF-IPY-003
+    sscf_title: Integration Inventory and Third-Party Connector Risk Assessment
+    iso27001_controls:
+      - id: "5.19"
+        title: Information security in supplier relationships
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Maintaining an integration inventory and assessing data flow security
+          risk is the SaaS-layer implementation of 5.19 for connected systems.
+
+  - sscf_control_id: SSCF-IPY-004
+    sscf_title: Vendor Lock-In Mitigation and SaaS Exit Planning
+    iso27001_controls:
+      - id: "5.23"
+        title: Information security for use of cloud services
+        theme: ORG
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          SaaS exit planning addresses the cloud service continuity obligations of 5.23.
+          Exit plan completeness requires manual document review.
+
+  - sscf_control_id: SSCF-IPY-005
+    sscf_title: Multi-Cloud Data Residency and Sovereignty Controls
+    iso27001_controls:
+      - id: "5.23"
+        title: Information security for use of cloud services
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Data residency enforcement through cloud service configuration is a
+          security obligation for cloud service use under 5.23.
+
+  # ── LOG — Logging and Monitoring ───────────────────────────────────────────
+
+  - sscf_control_id: SSCF-LOG-001
+    sscf_title: Security Telemetry Enablement
+    iso27001_controls:
+      - id: "8.15"
+        title: Logging
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Enabling required audit and security logs is the foundational obligation
+          of 8.15. Assessment confirms whether security-relevant logging categories
+          are active on the SaaS platform.
+      - id: "8.16"
+        title: Monitoring activities
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Log enablement is the prerequisite for the monitoring activities required
+          by 8.16; the two controls are operationally coupled.
+
+  - sscf_control_id: SSCF-LOG-002
+    sscf_title: Administrative and Configuration Audit Logging
+    iso27001_controls:
+      - id: "8.15"
+        title: Logging
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Capturing administrative and configuration change events is an explicit
+          8.15 logging obligation for privileged activity.
+
+  - sscf_control_id: SSCF-LOG-003
+    sscf_title: Audit Retention and Integrity
+    iso27001_controls:
+      - id: "8.15"
+        title: Logging
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Log retention per policy and integrity preservation are explicit components
+          of the 8.15 logging requirements.
+
+  - sscf_control_id: SSCF-LOG-004
+    sscf_title: Real-Time Security Monitoring and Alerting
+    iso27001_controls:
+      - id: "8.16"
+        title: Monitoring activities
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Configuring real-time monitoring rules for high-risk events routed to a
+          SOC is the operational implementation of 8.16 monitoring activities.
+
+  - sscf_control_id: SSCF-LOG-005
+    sscf_title: SIEM Integration and Cross-Platform Log Correlation
+    iso27001_controls:
+      - id: "8.16"
+        title: Monitoring activities
+        theme: TEC
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          SIEM integration for cross-platform correlation extends the monitoring
+          activities scope of 8.16 to the enterprise detection layer.
+
+  - sscf_control_id: SSCF-LOG-006
+    sscf_title: Anomalous Behavior Detection and Insider Threat Monitoring
+    iso27001_controls:
+      - id: "8.16"
+        title: Monitoring activities
+        theme: TEC
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          UEBA-based anomalous behavior detection is an advanced implementation of
+          the monitoring activities required by 8.16.
+
+  # ── SEF — Security Incident Management ─────────────────────────────────────
+
+  - sscf_control_id: SSCF-SEF-001
+    sscf_title: Real-Time Threat Policy Enforcement
+    iso27001_controls:
+      - id: "5.25"
+        title: Assessment and decision on information security events
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          Automated policy enforcement on high-risk events is a technical supplement
+          to the event assessment and decision process required by 5.25.
+
+  - sscf_control_id: SSCF-SEF-002
+    sscf_title: Security Alert Triage and Escalation
+    iso27001_controls:
+      - id: "5.26"
+        title: Response to information security incidents
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Alert triage and escalation within SLA is the operational process defined
+          by the incident response obligations of 5.26.
+      - id: "5.25"
+        title: Assessment and decision on information security events
+        theme: ORG
+        mapping_strength: partial
+        applicability: applicable
+        implementation_note: >
+          The triage step (is this an event or an incident?) maps to the assessment
+          and decision process required by 5.25.
+
+  - sscf_control_id: SSCF-SEF-003
+    sscf_title: Incident Response Plan and Tabletop Testing
+    iso27001_controls:
+      - id: "5.24"
+        title: Information security incident management planning and preparation
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Maintaining an IR plan covering SaaS events and conducting annual tabletop
+          exercises are the explicit requirements of 5.24.
+
+  - sscf_control_id: SSCF-SEF-004
+    sscf_title: Evidence Preservation and Cloud Forensics Readiness
+    iso27001_controls:
+      - id: "5.28"
+        title: Collection of evidence
+        theme: ORG
+        mapping_strength: direct
+        applicability: applicable
+        implementation_note: >
+          Preserving SaaS audit logs and forensic artifacts in a legally defensible
+          manner is the cloud-specific implementation of 5.28 evidence collection.
+
+  - sscf_control_id: SSCF-SEF-005
+    sscf_title: Exception Governance and Risk Acceptance
+    iso27001_controls:
+      - id: "5.20"
+        title: Addressing information security within supplier agreements
+        theme: ORG
+        mapping_strength: informative
+        applicability: not_assessed_by_api
+        implementation_note: >
+          Exceptions for supplier-dependent controls may require compensating controls
+          in supplier agreements (5.20). Manual review required.
+      - id: "5.4"
+        title: Management responsibilities
+        theme: ORG
+        mapping_strength: partial
+        applicability: not_assessed_by_api
+        implementation_note: >
+          Time-bound exceptions require documented management approval — a process
+          control under 5.4 that is not API-collectable.

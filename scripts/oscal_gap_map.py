@@ -120,6 +120,16 @@ def _to_markdown(
     return "\n".join(lines)
 
 
+def _load_iso27001_map(path: Path) -> dict[str, list[dict[str, Any]]]:
+    """Load sscf_to_iso27001_mapping.yaml → dict keyed by sscf_control_id."""
+    raw = _load_yaml(path)
+    result: dict[str, list[dict[str, Any]]] = {}
+    for entry in raw.get("mappings", []):
+        if isinstance(entry, dict) and entry.get("sscf_control_id"):
+            result[entry["sscf_control_id"]] = entry.get("iso27001_controls", [])
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Map gap-analysis findings to SBS controls.")
     parser.add_argument("--controls", required=True, help="Path to normalized SBS controls JSON.")
@@ -130,6 +140,11 @@ def main() -> int:
         default="config/oscal-salesforce/sbs_to_sscf_mapping.yaml",
         help="Path to SBS-to-SSCF mapping YAML.",
     )
+    parser.add_argument(
+        "--iso27001-map",
+        default="config/iso27001/sscf_to_iso27001_mapping.yaml",
+        help="Path to SSCF-to-ISO-27001:2022 mapping YAML (optional — skipped if absent).",
+    )
     parser.add_argument("--out-md", required=True, help="Output markdown matrix path.")
     parser.add_argument("--out-json", required=True, help="Output JSON backlog path.")
     args = parser.parse_args()
@@ -139,6 +154,7 @@ def main() -> int:
     gap_path = (repo_root / args.gap_analysis).resolve()
     mapping_path = (repo_root / args.mapping).resolve()
     sscf_map_path = (repo_root / args.sscf_map).resolve()
+    iso27001_map_path = (repo_root / args.iso27001_map).resolve()
     out_md = (repo_root / args.out_md).resolve()
     out_json = (repo_root / args.out_json).resolve()
 
@@ -281,6 +297,35 @@ def main() -> int:
             if isinstance(mapping, dict) and mapping.get("sscf_control_id")
         ]
 
+    # ── ISO 27001:2022 Annex A enrichment ────────────────────────────────────
+    iso_map: dict[str, list[dict[str, Any]]] = {}
+    if iso27001_map_path.exists():
+        iso_map = _load_iso27001_map(iso27001_map_path)
+
+    for item in mapped_items:
+        iso_controls: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for sscf_id in item.get("sscf_control_ids", []):
+            for ctrl in iso_map.get(sscf_id, []):
+                iso_id = ctrl.get("id", "")
+                if iso_id and iso_id not in seen_ids:
+                    seen_ids.add(iso_id)
+                    iso_controls.append(
+                        {
+                            "id": iso_id,
+                            "title": ctrl.get("title", ""),
+                            "theme": ctrl.get("theme", ""),
+                            "mapping_strength": ctrl.get("mapping_strength", "informative"),
+                            "applicability": ctrl.get("applicability", "applicable"),
+                        }
+                    )
+        item["iso27001_controls"] = iso_controls
+        item["iso27001_control_ids"] = [c["id"] for c in iso_controls]
+
+    iso27001_touched: set[str] = set()
+    for item in mapped_items:
+        iso27001_touched.update(item.get("iso27001_control_ids", []))
+
     backlog_payload = {
         "assessment_id": assessment_id,
         "assessment_owner": assessment_owner,
@@ -297,6 +342,12 @@ def main() -> int:
             "mapping_confidence_counts": {
                 confidence: sum(1 for item in mapped_items if item.get("mapping_confidence") == confidence)
                 for confidence in sorted({item.get("mapping_confidence", "unrated") for item in mapped_items})
+            },
+            "iso27001_summary": {
+                "framework": "ISO/IEC 27001:2022",
+                "annex_a_total_controls": 93,
+                "unique_annex_a_controls_touched": len(iso27001_touched),
+                "mapping_loaded": iso27001_map_path.exists(),
             },
         },
         "mapped_items": mapped_items,
