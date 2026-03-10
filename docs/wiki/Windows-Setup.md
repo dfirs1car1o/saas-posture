@@ -125,13 +125,6 @@ SF_CONSUMER_KEY=3MVG9...
 SF_PRIVATE_KEY_PATH=C:\Users\YourName\.ssh\salesforce_jwt_private.pem
 SF_DOMAIN=login           # "login" for production, "test" for sandbox
 
-# ── Salesforce auth — SOAP (username/password alternative) ───
-# SF_AUTH_METHOD=soap
-# SF_USERNAME=your.name@yourcompany.com
-# SF_PASSWORD=YourSalesforcePassword
-# SF_SECURITY_TOKEN=YourSecurityToken
-# SF_DOMAIN=test
-
 # ── Session memory (no Docker needed) ─────────────────────────
 QDRANT_IN_MEMORY=1
 MEMORY_ENABLED=0

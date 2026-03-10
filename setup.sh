@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# setup.sh — Onboarding script for saas-sec-agents
+# setup.sh — Onboarding script for saas-posture
 # Run once after cloning. Requires Python 3.11+ and uv.
 set -euo pipefail
 
-echo "==> saas-sec-agents setup"
+echo "==> saas-posture setup"
 
 # 1. Check Python version
 python_version=$(python3 --version 2>&1 | awk '{print $2}')
@@ -32,7 +32,7 @@ uv pip install -e ".[dev]" 2>/dev/null || uv pip install -e .
 if [ ! -f .env ]; then
   cp .env.example .env
   echo "==> Created .env from .env.example"
-  echo "    ACTION REQUIRED: fill in SF_USERNAME, SF_PASSWORD, SF_SECURITY_TOKEN in .env"
+  echo "    ACTION REQUIRED: fill in SF_USERNAME, SF_CONSUMER_KEY, SF_PRIVATE_KEY_PATH in .env"
 else
   echo "    .env already exists — skipping"
 fi
