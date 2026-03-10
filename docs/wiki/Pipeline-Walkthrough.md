@@ -91,8 +91,11 @@ SBS control (SBS-AUTH-001)
 **Command:**
 ```bash
 python3 scripts/oscal_gap_map.py \
+    --controls docs/oscal-salesforce-poc/generated/sbs_controls.json \
     --gap-analysis gap_analysis.json \
-    --org my-org \
+    --mapping config/oscal-salesforce/control_mapping.yaml \
+    --sscf-map config/oscal-salesforce/sbs_to_sscf_mapping.yaml \
+    --out-md backlog_matrix.md \
     --out-json backlog.json
 ```
 
@@ -205,8 +208,78 @@ workday-connect collect --org my-tenant --env dev --out workday_raw.json
 python3 scripts/workday_dry_run_demo.py --org my-tenant --env dev
 ```
 
-Collects 30 WSCC controls across IAM, CON, LOG, DSP, GOV, CKM domains via SOAP/RaaS/REST.
+Collects 30 WSCC controls across IAM, CON, LOG, DSP, GOV, CKM domains via OAuth 2.0 / REST API v1 / RaaS (custom reports) / manual questionnaire. No SOAP.
 All subsequent stages (oscal-assess → report-gen) run identically with `--platform workday`.
+
+---
+
+## Stage 1.5: Drift Detection (`drift_check.py`)
+
+**What it does:** Compares two backlog snapshots — baseline (previous run) vs. current (latest run) — and produces a structured change report.
+
+**When to run it:**  Run between Phase 1–2 outputs of successive assessments, or weekly after the scheduled CI dry-run produces a new backlog.
+
+**Change types detected:**
+
+| Change type | Meaning |
+|---|---|
+| `regression` | Was pass/not_applicable → now fail/partial. Requires immediate action. |
+| `new_finding` | Control not in baseline; failing now. |
+| `improvement` | Was fail → now partial; or partial → now pass. |
+| `resolved` | Was fail/partial → now pass. |
+| `severity_change` | Status unchanged, but severity escalated or de-escalated. |
+| `unchanged` | Status identical; reported only for still-failing controls. |
+
+**Command:**
+```bash
+python scripts/drift_check.py \
+    --baseline docs/oscal-salesforce-poc/generated/<org>/<old-date>/backlog.json \
+    --current  docs/oscal-salesforce-poc/generated/<org>/<new-date>/backlog.json \
+    --out      docs/oscal-salesforce-poc/generated/<org>/<new-date>/drift_report.json \
+    --out-md   docs/oscal-salesforce-poc/generated/<org>/<new-date>/drift_report.md
+```
+
+**Outputs:**
+
+- `drift_report.json` — structured diff with per-control change entries, summary buckets, score delta, and net direction (improving / regressing / stable)
+- `drift_report.md` — human-readable report with tables for each change category
+
+**Example drift report summary:**
+
+```
+Direction  : 📈 Improving
+Pass rate  : 34.8% → 41.2% (+6.4%)
+New findings       : 0
+Resolved           : 3
+Regressions        : 0
+Improvements       : 2
+Still failing      : 12
+```
+
+**Example workflow — weekly cadence:**
+```bash
+# Week 1: baseline run
+agent-loop run --env dev --org cyber-coach-dev --approve-critical
+# artifacts land in docs/.../cyber-coach-dev/2026-03-07/
+
+# Week 2: new run
+agent-loop run --env dev --org cyber-coach-dev --approve-critical
+# artifacts land in docs/.../cyber-coach-dev/2026-03-14/
+
+# Drift comparison
+python scripts/drift_check.py \
+    --baseline docs/oscal-salesforce-poc/generated/cyber-coach-dev/2026-03-07/backlog.json \
+    --current  docs/oscal-salesforce-poc/generated/cyber-coach-dev/2026-03-14/backlog.json
+# → drift_report.json + drift_report.md next to the current backlog
+```
+
+**Score delta interpretation:**
+
+| Net direction | Score delta | Meaning |
+|---|---|---|
+| Improving | > +1% | Remediations are landing; controls moving from fail → pass |
+| Stable | ±1% | No material change since last run |
+| Regressing | < −1% | New failures detected; investigate immediately |
 
 ---
 

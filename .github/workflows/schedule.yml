@@ -38,29 +38,31 @@ jobs:
           OUT="docs/oscal-salesforce-poc/generated/ci-dry-run-sfdc/$TODAY"
 
           # Phase 1: collect (dry-run)
-          python -m skills.sfdc_connect.sfdc_connect collect \
+          python3 -m skills.sfdc_connect.sfdc_connect collect \
             --scope all --org ci-dry-run-sfdc --dry-run \
             --out "$OUT/sfdc_raw.json"
 
           # Phase 2: assess
-          python -m skills.oscal_assess.oscal_assess assess \
+          python3 -m skills.oscal_assess.oscal_assess assess \
             --collector-output "$OUT/sfdc_raw.json" \
-            --org ci-dry-run-sfdc --out "$OUT/gap_analysis.json"
+            --out "$OUT/gap_analysis.json"
 
           # Phase 2b: gap map
-          python scripts/oscal_gap_map.py \
+          python3 scripts/oscal_gap_map.py \
+            --controls docs/oscal-salesforce-poc/generated/sbs_controls.json \
             --gap-analysis "$OUT/gap_analysis.json" \
-            --org ci-dry-run-sfdc \
+            --mapping config/oscal-salesforce/control_mapping.yaml \
+            --sscf-map config/oscal-salesforce/sbs_to_sscf_mapping.yaml \
+            --out-md "$OUT/matrix.md" \
             --out-json "$OUT/backlog.json"
 
           # Phase 3: benchmark
-          python -m skills.sscf_benchmark.sscf_benchmark benchmark \
+          python3 -m skills.sscf_benchmark.sscf_benchmark benchmark \
             --backlog "$OUT/backlog.json" \
-            --org ci-dry-run-sfdc \
             --out "$OUT/sscf_report.json"
 
           # Phase 4: NIST review (dry-run)
-          python -m skills.nist_review.nist_review assess \
+          python3 -m skills.nist_review.nist_review assess \
             --gap-analysis "$OUT/gap_analysis.json" \
             --backlog "$OUT/backlog.json" \
             --platform salesforce \
@@ -68,7 +70,7 @@ jobs:
             --dry-run
 
           # Phase 5: report (mock LLM — no API spend)
-          python -m skills.report_gen.report_gen generate \
+          python3 -m skills.report_gen.report_gen generate \
             --backlog "$OUT/backlog.json" \
             --sscf-benchmark "$OUT/sscf_report.json" \
             --nist-review "$OUT/nist_review.json" \
