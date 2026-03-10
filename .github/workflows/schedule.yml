@@ -37,14 +37,13 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           OUT="docs/oscal-salesforce-poc/generated/ci-dry-run-sfdc/$TODAY"
 
-          # Phase 1: collect (dry-run)
+          # Phase 1: collect — dry-run prints what would be collected (no API calls)
           python3 -m skills.sfdc_connect.sfdc_connect collect \
-            --scope all --org ci-dry-run-sfdc --dry-run \
-            --out "$OUT/sfdc_raw.json"
+            --scope all --org ci-dry-run-sfdc --dry-run
 
-          # Phase 2: assess
+          # Phase 2: assess — dry-run generates realistic stub findings without collector input
           python3 -m skills.oscal_assess.oscal_assess assess \
-            --collector-output "$OUT/sfdc_raw.json" \
+            --dry-run \
             --out "$OUT/gap_analysis.json"
 
           # Phase 2b: gap map
