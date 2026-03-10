@@ -155,6 +155,67 @@ python3 scripts/gen_poam.py \
 
 ---
 
+## Stage 2.6: OSCAL Assessment Results (`gen_assessment_results.py`)
+
+**What it does:** Wraps `gap_analysis.json` findings in the OSCAL 1.1.2 `assessment-results` model — producing machine-readable observations and findings linked to the resolved platform profile. Each gap analysis finding maps to one OSCAL observation + one OSCAL finding.
+
+**OSCAL model elements produced:**
+
+| Element | Source | Notes |
+|---|---|---|
+| `observations` | One per `gap_analysis.findings` entry | Evidence ref, collection method, observed value |
+| `findings` | One per observation | Status (satisfied/not-satisfied), severity, risk-level |
+| `reviewed-controls` | include-all | All controls from resolved profile |
+
+**Command:**
+```bash
+python3 scripts/gen_assessment_results.py \
+    --gap-analysis gap_analysis.json \
+    --backlog backlog.json \
+    --org my-org \
+    --platform salesforce \
+    --resolved-catalog config/salesforce/sbs_resolved_catalog.json \
+    --out assessment_results.json
+```
+
+**Output:** `assessment_results.json` — OSCAL 1.1.2 `assessment-results` with `observations`, `findings`, and summary props (pass-count, fail-count, partial-count).
+
+---
+
+## Stage 2.7: OSCAL SSP (`gen_ssp.py`)
+
+**What it does:** Generates a fully-populated OSCAL 1.1.2 System Security Plan (SSP) for the assessed org. The SSP is generated every run to stay in sync with the latest assessment state. Uses the commercial SaaS template — no FedRAMP red tape (no JAB/PMO, no FIPS 199, no physical media controls).
+
+**Sensitivity tier mapping:**
+
+| SSCF Score / Status | SSP Sensitivity Tier |
+|---|---|
+| Score < 40% or status RED | `high` |
+| Score 40–80% or status AMBER | `moderate` |
+| Score ≥ 80% and status GREEN | `low` |
+
+**Command:**
+```bash
+python3 scripts/gen_ssp.py \
+    --sscf-report sscf_report.json \
+    --backlog backlog.json \
+    --nist-review nist_review.json \
+    --org my-org \
+    --platform salesforce \
+    --out ssp.json
+```
+
+**Key sections populated:**
+- `system-characteristics` — sensitivity tier, scores, regulatory obligations (SOX/HIPAA/SOC2/ISO 27001/PCI DSS/GDPR)
+- `system-implementation` — components (SaaS platform + IdP), user types, authorization boundary
+- `control-implementation.implemented-requirements` — one entry per backlog item with `implementation-status`, severity, owner, evidence ref
+- `import-profile` — links to platform-specific SBS or WSCC profile
+- `back-matter` — links to resolved catalog and component definition
+
+**Output:** `ssp.json` — OSCAL 1.1.2 SSP. Regenerated every assessment run.
+
+---
+
 ## Stage 4: SSCF Benchmark (`sscf-benchmark`)
 
 **What it does:** Calculates maturity scores per SSCF domain and an overall posture rating.
