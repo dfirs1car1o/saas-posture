@@ -64,7 +64,7 @@ Expected: `ENVIRONMENT READY` or `ENVIRONMENT READY WITH WARNINGS` (credentials 
 pytest tests/ -v
 ```
 
-Expected: **12/12 pass** (fully offline — no API keys or Salesforce org needed).
+Expected: **37/37 pass** (fully offline — no API keys or Salesforce org needed).
 
 ## Step 5: Your First Run (Dry-Run)
 

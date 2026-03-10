@@ -157,7 +157,7 @@ Expected:
 pytest tests/ -v
 ```
 
-Expected: **12/12 pass** (no API keys or Salesforce org needed).
+Expected: **37/37 pass** (no API keys or Salesforce org needed).
 
 ---
 

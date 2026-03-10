@@ -149,7 +149,7 @@ Expected:
 pytest tests/ -v
 ```
 
-Expected: **12/12 pass** (no API keys or Salesforce org needed).
+Expected: **37/37 pass** (no API keys or Salesforce org needed).
 
 ---
 
@@ -228,7 +228,7 @@ python3.11 -m venv /opt/saas-posture/.venv
 
 For CI environments where you don't want LLM API calls, use mock mode:
 ```bash
-/opt/saas-posture/.venv/bin/pytest tests/ -v   # 12/12 offline tests
+/opt/saas-posture/.venv/bin/pytest tests/ -v   # 37/37 offline tests
 ```
 
 ---
