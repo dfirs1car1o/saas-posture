@@ -215,7 +215,7 @@ def upgrade_component_def(
         )
     root["metadata"] = meta
 
-    path.write_text(json.dumps(comp_def, indent=2))
+    path.resolve().write_text(json.dumps(comp_def, indent=2))
     impl_count = sum(
         len(ctrl.get("implemented-requirements", []))
         for comp in root.get("components", [])

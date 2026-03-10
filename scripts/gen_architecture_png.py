@@ -87,7 +87,7 @@ def arrow(x0, y0, x1, y1, color=C_GREY, lw=1.2, style="->", zorder=4):
         "",
         xy=(x1, y1),
         xytext=(x0, y0),
-        arrowprops=dict(arrowstyle=style, color=color, lw=lw, connectionstyle="arc3,rad=0.0"),
+        arrowprops={"arrowstyle": style, "color": color, "lw": lw, "connectionstyle": "arc3,rad=0.0"},
         zorder=zorder,
     )
 
@@ -219,7 +219,10 @@ for name, sub, y_pos in sub_agents:
         "",
         xy=(4.6, y_pos - 0.07),
         xytext=(ORC_X + ORC_W, ORC_Y + ORC_H / 2),
-        arrowprops=dict(arrowstyle="->,head_width=0.15,head_length=0.1", color=C_BLUE_MID, lw=0.8, linestyle="dashed"),
+        arrowprops={
+            "arrowstyle": "->,head_width=0.15,head_length=0.1",
+            "color": C_BLUE_MID, "lw": 0.8, "linestyle": "dashed",
+        },
         zorder=4,
     )
 
@@ -347,9 +350,7 @@ label(
     bold=False,
 )
 
-# ─────────────────────────────────────────────────────────────────────────────
 # SAVE
-# ─────────────────────────────────────────────────────────────────────────────
 plt.tight_layout(pad=0)
 plt.savefig(OUT, dpi=160, bbox_inches="tight", facecolor=C_BG)
 plt.close()

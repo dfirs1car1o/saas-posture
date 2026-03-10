@@ -19,6 +19,13 @@ from pathlib import Path
 
 CATALOG_PATH = Path("config/sscf/sscf_v1_catalog.json")
 
+# ── Shared ODP value constants (SonarCloud S1192 — avoid duplicated literals) ─
+_SLA_24H = "24 hours"
+_SLA_1H = "1 hour"
+_SLA_30D = "30 days"
+_SLA_90D = "90 days"
+_SLA_12M = "12 months"
+
 # ── ODP definitions per control ───────────────────────────────────────────────
 # Format: control_id → {"params": [...], "statement": "<updated prose>"}
 # params: list of {"id", "label", "usage", "values"}
@@ -48,7 +55,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-con-002_prm_1",
                 "label": "critical-drift-remediation-sla",
                 "usage": "Maximum time allowed to remediate a critical baseline drift deviation",
-                "values": ["24 hours"],
+                "values": [_SLA_24H],
             },
             {
                 "id": "sscf-con-002_prm_2",
@@ -60,7 +67,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-con-002_prm_3",
                 "label": "moderate-drift-remediation-sla",
                 "usage": "Maximum time allowed to remediate a moderate-severity baseline drift deviation",
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             },
         ],
         "statement": (
@@ -77,7 +84,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-con-003_prm_1",
                 "label": "integration-password-max-age",
                 "usage": "Maximum age for integration system passwords before mandatory rotation",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             },
             {
                 "id": "sscf-con-003_prm_2",
@@ -127,7 +134,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-con-005_prm_2",
                 "label": "unused-integration-revocation-period",
                 "usage": "Inactivity period after which an unused integration must be revoked",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             },
         ],
         "statement": (
@@ -143,13 +150,13 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-con-006_prm_1",
                 "label": "critical-patch-sla",
                 "usage": "Maximum time to apply a critical security patch after vendor release",
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             },
             {
                 "id": "sscf-con-006_prm_2",
                 "label": "high-severity-patch-sla",
                 "usage": "Maximum time to apply a high-severity security patch after vendor release",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             },
             {
                 "id": "sscf-con-006_prm_3",
@@ -186,7 +193,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-dsp-002_prm_1",
                 "label": "external-sharing-max-duration",
                 "usage": "Maximum duration for external sharing links before mandatory expiry",
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             }
         ],
         "statement": (
@@ -235,7 +242,7 @@ PARAMS: dict[str, dict] = {
                     "Minimum data retention period before secure deletion is permitted "
                     "(may be extended by regulation-specific schedules)"
                 ),
-                "values": ["12 months"],
+                "values": [_SLA_12M],
             }
         ],
         "statement": (
@@ -250,7 +257,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-dsp-006_prm_1",
                 "label": "gdpr-dsar-response-sla",
                 "usage": "Maximum response time for GDPR data subject access requests",
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             },
             {
                 "id": "sscf-dsp-006_prm_2",
@@ -293,7 +300,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-002_prm_2",
                 "label": "orphaned-privileged-account-disable-period",
                 "usage": "Maximum time before an orphaned privileged account must be disabled after role owner departure",  # noqa: E501
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             },
         ],
         "statement": (
@@ -325,7 +332,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-004_prm_1",
                 "label": "offboarding-access-revocation-sla",
                 "usage": "Maximum time to revoke all SaaS access after employee termination",
-                "values": ["24 hours"],
+                "values": [_SLA_24H],
             },
             {
                 "id": "sscf-iam-004_prm_2",
@@ -337,7 +344,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-004_prm_3",
                 "label": "stale-account-inactivity-period",
                 "usage": "Inactivity period after which an account is flagged as stale for review or removal",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             },
         ],
         "statement": (
@@ -354,7 +361,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-005_prm_1",
                 "label": "ownerless-service-account-disable-period",
                 "usage": "Maximum time before a service account without an active owner must be disabled",
-                "values": ["30 days"],
+                "values": [_SLA_30D],
             },
             {
                 "id": "sscf-iam-005_prm_2",
@@ -405,7 +412,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-007_prm_2",
                 "label": "jit-absolute-max-duration",
                 "usage": "Absolute maximum JIT session duration under any circumstances",
-                "values": ["24 hours"],
+                "values": [_SLA_24H],
             },
         ],
         "statement": (
@@ -421,7 +428,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-iam-008_prm_1",
                 "label": "external-access-max-duration",
                 "usage": "Maximum duration for external party access before mandatory renewal",
-                "values": ["12 months"],
+                "values": [_SLA_12M],
             },
             {
                 "id": "sscf-iam-008_prm_2",
@@ -458,7 +465,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-ipy-002_prm_1",
                 "label": "deprecated-api-disable-period",
                 "usage": "Maximum time to disable deprecated or legacy API versions after successor release",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             }
         ],
         "statement": (
@@ -521,13 +528,13 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-log-001_prm_1",
                 "label": "log-forwarding-sla",
                 "usage": "Maximum delay between log generation and forwarding to centralized SIEM",
-                "values": ["24 hours"],
+                "values": [_SLA_24H],
             },
             {
                 "id": "sscf-log-001_prm_2",
                 "label": "minimum-accessible-log-retention",
                 "usage": "Minimum period of logs that must be immediately accessible for investigation",
-                "values": ["90 days"],
+                "values": [_SLA_90D],
             },
         ],
         "statement": (
@@ -558,7 +565,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-log-003_prm_1",
                 "label": "log-retention-hot",
                 "usage": "Minimum hot (immediately queryable) log retention period",
-                "values": ["12 months"],
+                "values": [_SLA_12M],
             },
             {
                 "id": "sscf-log-003_prm_2",
@@ -609,7 +616,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-log-005_prm_1",
                 "label": "integration-health-alert-sla",
                 "usage": "Maximum time for integration health monitoring to alert on log source outages",
-                "values": ["1 hour"],
+                "values": [_SLA_1H],
             }
         ],
         "statement": (
@@ -668,13 +675,13 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-sef-002_prm_2",
                 "label": "critical-alert-triage-sla",
                 "usage": "Maximum time to complete triage of a critical security alert",
-                "values": ["1 hour"],
+                "values": [_SLA_1H],
             },
             {
                 "id": "sscf-sef-002_prm_3",
                 "label": "high-alert-acknowledge-sla",
                 "usage": "Maximum time to acknowledge a high-severity security alert",
-                "values": ["1 hour"],
+                "values": [_SLA_1H],
             },
             {
                 "id": "sscf-sef-002_prm_4",
@@ -729,7 +736,7 @@ PARAMS: dict[str, dict] = {
                 "id": "sscf-sef-005_prm_1",
                 "label": "exception-max-duration",
                 "usage": "Maximum duration for a security control exception before mandatory renewal or remediation",
-                "values": ["12 months"],
+                "values": [_SLA_12M],
             }
         ],
         "statement": (
@@ -739,6 +746,14 @@ PARAMS: dict[str, dict] = {
         ),
     },
 }
+
+
+def _update_statement_parts(parts: list[dict], new_statement: str) -> list[dict]:
+    """Replace statement prose with parameterized version; leave other parts unchanged."""
+    return [
+        {**p, "prose": new_statement} if p.get("name") == "statement" and new_statement else p
+        for p in parts
+    ]
 
 
 def _add_params_to_control(control: dict) -> dict:
@@ -755,19 +770,11 @@ def _add_params_to_control(control: dict) -> dict:
     updated: dict = {"id": control["id"], "title": control["title"]}
     if params:
         updated["params"] = params
-    # Copy remaining keys preserving order
     for key in control:
         if key in ("id", "title"):
             continue
         if key == "parts":
-            # Update statement prose
-            parts = []
-            for part in control["parts"]:
-                if part.get("name") == "statement" and new_statement:
-                    parts.append({**part, "prose": new_statement})
-                else:
-                    parts.append(part)
-            updated["parts"] = parts
+            updated["parts"] = _update_statement_parts(control["parts"], new_statement)
         else:
             updated[key] = control[key]
 
@@ -800,7 +807,7 @@ def main() -> None:
         "patterns. Platform profiles (SBS/WSCC) set-parameters override defaults."
     )
 
-    CATALOG_PATH.write_text(json.dumps(catalog, indent=2))
+    CATALOG_PATH.resolve().write_text(json.dumps(catalog, indent=2))
     print(f"Updated {updated_count} controls with ODP params in {CATALOG_PATH}")
     print("Next steps:")
     print("  1. Review: git diff config/sscf/sscf_v1_catalog.json")

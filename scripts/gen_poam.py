@@ -313,9 +313,109 @@ def _update_poam_item_props(item: dict, new_status: str) -> None:
 
 # ── main build ────────────────────────────────────────────────────────────────
 
+def _init_poam_state(
+    existing: dict | None,
+) -> tuple[list[dict], list[dict], list[dict], dict, int, dict]:
+    """Return (observations, risks, poam_items, existing_index, next_number, poam_root)."""
+    if not existing:
+        return [], [], [], {}, 1, {}
+    poam_root = existing.get("plan-of-action-and-milestones", {})
+    observations: list[dict] = poam_root.get("observations", [])
+    risks: list[dict] = poam_root.get("risks", [])
+    poam_items: list[dict] = poam_root.get("poam-items", [])
+    existing_index = _extract_existing_index(existing)
+    existing_numbers: list[int] = []
+    for pi in poam_items:
+        for prop in pi.get("props", []):
+            if prop.get("name") == "poam-id":
+                m = re.match(r"POAM-(\d+)", prop["value"])
+                if m:
+                    existing_numbers.append(int(m.group(1)))
+    return observations, risks, poam_items, existing_index, max(existing_numbers, default=0) + 1, poam_root
+
+
+def _apply_finding_to_existing(
+    finding: dict,
+    existing: dict,
+    existing_index: dict,
+    observations: list[dict],
+    risks: list[dict],
+    org: str,
+    platform: str,
+    assessment_id: str,
+) -> None:
+    """Update an existing poam-item, risk, and observations list in-place."""
+    control_id = _control_key(finding)
+    status = finding.get("status", "fail")
+    obs_uuid = _find_obs_uuid(existing, control_id)
+    risk_uuid = _find_risk_uuid(existing, control_id)
+
+    new_obs = _build_observation(finding, org, platform, assessment_id)
+    if obs_uuid:
+        new_obs["uuid"] = _uuid()
+    observations.append(new_obs)
+
+    if risk_uuid:
+        _update_risk_status(risks, risk_uuid, _status_to_risk_status(status))
+
+    existing_pi = existing_index[control_id]
+    _update_poam_item_props(existing_pi, status)
+    existing_pi.setdefault("related-observations", []).append(
+        {"observation-uuid": new_obs["uuid"]}
+    )
+
+
+def _apply_finding_as_new(
+    finding: dict,
+    observations: list[dict],
+    risks: list[dict],
+    poam_items: list[dict],
+    next_poam_number: int,
+    org: str,
+    platform: str,
+    assessment_id: str,
+) -> int:
+    """Create a new observation+risk+poam-item. Returns updated next_poam_number."""
+    if finding.get("status", "fail") == "pass":
+        return next_poam_number
+    obs = _build_observation(finding, org, platform, assessment_id)
+    risk = _build_risk(finding, obs["uuid"])
+    poam_item = _build_poam_item(finding, obs["uuid"], risk["uuid"], next_poam_number, platform, org)
+    observations.append(obs)
+    risks.append(risk)
+    poam_items.append(poam_item)
+    return next_poam_number + 1
+
+
+def _compute_sensitivity(backlog: dict) -> tuple[str, int, int, int]:
+    """Return (sensitivity, open_count, fail_count, partial_count)."""
+    status_counts = backlog.get("summary", {}).get("status_counts", {})
+    fail_count = status_counts.get("fail", 0)
+    partial_count = status_counts.get("partial", 0)
+    open_count = fail_count + partial_count
+    if open_count >= 10:
+        sensitivity = "high"
+    elif open_count >= 5:
+        sensitivity = "moderate"
+    else:
+        sensitivity = "low"
+    return sensitivity, open_count, fail_count, partial_count
+
+
+def _bump_version(existing: dict | None, poam_root: dict) -> str:
+    """Return version string, bumping patch number when updating existing POA&M."""
+    version_str = poam_root.get("metadata", {}).get("version", "1.0.0") if existing else "1.0.0"
+    parts = version_str.split(".")
+    if len(parts) == 3 and existing:
+        try:
+            parts[2] = str(int(parts[2]) + 1)
+        except ValueError:
+            pass
+    return ".".join(parts)
+
+
 def build_poam(
     backlog: dict,
-    gap_analysis: dict,
     org: str,
     platform: str,
     existing: dict | None = None,
@@ -323,112 +423,31 @@ def build_poam(
     assessment_id = backlog.get("assessment_id", "unknown")
     now = _now_iso()
 
-    # --- load or init existing OSCAL structure ---
-    if existing:
-        poam_root = existing.get("plan-of-action-and-milestones", {})
-        observations: list[dict] = poam_root.get("observations", [])
-        risks: list[dict] = poam_root.get("risks", [])
-        poam_items: list[dict] = poam_root.get("poam-items", [])
-        existing_index = _extract_existing_index(existing)
-        # Determine next POAM number from existing items
-        existing_numbers: list[int] = []
-        for pi in poam_items:
-            for prop in pi.get("props", []):
-                if prop.get("name") == "poam-id":
-                    m = re.match(r"POAM-(\d+)", prop["value"])
-                    if m:
-                        existing_numbers.append(int(m.group(1)))
-        next_poam_number = max(existing_numbers, default=0) + 1
-    else:
-        observations = []
-        risks = []
-        poam_items = []
-        existing_index = {}
-        next_poam_number = 1
-
-    mapped_items = backlog.get("mapped_items", [])
-
-    for finding in mapped_items:
-        status = finding.get("status", "fail")
-        if status in ("not_applicable",):
-            continue  # skip out-of-scope controls
-
-        control_id = _control_key(finding)
-        is_existing = control_id in existing_index
-
-        if is_existing:
-            # --- UPDATE existing poam-item ---
-            obs_uuid = _find_obs_uuid(existing or {}, control_id)
-            risk_uuid = _find_risk_uuid(existing or {}, control_id)
-
-            # Add a new observation for this run
-            new_obs = _build_observation(finding, org, platform, assessment_id)
-            if obs_uuid:
-                new_obs["uuid"] = _uuid()  # new observation for this run
-            observations.append(new_obs)
-
-            # Update risk status
-            risk_status = _status_to_risk_status(status)
-            if risk_uuid:
-                _update_risk_status(risks, risk_uuid, risk_status)
-
-            # Update poam-item status props
-            existing_pi = existing_index[control_id]
-            _update_poam_item_props(existing_pi, status)
-            # Add new observation link
-            existing_pi.setdefault("related-observations", []).append(
-                {"observation-uuid": new_obs["uuid"]}
-            )
-
-        else:
-            # --- CREATE new poam-item ---
-            if status == "pass":
-                continue  # passing controls don't need a POA&M entry
-
-            obs = _build_observation(finding, org, platform, assessment_id)
-            risk = _build_risk(finding, obs["uuid"])
-            poam_item = _build_poam_item(
-                finding,
-                obs["uuid"],
-                risk["uuid"],
-                next_poam_number,
-                platform,
-                org,
-            )
-
-            observations.append(obs)
-            risks.append(risk)
-            poam_items.append(poam_item)
-            next_poam_number += 1
-
-    # Determine overall sensitivity tier from backlog summary
-    status_counts = backlog.get("summary", {}).get("status_counts", {})
-    fail_count = status_counts.get("fail", 0)
-    partial_count = status_counts.get("partial", 0)
-    open_count = fail_count + partial_count
-    sensitivity = "high" if open_count >= 10 else ("moderate" if open_count >= 5 else "low")
-
-    version_str = (
-        poam_root.get("metadata", {}).get("version", "1.0.0")
-        if existing
-        else "1.0.0"
+    observations, risks, poam_items, existing_index, next_poam_number, poam_root = (
+        _init_poam_state(existing)
     )
-    # Bump patch version on each update
-    parts = version_str.split(".")
-    if len(parts) == 3 and existing:
-        try:
-            parts[2] = str(int(parts[2]) + 1)
-        except ValueError:
-            pass
-    version_str = ".".join(parts)
+
+    for finding in backlog.get("mapped_items", []):
+        if finding.get("status") == "not_applicable":
+            continue
+        control_id = _control_key(finding)
+        if control_id in existing_index:
+            _apply_finding_to_existing(
+                finding, existing or {}, existing_index,
+                observations, risks, org, platform, assessment_id,
+            )
+        else:
+            next_poam_number = _apply_finding_as_new(
+                finding, observations, risks, poam_items,
+                next_poam_number, org, platform, assessment_id,
+            )
+
+    sensitivity, open_count, fail_count, partial_count = _compute_sensitivity(backlog)
+    version_str = _bump_version(existing, poam_root)
 
     return {
         "plan-of-action-and-milestones": {
-            "uuid": (
-                poam_root.get("uuid", _uuid())
-                if existing
-                else _uuid()
-            ),
+            "uuid": poam_root.get("uuid", _uuid()) if existing else _uuid(),
             "metadata": {
                 "title": f"SSCF POA&M — {platform.capitalize()} — {org}",
                 "last-modified": now,
@@ -504,14 +523,6 @@ def main() -> None:
 
     backlog = json.loads(backlog_path.read_text())
 
-    gap_analysis: dict = {}
-    if args.gap_analysis:
-        ga_path = Path(args.gap_analysis)
-        if ga_path.exists():
-            gap_analysis = json.loads(ga_path.read_text())
-        else:
-            print(f"WARN: gap-analysis not found: {ga_path} — proceeding without it", file=sys.stderr)
-
     # Resolve existing POA&M for cumulative mode
     existing: dict | None = None
     existing_source = args.existing or args.out
@@ -525,13 +536,12 @@ def main() -> None:
 
     poam = build_poam(
         backlog=backlog,
-        gap_analysis=gap_analysis,
         org=args.org,
         platform=args.platform,
         existing=existing,
     )
 
-    out_path = Path(args.out)
+    out_path = Path(args.out).resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(poam, indent=2))
 

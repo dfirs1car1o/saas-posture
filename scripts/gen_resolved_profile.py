@@ -34,7 +34,7 @@ import sys
 import uuid
 from pathlib import Path
 
-_PARAM_RE = re.compile(r"\{\{\s*insert:\s*param,\s*([\w\-_]+)\s*\}\}")
+_PARAM_RE = re.compile(r"\{\{\s*insert:\s*param,\s*([\w-]+)\s*\}\}")
 
 
 def _uuid() -> str:
@@ -129,6 +129,33 @@ def _flatten_catalog_controls(catalog: dict) -> dict[str, dict]:
     return result
 
 
+def _params_to_props(params: list[dict], param_map: dict[str, str]) -> list[dict]:
+    """Convert catalog params to resolved-param props (traceability record)."""
+    props = []
+    for p in params:
+        pid = p.get("id", "")
+        resolved_val = param_map.get(pid, ", ".join(p.get("values", [])))
+        props.append({
+            "name": f"resolved-param:{pid}",
+            "value": resolved_val,
+            "remarks": p.get("usage", ""),
+        })
+    return props
+
+
+def _merge_alter_adds(resolved: dict, alter_adds: list[dict]) -> None:
+    """Merge platform alter add-parts into resolved control parts in-place."""
+    for add in alter_adds:
+        add_parts = add.get("parts", [])
+        if not add_parts:
+            continue
+        existing = resolved.get("parts", [])
+        if add.get("position", "ending") == "starting":
+            resolved["parts"] = add_parts + existing
+        else:
+            resolved["parts"] = existing + add_parts
+
+
 def _resolve_control(
     control: dict,
     param_map: dict[str, str],
@@ -146,16 +173,8 @@ def _resolve_control(
         if key in ("_group_id", "_group_title"):
             continue
         if key == "params":
-            # Params are consumed; add a resolved-values prop instead for traceability
             resolved.setdefault("props", [])
-            for p in val:
-                pid = p.get("id", "")
-                resolved_val = param_map.get(pid, ", ".join(p.get("values", [])))
-                resolved["props"].append({
-                    "name": f"resolved-param:{pid}",
-                    "value": resolved_val,
-                    "remarks": p.get("usage", ""),
-                })
+            resolved["props"].extend(_params_to_props(val, param_map))
         elif key == "props":
             resolved.setdefault("props", [])
             resolved["props"].extend(val)
@@ -164,19 +183,8 @@ def _resolve_control(
         else:
             resolved[key] = val
 
-    # Merge alter add-parts
     if alter_adds:
-        for add in alter_adds:
-            position = add.get("position", "ending")
-            add_parts = add.get("parts", [])
-            if add_parts:
-                existing_parts = resolved.get("parts", [])
-                if position == "ending":
-                    resolved["parts"] = existing_parts + add_parts
-                elif position == "starting":
-                    resolved["parts"] = add_parts + existing_parts
-                else:
-                    resolved["parts"] = existing_parts + add_parts
+        _merge_alter_adds(resolved, alter_adds)
 
     return resolved
 
@@ -200,9 +208,6 @@ def resolve_profile(
     }
 
     resolved_groups: dict[str, list[dict]] = {gid: [] for gid in groups_order}
-
-    for cid in [c for cid in groups_order for c in [cid] if False]:  # type: ignore
-        pass  # handled below
 
     for cid, control in catalog_controls.items():
         if cid not in selected_ids:
