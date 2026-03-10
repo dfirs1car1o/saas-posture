@@ -581,11 +581,15 @@ def saved_search(
 
 
 def panel(idx: int, x: int, y: int, w: int, h: int, obj_id: str, obj_type: str = "visualization") -> dict:
+    # Use panelRefName (not id) — OSD 2.x resolves panels via the references array.
+    # Using `id` causes OSD import to auto-generate extra refs, creating duplicates.
     return {
         "panelIndex": str(idx),
         "gridData": {"x": x, "y": y, "w": w, "h": h, "i": str(idx)},
-        "id": obj_id,
-        "type": obj_type,
+        "panelRefName": f"panel_{idx - 1}",
+        "embeddableConfig": {"enhancements": {}},
+        "_type": obj_type,
+        "_id": obj_id,
         "version": "2.19.0",
     }
 
@@ -595,6 +599,16 @@ def ref(name: str, obj_type: str, obj_id: str) -> dict:
 
 
 def dashboard_obj(id_: str, title: str, desc: str, panels: list[dict], refs: list[dict]) -> dict:
+    # Build 0-indexed refs from _id/_type metadata stored in each panel object.
+    # Strip those private fields before serializing panelsJSON.
+    auto_refs = []
+    clean_panels = []
+    for i, p in enumerate(panels):
+        obj_id = p.get("_id")
+        obj_type = p.get("_type", "visualization")
+        if obj_id:
+            auto_refs.append({"name": f"panel_{i}", "type": obj_type, "id": obj_id})
+        clean_panels.append({k: v for k, v in p.items() if not k.startswith("_")})
     return {
         "type": "dashboard",
         "id": id_,
@@ -602,7 +616,7 @@ def dashboard_obj(id_: str, title: str, desc: str, panels: list[dict], refs: lis
             "title": title,
             "hits": 0,
             "description": desc,
-            "panelsJSON": _j(panels),
+            "panelsJSON": _j(clean_panels),
             "optionsJSON": _j({"useMargins": True, "hidePanelTitles": False}),
             "version": 1,
             "timeRestore": True,
@@ -612,7 +626,7 @@ def dashboard_obj(id_: str, title: str, desc: str, panels: list[dict], refs: lis
                 "searchSourceJSON": _j({"query": {"language": "kuery", "query": ""}, "filter": []}),
             },
         },
-        "references": refs,
+        "references": auto_refs,
     }
 
 

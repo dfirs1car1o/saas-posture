@@ -27,6 +27,19 @@ Access them at **http://localhost:5601** → Dashboards (left sidebar).
 
 ---
 
+## Screenshots
+
+### SSCF Security Posture Overview (Combined)
+![SSCF Main Dashboard](../screenshots/sscf-main-dashboard.png)
+
+### Salesforce Security Posture
+![Salesforce Dashboard](../screenshots/sfdc-dashboard.png)
+
+### Workday Security Posture
+![Workday Dashboard](../screenshots/workday-dashboard.png)
+
+---
+
 ## Starting the Stack
 
 ```bash
