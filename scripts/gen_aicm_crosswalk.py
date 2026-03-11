@@ -165,9 +165,7 @@ def _build_domain_sscf_map(controls_map: dict, uncovered_domains: list[str]) -> 
                     "sscf_controls": [],
                 }
             new_v = aicm_domain_entry.get("coverage_verdict", "partial")
-            domain_sscf[abbrev]["mapping_verdict"] = _weaken_verdict(
-                domain_sscf[abbrev]["mapping_verdict"], new_v
-            )
+            domain_sscf[abbrev]["mapping_verdict"] = _weaken_verdict(domain_sscf[abbrev]["mapping_verdict"], new_v)
             domain_sscf[abbrev]["sscf_controls"].append(
                 {
                     "sscf_id": sscf_id,
