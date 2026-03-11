@@ -44,6 +44,7 @@ def _safe_out_path(raw: str | None, default: Path) -> str:
         )
     return str(target)
 
+
 # ---------------------------------------------------------------------------
 # Tool schema definitions (Anthropic format)
 # ---------------------------------------------------------------------------
