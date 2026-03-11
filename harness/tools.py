@@ -22,6 +22,28 @@ _REPO = Path(__file__).resolve().parents[1]
 _PYTHON = sys.executable
 _ORG_ALIAS_HELP = "Org alias for output dir naming"
 
+# Allowed output roots — all generated artifacts must land under one of these.
+_ARTIFACT_ROOT = (_REPO / "docs" / "oscal-salesforce-poc" / "generated").resolve()
+_APEX_ROOT = (_REPO / "docs" / "oscal-salesforce-poc" / "apex-scripts").resolve()
+
+
+def _safe_out_path(raw: str | None, default: Path) -> str:
+    """Resolve and validate an output path is within the approved artifact tree.
+
+    Rejects paths that escape via ``..`` or absolute traversal. Falls back to
+    *default* when *raw* is None.
+
+    Raises ValueError for paths outside the allowed roots so the dispatcher can
+    surface a clear error instead of silently writing elsewhere.
+    """
+    target = Path(raw).resolve() if raw else default.resolve()
+    if not (target.is_relative_to(_ARTIFACT_ROOT) or target.is_relative_to(_APEX_ROOT)):
+        raise ValueError(
+            f"Output path '{target}' is outside the allowed artifact root "
+            f"({_ARTIFACT_ROOT}). All outputs must be under docs/oscal-salesforce-poc/generated/."
+        )
+    return str(target)
+
 # ---------------------------------------------------------------------------
 # Tool schema definitions (Anthropic format)
 # ---------------------------------------------------------------------------
@@ -357,7 +379,7 @@ def _run(args: list[str]) -> str:
 
 
 def _dispatch_workday_connect(inp: dict[str, Any], out_dir: Path) -> str:
-    out_path = inp.get("out") or str(out_dir / "workday_raw.json")
+    out_path = _safe_out_path(inp.get("out"), out_dir / "workday_raw.json")
     args = [
         _PYTHON,
         "-m",
@@ -386,7 +408,7 @@ def _dispatch_workday_connect(inp: dict[str, Any], out_dir: Path) -> str:
 
 
 def _dispatch_sfdc_connect(inp: dict[str, Any], out_dir: Path) -> str:
-    out_path = inp.get("out") or str(out_dir / "sfdc_raw.json")
+    out_path = _safe_out_path(inp.get("out"), out_dir / "sfdc_raw.json")
     args = [
         _PYTHON,
         "-m",
@@ -417,7 +439,7 @@ def _dispatch_sfdc_connect(inp: dict[str, Any], out_dir: Path) -> str:
 
 
 def _dispatch_oscal_assess(inp: dict[str, Any], out_dir: Path) -> str:
-    out_path = inp.get("out") or str(out_dir / "gap_analysis.json")
+    out_path = _safe_out_path(inp.get("out"), out_dir / "gap_analysis.json")
     args = [
         _PYTHON,
         "-m",
@@ -441,8 +463,8 @@ def _dispatch_oscal_assess(inp: dict[str, Any], out_dir: Path) -> str:
 
 
 def _dispatch_gap_map(inp: dict[str, Any], out_dir: Path) -> str:
-    out_md = inp.get("out_md") or str(out_dir / "matrix.md")
-    out_json = inp.get("out_json") or str(out_dir / "backlog.json")
+    out_md = _safe_out_path(inp.get("out_md"), out_dir / "matrix.md")
+    out_json = _safe_out_path(inp.get("out_json"), out_dir / "backlog.json")
     controls_path = _REPO / "docs/oscal-salesforce-poc/generated/sbs_controls.json"
     mapping_path = _REPO / "config/oscal-salesforce/control_mapping.yaml"
     sscf_map_path = _REPO / "config/oscal-salesforce/sbs_to_sscf_mapping.yaml"
@@ -471,16 +493,17 @@ def _dispatch_report_gen(inp: dict[str, Any], out_dir: Path) -> str:
     if raw_out:
         p = Path(raw_out)
         if p.is_absolute():
-            out_path = str(p)
+            candidate = p
         else:
             # Resolve relative filenames against the backlog's directory so reports
             # always land next to the data they came from, even when `org` is not
             # explicitly passed to this tool (the LLM uses `org_alias` instead).
             backlog = inp.get("backlog", "")
             anchor = Path(backlog).parent if backlog else out_dir
-            out_path = str(anchor / p.name)
+            candidate = anchor / p.name
+        out_path = _safe_out_path(str(candidate), out_dir / "report.md")
     else:
-        out_path = str(out_dir / "report.md")
+        out_path = _safe_out_path(None, out_dir / "report.md")
     audience = inp.get("audience", "security")
     args = [
         _PYTHON,
@@ -511,7 +534,7 @@ def _dispatch_report_gen(inp: dict[str, Any], out_dir: Path) -> str:
 
 
 def _dispatch_nist_review(inp: dict[str, Any], out_dir: Path) -> str:
-    out_path = inp.get("out") or str(out_dir / "nist_review.json")
+    out_path = _safe_out_path(inp.get("out"), out_dir / "nist_review.json")
     args = [
         _PYTHON,
         "-m",
@@ -594,9 +617,11 @@ def _dispatch_backlog_diff(inp: dict[str, Any], out_dir: Path) -> str:
         return json.dumps({"status": "error", "message": "baseline and current paths are required"})
     args = [_PYTHON, "scripts/drift_check.py", "--baseline", baseline, "--current", current]
     if inp.get("out"):
-        args += ["--out", inp["out"]]
+        safe_out = _safe_out_path(inp["out"], out_dir / "drift_report.json")
+        args += ["--out", safe_out]
     if inp.get("out_md"):
-        args += ["--out-md", inp["out_md"]]
+        safe_md = _safe_out_path(inp["out_md"], out_dir / "drift_report.md")
+        args += ["--out-md", safe_md]
     return _run(args)
 
 
@@ -606,7 +631,7 @@ def _dispatch_finish(inp: dict[str, Any], out_dir: Path) -> str:  # noqa: ARG001
 
 
 def _dispatch_sscf_benchmark(inp: dict[str, Any], out_dir: Path) -> str:
-    out_path = inp.get("out") or str(out_dir / "sscf_report.json")
+    out_path = _safe_out_path(inp.get("out"), out_dir / "sscf_report.json")
     sscf_index = _REPO / "config/sscf_control_index.yaml"
     args = [
         _PYTHON,

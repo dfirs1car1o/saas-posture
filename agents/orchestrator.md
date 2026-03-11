@@ -44,7 +44,8 @@ Phase 2   — Assessment    : assessor (oscal-assess → oscal_gap_map)
 Phase 3   — Scoring       : assessor (sscf-benchmark)
 Phase 4   — Governance Gate : nist-reviewer (nist-review --platform <platform>)
 Phase 5   — Reporting     : reporter (report-gen × 2 audiences)
-Phase 6   — Monitoring    : export_to_opensearch (if OpenSearch stack running)
+Phase 6   — Monitoring    : MANUAL CLI step post-pipeline (not an agent tool call)
+                            python scripts/export_to_opensearch.py --auto --org <org> --date <YYYY-MM-DD>
 ```
 
 ---
@@ -53,10 +54,10 @@ Phase 6   — Monitoring    : export_to_opensearch (if OpenSearch stack running)
 
 | Request | Tool Call Sequence |
 |---|---|
-| **Full Salesforce assessment (live)** | sfdc_connect_collect → [backlog_diff if prior run exists] → oscal_assess_assess → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(platform=salesforce) → report_gen_generate(app-owner) → report_gen_generate(security, --drift-report if available) → export_to_opensearch → finish() |
-| **Full Workday assessment (live)** | workday_connect_collect → [backlog_diff if prior run exists] → oscal_assess_assess → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(platform=workday) → report_gen_generate(app-owner) → report_gen_generate(security, --drift-report if available) → export_to_opensearch → finish() |
+| **Full Salesforce assessment (live)** | sfdc_connect_collect → [backlog_diff if prior run exists] → oscal_assess_assess → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(platform=salesforce) → report_gen_generate(app-owner) → report_gen_generate(security, --drift-report if available) → finish() |
+| **Full Workday assessment (live)** | workday_connect_collect → [backlog_diff if prior run exists] → oscal_assess_assess → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(platform=workday) → report_gen_generate(app-owner) → report_gen_generate(security, --drift-report if available) → finish() |
 | **Salesforce dry-run** | oscal_assess_assess(--dry-run --platform salesforce) → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(--dry-run --platform salesforce) → report_gen_generate(--mock-llm, security) → finish() |
-| **Workday dry-run** | workday_dry_run_demo → export_to_opensearch → finish() |
+| **Workday dry-run** | workday_connect_collect(--dry-run) → oscal_assess_assess(--dry-run --platform workday) → oscal_gap_map → sscf_benchmark_benchmark → nist_review_assess(--dry-run --platform workday) → report_gen_generate(--mock-llm, security) → finish() |
 | **Drift check only** | backlog_diff(baseline=<prior_backlog>, current=<new_backlog>) → finish() |
 | **Gap mapping from existing JSON** | oscal_gap_map → sscf_benchmark_benchmark → report_gen_generate |
 | **Refresh governance report** | report_gen_generate(app-owner) + report_gen_generate(security) |
@@ -130,11 +131,12 @@ Do not assume defaults. Ask if uncertain.
 **Note:** `--out` must be an **absolute path**. Relative paths resolve into wrong subdirectories.
 The security audience auto-generates a `.docx` alongside the `.md`.
 
-### export_to_opensearch
+### export_to_opensearch (manual post-pipeline — not a tool call)
 ```bash
 python scripts/export_to_opensearch.py --auto --org <org> --date <YYYY-MM-DD>
 ```
-Only run if OpenSearch stack is up (`docker compose ps opensearch | grep healthy`).
+Run manually after `finish()` completes, only if OpenSearch stack is up (`docker compose ps opensearch | grep healthy`).
+This is **not** a registered dispatcher — do not call it as a tool.
 
 ### backlog_diff
 ```json

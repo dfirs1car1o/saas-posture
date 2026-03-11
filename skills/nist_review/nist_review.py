@@ -157,6 +157,61 @@ def _load_json(path: str | Path) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Context builder — deterministic summarizer (replaces [:6000] truncation)
+# ---------------------------------------------------------------------------
+
+
+def _build_review_context(assessment_id: str, gap_data: dict[str, Any], backlog_data: dict[str, Any]) -> str:
+    """Build a structured review context that always includes all critical/high findings.
+
+    Produces a token-efficient summary instead of raw JSON truncation, ensuring
+    the NIST gate never silently drops critical findings.
+    """
+    # --- gap_analysis summary ---
+    findings = gap_data.get("findings", [])
+    total = len(findings)
+    by_status: dict[str, list[dict]] = {}
+    for f in findings:
+        by_status.setdefault(f.get("status", "unknown"), []).append(f)
+
+    status_counts = {s: len(v) for s, v in by_status.items()}
+
+    # Always include every critical + high finding in full
+    priority_findings = [
+        f for f in findings if f.get("severity") in ("critical", "high") and f.get("status") in ("fail", "partial")
+    ]
+
+    gap_summary = {
+        "assessment_id": assessment_id,
+        "total_findings": total,
+        "status_counts": status_counts,
+        "priority_findings_full": priority_findings,
+    }
+
+    # --- backlog summary ---
+    items = backlog_data.get("mapped_items", [])
+    priority_items = [
+        i for i in items if i.get("severity") in ("critical", "high") and i.get("status") in ("fail", "partial")
+    ]
+    backlog_summary = {
+        "org": backlog_data.get("org"),
+        "platform": backlog_data.get("platform"),
+        "overall_score": backlog_data.get("overall_score"),
+        "total_items": len(items),
+        "priority_items_full": priority_items,
+        "iso27001_summary": backlog_data.get("iso27001_summary"),
+    }
+
+    context = json.dumps({"gap_summary": gap_summary, "backlog_summary": backlog_summary}, indent=2)
+
+    return (
+        f"Review these assessment outputs for assessment_id={assessment_id}.\n\n"
+        f"<assessment_context>\n{context}\n</assessment_context>\n\n"
+        "Return ONLY the JSON verdict. No text outside the JSON object."
+    )
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -231,15 +286,7 @@ def assess(gap_analysis: str | None, backlog: str | None, out: str, dry_run: boo
         )
     )
 
-    # Truncate large JSONs to stay within token budget
-    gap_str = json.dumps(gap_data, indent=2)[:6000]
-    backlog_str = json.dumps(backlog_data, indent=2)[:6000]
-    user_msg = (
-        f"Review these assessment outputs for assessment_id={assessment_id}.\n\n"
-        f"<gap_analysis>\n{gap_str}\n</gap_analysis>\n\n"
-        f"<backlog>\n{backlog_str}\n</backlog>\n\n"
-        "Return ONLY the JSON verdict. No text outside the JSON object."
-    )
+    user_msg = _build_review_context(assessment_id, gap_data, backlog_data)
 
     client = openai.OpenAI(api_key=api_key)
     response = client.chat.completions.create(

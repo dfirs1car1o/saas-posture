@@ -17,6 +17,7 @@ import json
 import os
 import sys
 import time
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -346,7 +347,7 @@ def run_collect(
     now_utc = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     output: dict[str, Any] = {
         "schema_version": "2.0",
-        "assessment_id": f"wd-assess-{datetime.now(UTC).strftime('%Y%m%d')}-001",
+        "assessment_id": f"wd-assess-{org_alias}-{datetime.now(UTC).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}",
         "platform": "workday",
         "oscal_catalog_ref": "config/workday/workday_catalog.json",
         "assessment_time_utc": now_utc,

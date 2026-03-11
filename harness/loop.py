@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -496,8 +497,9 @@ def run(  # NOSONAR
     if summary:
         click.echo(f"\nOrchestrator summary:\n{summary}")
 
-    # Write consolidated result JSON
-    out_dir = _REPO / "docs" / "oscal-salesforce-poc" / "generated" / org
+    # Write consolidated result JSON to dated run directory (prevents cross-run overwrite)
+    run_date = datetime.now(UTC).strftime("%Y-%m-%d")
+    out_dir = _REPO / "docs" / "oscal-salesforce-poc" / "generated" / org / run_date
     out_dir.mkdir(parents=True, exist_ok=True)
     result_path = out_dir / "loop_result.json"
     result_path.write_text(

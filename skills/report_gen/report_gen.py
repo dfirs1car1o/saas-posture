@@ -919,7 +919,7 @@ def _render_evidence_methodology(backlog: dict) -> str:  # NOSONAR
 
     _platform_labels = {
         "salesforce": "Salesforce (REST · Tooling · Metadata API)",
-        "workday": "Workday (SOAP · RaaS · REST)",
+        "workday": "Workday (RaaS · REST · manual questionnaire)",
     }
     platform_label = _platform_labels.get(platform, platform)
 
@@ -1239,7 +1239,6 @@ def generate(  # NOSONAR
         out_path = out_path.with_suffix(".md")
 
     org = org_alias or "unknown-org"
-    report_title = title or f"Salesforce Security Governance Assessment — {org}"
     model = os.getenv("LLM_MODEL_REPORTER", "gpt-5.3-chat-latest")
 
     if dry_run:
@@ -1249,6 +1248,12 @@ def generate(  # NOSONAR
         return
 
     backlog_data = _load_json(backlog)
+    platform = backlog_data.get("platform", "salesforce")
+    _platform_titles = {
+        "salesforce": f"Salesforce Security Governance Assessment — {org}",
+        "workday": f"Workday Security Governance Assessment — {org}",
+    }
+    report_title = title or _platform_titles.get(platform, f"SaaS Security Governance Assessment — {org}")
     sscf_data = _load_json(sscf_benchmark) if sscf_benchmark else None
     nist_data = _load_json(nist_review) if nist_review else None
     drift_data = _load_json(drift_report) if drift_report else None
