@@ -246,7 +246,7 @@ skills/
   nist_review/            ← NIST AI RMF gate (--platform salesforce|workday)
   report_gen/             ← Governance report generator (MD + DOCX)
   workday_connect/        ← Workday HCM/Finance collector (OAuth 2.0, 30 controls, 21 tests)
-tests/                    ← pytest suite (37 tests, fully offline with --mock-llm)
+tests/                    ← pytest suite (44 tests, fully offline with --mock-llm)
 ```
 
 ## Authentication
@@ -294,7 +294,7 @@ source .venv/bin/activate
 ruff check skills/ harness/    # lint
 bandit -r skills/ harness/     # SAST
 pip-audit                      # dependency CVEs
-pytest tests/ -v               # 37 tests, fully offline (no API key needed)
+pytest tests/ -v               # 44 tests, fully offline (no API key needed)
 ```
 
 CI stack: ruff · bandit · pip-audit · gitleaks · pytest · CodeQL · CodeRabbit Pro · dependency-review.

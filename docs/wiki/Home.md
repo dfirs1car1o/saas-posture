@@ -56,7 +56,7 @@ cd saas-posture
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e . && pip install pytest
 cp .env.example .env   # fill in OPENAI_API_KEY + Salesforce credentials
-pytest tests/ -v       # 37/37 should pass (offline, no API keys needed)
+pytest tests/ -v       # 44/44 should pass (offline, no API keys needed)
 agent-loop run --dry-run --env dev --org test-org
 ```
 

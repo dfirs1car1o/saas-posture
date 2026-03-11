@@ -290,7 +290,7 @@ nist-review assess \
 
 ### Live mode
 
-In live mode, calls `gpt-5.3-chat-latest` with `agents/nist-reviewer.md` as system prompt. Input JSONs are truncated to 6 000 chars each to stay within the token budget. Requires `OPENAI_API_KEY`.
+In live mode, calls `gpt-5.3-chat-latest` with `agents/nist-reviewer.md` as system prompt. A deterministic `_build_review_context()` summarizer is used instead of raw JSON truncation — all critical/high findings are always included in full regardless of payload size. Requires `OPENAI_API_KEY`.
 
 ### Dry-run mode
 

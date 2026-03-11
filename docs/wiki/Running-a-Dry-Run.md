@@ -134,7 +134,7 @@ To test just the pipeline logic without any API calls:
 pytest tests/ -v
 ```
 
-This runs 37 tests across 6 suites — all pass without any environment variables or API keys:
+This runs 44 tests across 6 suites — all pass without any environment variables or API keys:
 
 | Test file | Tests | What it covers |
 |---|---|---|

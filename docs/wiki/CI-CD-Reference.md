@@ -17,7 +17,7 @@ All actions are pinned to full commit SHAs for supply chain security.
 | `pip-audit` | `pip-audit --desc on` | All PRs + push to main | Any installed package has a known CVE |
 | `validate-env` | `validate_env.py --ci` | All PRs + push to main | Missing required repo files or Python packages |
 | `license-check` | `pip-licenses` | All PRs + push to main | GPL/AGPL/LGPL dependency detected (not in allowlist) |
-| `pytest` | `pytest tests/ -v --cov=... --cov-fail-under=60` | All PRs + push to main | Any test fails or coverage drops below 60% (37 tests total) |
+| `pytest` | `pytest tests/ -v --cov=... --cov-fail-under=60` | All PRs + push to main | Any test fails or coverage drops below 60% (44 tests total) |
 | `docker-smoke` | `docker compose up/down` | All PRs + push to main | OpenSearch or Dashboards fail to reach healthy state |
 
 **Fix `ruff` failures:**
@@ -178,7 +178,7 @@ CodeRabbit runs automatically — no setup required for contributors. Reviews ap
 □ pip-audit — no CVEs
 □ validate-env — all non-credential checks pass
 □ license-check — no unapproved copyleft
-□ pytest — 37/37 pass + coverage ≥ 60%
+□ pytest — 44/44 pass + coverage ≥ 60%
 □ docker-smoke — OpenSearch + Dashboards healthy
 □ Bandit SAST — no HIGH findings
 □ Secret scan (gitleaks) — no credentials found
