@@ -1,1 +1,1260 @@
-\n# config/aicm/sscf_to_aicm_mapping.yaml\n# SSCF v1.0 → CSA AI Controls Matrix (AICM) v1.0.3 bridge\n#\n# Maps all 36 SSCF v1.0 controls to relevant AICM v1.0.3 domains and control IDs.\n# AICM v1.0.3 spans 243 controls across 18 domains, including AI-specific domains\n# (MDS — Model Security) not present in CCM v4.1.\n#\n# ID scheme notes:\n#   IVS domain: control IDs are I&S-01..I&S-09  (not IVS-xx)\n#   SCT domain: control IDs are STA-01..STA-16   (not SCT-xx)\n#   All other domains: domain_abbrev-nn (e.g., IAM-01, LOG-01)\n#\n# coverage_verdict values:\n#   covered     — the SSCF control directly assesses this AICM domain's concern\n#   partial     — SSCF control partially addresses the AICM domain; gaps remain\n#   not_covered — AICM domain has no meaningful SSCF coverage\n#\n# mapping_strength values (per control_id entry):\n#   direct      — 1-to-1 conceptual alignment; SSCF evidence satisfies AICM requirement\n#   partial     — overlapping scope; SSCF evidence contributes but does not fully satisfy\n#   informative — SSCF evidence provides supporting context only\n#\n# Uncovered AICM domains appear in the `uncovered_aicm_domains` block below.\n# These represent gaps a buyer must address through supplemental controls.\n#\n# Source: https://cloudsecurityalliance.org/artifacts/ai-controls-matrix\n\nversion: \"1.0\"\nframework_pair: \"SSCF v1.0 → AICM v1.0.3\"\nsscf_version: \"1.0\"\naicm_version: \"1.0.3\"\nsscf_total_controls: 36\ngenerated: \"2026-03-10\"\ndescription: >\n  Full crosswalk between the CSA SaaS Security Customer Framework (SSCF) v1.0\n  and the CSA AI Controls Matrix (AICM) v1.0.3. SSCF covers SaaS application-layer\n  posture (36 controls, 6 domains). AICM covers cloud and AI governance (243 controls,\n  18 domains). This mapping surfaces which AICM domains receive coverage from SSCF\n  assessments and which are structural gaps requiring supplemental controls — most\n  notably infrastructure-layer (DCS, IVS, UEM), workforce (HRS), cryptographic\n  lifecycle (CEK), resilience (BCR), and AI model security (MDS).\n\n# ── AICM domains with no SSCF coverage ─────────────────────────────────────────\n# These gaps are inherent to SSCF's SaaS application-layer scope.\n# Organizations relying solely on SSCF assessments should document compensating\n# controls or accept residual risk for the following domains.\n\nuncovered_aicm_domains:\n  - abbrev: \"DCS\"\n    full_name: \"Datacenter Security\"\n    control_range: \"DCS-01 through DCS-15\"\n    reason: >\n      DCS governs physical datacenter access, equipment disposition, media transport,\n      and environmental systems. SSCF is an API-based SaaS assessment framework;\n      physical security of the vendor's datacenter is outside assessable scope.\n      Covered by vendor SOC 2 Type II / ISO 27001 attestations.\n    supplemental_guidance: \"Require annual vendor attestation (SOC 2 Type II or ISO 27001 cert) covering DCS scope.\"\n\n  - abbrev: \"HRS\"\n    full_name: \"Human Resources Security\"\n    control_range: \"HRS-01 through HRS-15\"\n    reason: >\n      HRS covers personnel background screening, acceptable use, employment agreements,\n      security awareness training, and AI competency. SSCF does not assess the SaaS\n      vendor's or customer's HR processes. These are out-of-scope for an API-based\n      platform posture assessment.\n    supplemental_guidance: \"Address through HR policy review, security awareness program, and vendor personnel security attestation.\"\n\n  - abbrev: \"BCR\"\n    full_name: \"Business Continuity & Resilience\"\n    control_range: \"BCR-01 through BCR-11\"\n    reason: >\n      BCR covers BCP/DR strategy, RTO/RPO, backup, disaster response testing, and\n      equipment redundancy. SSCF LOG and SEF controls touch alerting and incident\n      response but do not assess business continuity planning or resilience testing.\n    supplemental_guidance: \"Require vendor BCP/DR documentation and annual test evidence. Assess via SLA/uptime SLO review.\"\n\n  - abbrev: \"CEK\"\n    full_name: \"Cryptography, Encryption & Key Management\"\n    control_range: \"CEK-01 through CEK-21\"\n    reason: >\n      CEK governs encryption algorithms, key generation, rotation, revocation, archival,\n      and recovery. SSCF-CON-003 (API Credential and Token Lifecycle) partially overlaps\n      with key lifecycle governance but does not address at-rest/in-transit encryption\n      algorithm selection, customer-managed keys, or cryptographic audit. CEK-01 receives\n      a partial mention under CON-003 but full CEK coverage is absent.\n    supplemental_guidance: \"Supplement with encryption policy review, vendor FIPS 140-2/3 attestation, and BYOK/CMEK capability assessment.\"\n\n  - abbrev: \"IVS\"\n    full_name: \"Infrastructure & Virtualization Security\"\n    control_range: \"I&S-01 through I&S-09\"\n    reason: >\n      IVS (catalog IDs: I&S-01 through I&S-09) covers network security, OS hardening,\n      environment segregation, and network architecture. SSCF is scoped to SaaS\n      application-layer controls accessed via vendor APIs; underlying infrastructure\n      security is vendor-managed and assessed through SOC 2 / ISO 27001 attestations.\n    supplemental_guidance: \"Obtain vendor network architecture documentation and SOC 2 CC6.6/CC6.7 evidence.\"\n\n  - abbrev: \"UEM\"\n    full_name: \"Universal Endpoint Management\"\n    control_range: \"UEM-01 through UEM-14\"\n    reason: >\n      UEM covers endpoint device policy, MDM, anti-malware, storage encryption, and DLP\n      at the endpoint layer. SSCF-DSP-002 (Data Export Controls) partially intersects\n      endpoint DLP but SSCF makes no assessment of endpoint management controls.\n    supplemental_guidance: \"Address through endpoint management program, MDM policy review, and UEM tool assessment.\"\n\n  - abbrev: \"MDS\"\n    full_name: \"Model Security (AI-specific)\"\n    control_range: \"MDS-01 through MDS-13\"\n    reason: >\n      MDS governs AI/ML model training pipeline security, artifact scanning, adversarial\n      robustness, model integrity, and open model risk. SSCF was designed for SaaS\n      platform posture before AI model governance was codified. SSCF-IPY-002 and\n      SSCF-IPY-003 partially address API-exposed AI feature security and third-party\n      AI connector risk, but training pipeline and model lifecycle controls (MDS-01 through\n      MDS-13) have no SSCF coverage. Salesforce Einstein and Workday AI features increase\n      this gap's significance.\n    supplemental_guidance: >\n      Supplement with vendor AI model governance attestation, Einstein/Workday AI feature\n      security review, and adopt AICM MDS controls as a standalone AI security assessment layer.\n\n# ── Control Mappings ─────────────────────────────────────────────────────────────\n\ncontrols:\n\n  # ════════════════════════════════════════════════════════════════════\n  # CON — Configuration Hardening (sscf-con-001 through sscf-con-006)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-con-001:\n    sscf_title: \"SaaS Security Baseline Enforcement\"\n    sscf_description: \"Apply and continuously assess approved secure configuration baselines.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-01\", \"CCC-06\", \"CCC-07\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          CCC-01 (Change Management Policy) establishes the governance foundation for\n          baseline enforcement. CCC-06 (Change Management Baseline) directly requires\n          an approved baseline to be defined and maintained. CCC-07 (Detection of Baseline\n          Deviation) maps directly to SSCF's continuous assessment requirement. SSCF\n          assessment evidence (enabled security settings, hardening flags) satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-01\", \"TVM-03\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          TVM-01 (TVM Policy) and TVM-03 (Vulnerability Identification) overlap because\n          baseline enforcement inherently surfaces insecure default settings that are\n          effectively unmitigated vulnerabilities. SSCF-CON-001 provides evidence for\n          configuration hygiene but does not cover scanning, CVSS scoring, or patch\n          remediation timelines required by TVM.\n        mapping_strength: partial\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-02\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-02 (Application Security Baseline Requirements) requires a defined security\n          baseline for applications. SSCF-CON-001 enforces the SaaS platform's security\n          baseline, providing direct evidence for AIS-02's platform-layer baseline requirement.\n          Application-layer SDLC controls within AIS-02 are not addressed by SSCF.\n        mapping_strength: partial\n\n  sscf-con-002:\n    sscf_title: \"Drift Detection and Baseline Deviation Management\"\n    sscf_description: \"Detect unauthorized configuration drift and enforce remediation workflow.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-04\", \"CCC-07\", \"CCC-08\", \"CCC-09\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          CCC-04 (Change Authorization) requires controls preventing unauthorized changes —\n          drift detection is the detective complement. CCC-07 (Detection of Baseline Deviation)\n          is the direct mapping. CCC-08 (Exception Management) aligns with remediation\n          workflows for detected drift. CCC-09 (Change Restoration) aligns with the\n          requirement to restore baseline state after unauthorized drift.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-07\", \"TVM-08\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          TVM-07 (Vulnerability Remediation Schedule) and TVM-08 (Vulnerability Prioritization)\n          overlap with drift remediation workflow — deviations are prioritized and remediated\n          on schedule. SSCF provides evidence of detection and escalation but not full\n          vulnerability lifecycle scoring.\n        mapping_strength: partial\n\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-05\", \"LOG-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          Drift detection depends on LOG-05 (Audit Logs Monitoring and Response) and\n          LOG-13 (Failures and Anomalies Reporting) to surface configuration change events.\n          SSCF-CON-002 drives the detection use case; the logging infrastructure is\n          assessed separately under SSCF-LOG-001/002.\n        mapping_strength: partial\n\n  sscf-con-003:\n    sscf_title: \"API Credential and Token Lifecycle\"\n    sscf_description: \"Govern issuance, scope, rotation, and revocation of credentials and tokens.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-15\", \"IAM-07\", \"IAM-05\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-15 (Passwords and Secrets Management) directly governs credential and token\n          lifecycle including rotation and storage. IAM-07 (User Access Changes and Revocation)\n          covers token revocation on role change or termination. IAM-05 (Least Privilege)\n          aligns with the scope restriction requirement for API credentials.\n        mapping_strength: direct\n\n      - abbrev: \"CEK\"\n        control_ids: [\"CEK-01\", \"CEK-12\", \"CEK-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          CEK-01 (Encryption and Key Management Policy), CEK-12 (Key Rotation), and CEK-13\n          (Key Revocation) overlap significantly with API token lifecycle governance —\n          tokens are a class of cryptographic secrets subject to the same lifecycle controls.\n          SSCF-CON-003 does not address full cryptographic key material (at-rest/in-transit\n          encryption keys) covered by the broader CEK domain.\n        mapping_strength: partial\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-10\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-10 (API Security) requires API endpoints to enforce authentication controls.\n          SSCF-CON-003's credential lifecycle governance is a prerequisite for AIS-10\n          compliance — valid, scoped, rotated credentials underpin API authentication posture.\n        mapping_strength: partial\n\n  sscf-con-004:\n    sscf_title: \"Platform Hardening and Security Settings Verification\"\n    sscf_description: \"Apply vendor hardening guidance; disable insecure defaults; enable security features.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-01\", \"CCC-06\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          CCC-01 and CCC-06 require a documented change management baseline and procedures.\n          Platform hardening verification directly produces evidence that the approved\n          baseline (with insecure defaults disabled) is in effect.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-01\", \"TVM-03\", \"TVM-04\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          TVM-01 (TVM Policy), TVM-03 (Vulnerability Identification), and TVM-04 (Detection\n          Updates) align with the practice of applying vendor hardening guidance and keeping\n          security features current. Verifying platform hardening is a preventive vulnerability\n          management activity that satisfies TVM detection and identification requirements.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-02\", \"AIS-06\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-02 (Application Security Baseline Requirements) and AIS-06 (Secure Application\n          Deployment) require security hardening at deployment. SSCF-CON-004 assesses the\n          SaaS vendor's deployed hardening state rather than the customer's application SDLC.\n        mapping_strength: partial\n\n  sscf-con-005:\n    sscf_title: \"Third-Party Integration and Supply Chain Security\"\n    sscf_description: \"Inventory and assess security posture of third-party integrations.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"SCT\"\n        control_ids: [\"STA-01\", \"STA-08\", \"STA-09\", \"STA-15\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          STA-01 (Supply Chain Risk Management Policy), STA-08 (Supply Chain Inventory),\n          STA-09 (Supply Chain Risk Management), and STA-15 (Supply Chain Data Security\n          Assessment) directly map to SSCF-CON-005's inventory and risk assessment\n          requirement for third-party integrations. SSCF assessment evidence (connected app\n          list, OAuth grants, permission sets) satisfies the inventory and risk posture\n          components of these controls.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-10\", \"AIS-11\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-10 (API Security) and AIS-11 (Agents Security Boundaries) address security\n          requirements for API-connected integrations and agent boundaries. SSCF-CON-005's\n          third-party integration inventory provides the baseline required to assess AIS-10/11\n          compliance but does not fully assess integration code security.\n        mapping_strength: partial\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-02\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-02 (Risk Management Program) requires third-party risk to be formally assessed\n          and tracked. SSCF-CON-005 integration posture assessment produces risk evidence\n          that feeds the GRC-02 program, but SSCF does not govern the broader risk\n          management program.\n        mapping_strength: partial\n\n  sscf-con-006:\n    sscf_title: \"Patch and Version Management Assurance\"\n    sscf_description: \"Track and assure application of security-relevant vendor patches and EOL deprecation.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-01\", \"TVM-05\", \"TVM-07\", \"TVM-08\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          TVM-01 (TVM Policy), TVM-05 (External Library Vulnerabilities), TVM-07 (Vulnerability\n          Remediation Schedule), and TVM-08 (Vulnerability Prioritization) directly align with\n          patch tracking and EOL deprecation assurance. SSCF-CON-006 provides evidence\n          that security-relevant patches are tracked and applied within SLA.\n        mapping_strength: direct\n\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-02\", \"CCC-03\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          CCC-02 (Quality Testing) and CCC-03 (Change Management Technology) overlap with\n          patch management processes — patches are a class of change that must go through\n          quality gates and tooling. SSCF-CON-006 assesses patch application outcomes,\n          not the change management process itself.\n        mapping_strength: partial\n\n  # ════════════════════════════════════════════════════════════════════\n  # DSP — Data Security & Privacy (sscf-dsp-001 through sscf-dsp-006)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-dsp-001:\n    sscf_title: \"Sensitive Data Access Control\"\n    sscf_description: \"Restrict and monitor access to sensitive business and personal data.\"\n    severity: critical\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-01\", \"DSP-04\", \"DSP-06\", \"DSP-17\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-01 (Security and Privacy Policy), DSP-04 (Data Classification), DSP-06\n          (Data Ownership and Stewardship), and DSP-17 (Sensitive Data Protection) directly\n          align with restricting access to sensitive data. SSCF assessment evidence (field-level\n          security, permission sets, sharing rules, FLS) satisfies DSP-04 and DSP-17.\n        mapping_strength: direct\n\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-05\", \"IAM-16\", \"IAM-17\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-05 (Least Privilege), IAM-16 (Authorization Mechanisms), and IAM-17 (Knowledge\n          Access Control — Need to Know) directly implement the access restriction requirement.\n          SSCF-DSP-001's assessment of field-level security and object permissions provides\n          evidence for all three AICM controls.\n        mapping_strength: direct\n\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-12\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          LOG-12 (Access Control Logs) requires logging of access to sensitive data.\n          SSCF-DSP-001 includes monitoring of access; the logging infrastructure to support\n          this is assessed under SSCF-LOG-001.\n        mapping_strength: partial\n\n  sscf-dsp-002:\n    sscf_title: \"Data Export and Exfiltration Controls\"\n    sscf_description: \"Prevent unauthorized data exports and exfiltration pathways.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-07\", \"DSP-10\", \"DSP-17\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-07 (Data Protection by Design and Default), DSP-10 (Sensitive Data Transfer),\n          and DSP-17 (Sensitive Data Protection) cover the controls SSCF-DSP-002 assesses —\n          restricting export pathways, enforcing data transfer controls, and protecting\n          sensitive data from exfiltration.\n        mapping_strength: direct\n\n      - abbrev: \"UEM\"\n        control_ids: [\"UEM-11\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          UEM-11 (Data Loss Prevention) is the endpoint-layer complement to SSCF's\n          platform-layer export controls. SSCF-DSP-002 assesses platform-side DLP settings;\n          endpoint DLP (UEM-11) requires separate assessment.\n        mapping_strength: partial\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-09\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-09 (Output Validation) requires that application outputs are validated to\n          prevent data leakage via API responses. SSCF-DSP-002 addresses bulk export\n          controls; API-level output validation is only partially assessed.\n        mapping_strength: partial\n\n  sscf-dsp-003:\n    sscf_title: \"Data Classification and Inventory\"\n    sscf_description: \"Maintain current data inventory and classification map per data classification policy.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-03\", \"DSP-04\", \"DSP-05\", \"DSP-06\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-03 (Data Inventory), DSP-04 (Data Classification), DSP-05 (Data Flow\n          Documentation), and DSP-06 (Data Ownership and Stewardship) directly correspond\n          to SSCF-DSP-003. A classification and inventory exercise satisfies all four\n          AICM controls simultaneously.\n        mapping_strength: direct\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-07\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-07 (Information System Regulatory Mapping) requires regulatory requirements\n          to be mapped to system data. Data classification inventory is the prerequisite\n          input for regulatory mapping; SSCF-DSP-003 evidence supports but does not\n          complete GRC-07.\n        mapping_strength: partial\n\n  sscf-dsp-004:\n    sscf_title: \"Cross-Border Data Transfer and Residency Controls\"\n    sscf_description: \"Ensure cross-border data transfers comply with data sovereignty requirements.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-10\", \"DSP-19\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-10 (Sensitive Data Transfer) and DSP-19 (Data Location) directly map to\n          cross-border transfer controls and data residency requirements. SSCF-DSP-004\n          assessment evidence (data residency settings, transfer mechanism verification)\n          satisfies both AICM controls.\n        mapping_strength: direct\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-07\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-07 (Information System Regulatory Mapping) requires mapping of data\n          sovereignty laws to system configuration. SSCF-DSP-004 produces the compliance\n          evidence but does not govern the regulatory mapping program itself.\n        mapping_strength: partial\n\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          IPY-04 (Data Portability Contractual Obligations) includes data residency terms\n          in contracts. Cross-border controls require contractual backing that SSCF-DSP-004\n          assesses technically but not contractually.\n        mapping_strength: partial\n\n  sscf-dsp-005:\n    sscf_title: \"Data Retention and Secure Disposal\"\n    sscf_description: \"Apply retention schedules and secure deletion for SaaS-hosted data.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-02\", \"DSP-16\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-02 (Secure Disposal) and DSP-16 (Data Retention and Deletion) are the direct\n          AICM equivalents. SSCF-DSP-005 assessment evidence (retention policy configuration,\n          archive schedules, deletion verification) satisfies both controls.\n        mapping_strength: direct\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-04 (Requirements Compliance) includes compliance with legal retention\n          requirements. SSCF-DSP-005's retention schedule verification supports\n          compliance audit but does not govern the audit program.\n        mapping_strength: partial\n\n  sscf-dsp-006:\n    sscf_title: \"Privacy Rights and Data Subject Access Management\"\n    sscf_description: \"Ensure SaaS platforms support DSAR fulfillment within regulatory timeframes.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-08\", \"DSP-11\", \"DSP-12\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-08 (Data Privacy by Design and Default), DSP-11 (Personal Data Access,\n          Reversal, Rectification and Deletion), and DSP-12 (Limitation of Purpose in\n          Personal Data Processing) directly align with DSAR fulfillment capabilities.\n          SSCF-DSP-006 assesses whether the SaaS platform technically supports these\n          rights.\n        mapping_strength: direct\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-07\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-07 (Information System Regulatory Mapping) requires GDPR/CCPA rights to be\n          mapped to system capabilities. SSCF-DSP-006 provides the technical capability\n          evidence that feeds this mapping.\n        mapping_strength: partial\n\n  # ════════════════════════════════════════════════════════════════════\n  # IAM — Identity & Access Management (sscf-iam-001 through sscf-iam-008)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-iam-001:\n    sscf_title: \"Multi-Factor Authentication Enforcement\"\n    sscf_description: \"Require MFA for privileged and workforce accounts.\"\n    severity: critical\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-14\", \"IAM-01\", \"IAM-02\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-14 (Strong Authentication) is the direct AICM mapping — it requires MFA\n          or equivalent for access to systems. IAM-01 (IAM Policy and Procedures)\n          provides the governance layer. IAM-02 (Strong Password Policy) is complementary.\n          SSCF-IAM-001 assessment evidence (MFA enforcement flags, policy state) directly\n          satisfies IAM-14.\n        mapping_strength: direct\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-05\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-05 (Information Security Program) requires MFA to be mandated as part of\n          the security program. SSCF-IAM-001 evidence demonstrates technical enforcement,\n          supporting GRC-05 program requirements.\n        mapping_strength: partial\n\n  sscf-iam-002:\n    sscf_title: \"Privileged Access Governance and Review\"\n    sscf_description: \"Enforce approval, least privilege, and periodic recertification for privileged roles.\"\n    severity: critical\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-04\", \"IAM-05\", \"IAM-08\", \"IAM-09\", \"IAM-10\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-04 (Separation of Duties), IAM-05 (Least Privilege), IAM-08 (User Access\n          Review), IAM-09 (Segregation of Privileged Access Roles), and IAM-10 (Management\n          of Privileged Access Roles) collectively define privileged access governance.\n          SSCF-IAM-002 assessment evidence (admin role assignments, recertification records,\n          approval workflows) satisfies all five AICM controls.\n        mapping_strength: direct\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-03\", \"A&A-05\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-03 (Risk Based Planning Assessment) and A&A-05 (Audit Management Process)\n          require privileged access to be included in risk-based audit scope. SSCF-IAM-002\n          recertification evidence supports the audit process but does not govern A&A program\n          design.\n        mapping_strength: partial\n\n  sscf-iam-003:\n    sscf_title: \"Federation and SSO Assurance\"\n    sscf_description: \"Enforce enterprise IdP federation and hardened SSO policy posture.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-01\", \"IAM-14\", \"IAM-16\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-01 (IAM Policy and Procedures) governs the identity federation framework.\n          IAM-14 (Strong Authentication) requires federation to an enterprise IdP as a\n          strong authentication mechanism. IAM-16 (Authorization Mechanisms) covers\n          the SSO token-based authorization model. SSCF-IAM-003 assessment of SAML/OIDC\n          federation state satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-10\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-10 (API Security) requires secure authentication for API access. SSO\n          federation configuration is the identity layer that API security depends upon;\n          partial coverage because SSCF-IAM-003 focuses on user-facing SSO, not API\n          authentication specifically.\n        mapping_strength: partial\n\n  sscf-iam-004:\n    sscf_title: \"User Lifecycle and Offboarding Controls\"\n    sscf_description: \"Timely revocation of access on termination or role change; stale account detection.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-06\", \"IAM-07\", \"IAM-08\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-06 (User Access Provisioning), IAM-07 (User Access Changes and Revocation),\n          and IAM-08 (User Access Review) directly map to user lifecycle and offboarding.\n          IAM-07 covers timely revocation; IAM-08 covers stale account detection via\n          periodic review. SSCF-IAM-004 evidence (inactive accounts, deprovisioning\n          timeliness metrics) satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"HRS\"\n        control_ids: [\"HRS-06\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          HRS-06 (Employment Termination) governs the HR process that triggers access\n          revocation. SSCF-IAM-004 assesses the technical outcome; the HR process itself\n          is outside SSCF scope.\n        mapping_strength: partial\n\n  sscf-iam-005:\n    sscf_title: \"Service Account and Non-Human Identity Governance\"\n    sscf_description: \"Inventory and govern service accounts with named owners and scoped permissions.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-03\", \"IAM-05\", \"IAM-19\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-03 (Identity Inventory) requires all identities including service accounts\n          to be inventoried. IAM-05 (Least Privilege) applies to service account permission\n          scoping. IAM-19 (Agent Access Restriction) is specifically relevant to non-human\n          identity governance in AI-augmented environments (Salesforce Einstein agents,\n          Workday integrations). SSCF-IAM-005 evidence satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-11\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-11 (Agents Security Boundaries) governs AI agent identity and access\n          boundaries — a growing concern as Salesforce Agentforce and Workday AI copilots\n          operate as non-human identities. SSCF-IAM-005 service account governance\n          provides partial coverage but does not address AI agent-specific boundary controls.\n        mapping_strength: partial\n\n  sscf-iam-006:\n    sscf_title: \"Session Security and Timeout Controls\"\n    sscf_description: \"Enforce idle timeout, concurrent session limits, and session token invalidation.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-14\", \"IAM-16\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-14 (Strong Authentication) includes session security as part of the\n          authentication lifecycle. IAM-16 (Authorization Mechanisms) governs session\n          token management. SSCF-IAM-006 assessment of timeout settings, concurrent\n          session limits, and token invalidation directly satisfies these controls.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-14\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-14 (AI Cache Protection) addresses session and cache security for AI\n          interactions. Session invalidation controls assessed by SSCF-IAM-006 partially\n          address AI session security but AIS-14 has additional AI-specific requirements.\n        mapping_strength: partial\n\n  sscf-iam-007:\n    sscf_title: \"Just-in-Time Access and Temporary Privilege Elevation\"\n    sscf_description: \"Govern temporary privilege via request-approve-expire workflow.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-10\", \"IAM-16\", \"IAM-08\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-10 (Management of Privileged Access Roles) encompasses JIT provisioning\n          workflows. IAM-16 (Authorization Mechanisms) governs time-bound authorization\n          grants. IAM-08 (User Access Review) ensures temporary elevations are reviewed\n          and expired. SSCF-IAM-007 evidence (JIT request/approve/expire records) satisfies\n          all three.\n        mapping_strength: direct\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-04 (Policy Exception Process) aligns with the exception-based nature of\n          temporary privilege elevation — each JIT grant is effectively a bounded exception\n          to standing least-privilege policy. SSCF-IAM-007 evidence supports GRC-04\n          exception process documentation.\n        mapping_strength: partial\n\n  sscf-iam-008:\n    sscf_title: \"External and Guest Access Controls\"\n    sscf_description: >\n      Govern external/contractor access: scoped, time-bound, MFA-enforced, recertified quarterly.\n    severity: high\n    aicm_domains:\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-07\", \"IAM-08\", \"IAM-13\", \"IAM-14\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-07 (User Access Changes and Revocation) covers time-bound expiry for external\n          accounts. IAM-08 (User Access Review) covers quarterly recertification. IAM-13\n          (Uniquely Identifiable Users) requires external users to be individually identified\n          rather than sharing accounts. IAM-14 (Strong Authentication) enforces MFA for\n          external access. SSCF-IAM-008 assessment evidence satisfies all four.\n        mapping_strength: direct\n\n      - abbrev: \"SCT\"\n        control_ids: [\"STA-10\", \"STA-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          STA-10 (Primary Service and Contractual Agreement) and STA-13 (Supply Chain\n          Service Agreement Compliance) require external/contractor access terms to be\n          contractually governed. SSCF-IAM-008 assesses technical controls; contractual\n          obligations are outside SSCF scope.\n        mapping_strength: partial\n\n  # ════════════════════════════════════════════════════════════════════\n  # IPY — Interoperability & Portability (sscf-ipy-001 through sscf-ipy-005)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-ipy-001:\n    sscf_title: \"Data Portability and Export Standards\"\n    sscf_description: \"Verify SaaS platforms support data export in open machine-readable formats.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-01\", \"IPY-04\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IPY-01 (Interoperability and Portability Policy and Procedures) and IPY-04\n          (Data Portability Contractual Obligations) directly require platforms to support\n          data portability in open formats and to contractually commit to portability.\n          SSCF-IPY-001 assessment of export format availability satisfies both.\n        mapping_strength: direct\n\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-05\", \"DSP-20\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          DSP-05 (Data Flow Documentation) and DSP-20 (Data Provenance and Transparency)\n          require data movement paths and provenance to be documented. Data portability\n          assessment generates partial evidence for these controls but does not constitute\n          full data flow documentation.\n        mapping_strength: partial\n\n  sscf-ipy-002:\n    sscf_title: \"API Security and Open Interface Governance\"\n    sscf_description: \"Govern API access to enforce authentication, rate limiting, and input validation.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-08\", \"AIS-09\", \"AIS-10\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          AIS-08 (Input Validation), AIS-09 (Output Validation), and AIS-10 (API Security)\n          directly correspond to SSCF-IPY-002's requirements: input validation, output\n          controls, and API authentication/rate limiting enforcement. SSCF evidence from\n          connected app and API settings assessment satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-02\", \"IPY-03\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IPY-02 (Application Interface Availability) and IPY-03 (Secure Interoperability\n          and Portability Management) govern the security posture of open interfaces.\n          SSCF-IPY-002 directly assesses API authentication, rate limits, and input controls\n          that IPY-02 and IPY-03 require.\n        mapping_strength: direct\n\n      - abbrev: \"MDS\"\n        control_ids: [\"MDS-06\", \"MDS-07\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          MDS-06 (Adversarial Attack Analysis) and MDS-07 (Model Hardening) are relevant\n          when APIs expose AI/ML model endpoints (Salesforce Einstein, Workday AI APIs).\n          SSCF-IPY-002's API security assessment partially addresses adversarial input\n          via input validation controls but does not assess AI model robustness.\n        mapping_strength: partial\n\n  sscf-ipy-003:\n    sscf_title: \"Integration Inventory and Third-Party Connector Risk Assessment\"\n    sscf_description: \"Maintain integration inventory; assess security risk of data flows between systems.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"SCT\"\n        control_ids: [\"STA-08\", \"STA-09\", \"STA-15\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          STA-08 (Supply Chain Inventory), STA-09 (Supply Chain Risk Management), and\n          STA-15 (Supply Chain Data Security Assessment) directly align with integration\n          inventory and connector risk assessment. SSCF-IPY-003 evidence (connected app\n          list, OAuth grants, data flow risk assessment) satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-03\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IPY-03 (Secure Interoperability and Portability Management) requires security\n          risk assessment for interoperability arrangements. SSCF-IPY-003's integration\n          risk assessment is the direct implementation evidence for IPY-03.\n        mapping_strength: direct\n\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-05\", \"DSP-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          DSP-05 (Data Flow Documentation) and DSP-13 (Personal Data Sub-processing)\n          require data flows between systems and sub-processors to be documented.\n          SSCF-IPY-003 integration inventory provides the basis for data flow documentation\n          but does not constitute a complete data flow analysis.\n        mapping_strength: partial\n\n  sscf-ipy-004:\n    sscf_title: \"Vendor Lock-In Mitigation and SaaS Exit Planning\"\n    sscf_description: \"Document SaaS exit plan covering data retrieval, migration, and dependency mapping.\"\n    severity: low\n    aicm_domains:\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-01\", \"IPY-04\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IPY-01 (Interoperability and Portability Policy and Procedures) and IPY-04\n          (Data Portability Contractual Obligations) require exit planning and contractual\n          data portability commitments. SSCF-IPY-004 exit plan documentation satisfies both.\n        mapping_strength: direct\n\n      - abbrev: \"BCR\"\n        control_ids: [\"BCR-03\", \"BCR-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          BCR-03 (Business Continuity Strategy) and BCR-04 (Business Continuity Planning)\n          overlap with SaaS exit planning — a vendor exit scenario is a business continuity\n          event. SSCF-IPY-004 exit plan provides partial input to BCR strategy but does\n          not constitute a full BCP.\n        mapping_strength: partial\n\n      - abbrev: \"SCT\"\n        control_ids: [\"STA-14\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          STA-14 (Supply Chain Governance Review) includes review of SaaS vendor dependency\n          and exit risk. SSCF-IPY-004 exit plan evidence supports STA-14 governance review.\n        mapping_strength: partial\n\n  sscf-ipy-005:\n    sscf_title: \"Multi-Cloud Data Residency and Sovereignty Controls\"\n    sscf_description: \"Enforce data residency requirements for regulated data across cloud environments.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"DSP\"\n        control_ids: [\"DSP-19\", \"DSP-10\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          DSP-19 (Data Location) and DSP-10 (Sensitive Data Transfer) directly address\n          data residency and cross-cloud transfer controls. SSCF-IPY-005 assessment\n          evidence (data residency configuration, encryption in transit) satisfies both.\n        mapping_strength: direct\n\n      - abbrev: \"IPY\"\n        control_ids: [\"IPY-03\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          IPY-03 (Secure Interoperability and Portability Management) requires secure\n          data management across cloud boundaries. Multi-cloud residency controls are\n          a specific case of secure interoperability management.\n        mapping_strength: partial\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-07\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-07 (Information System Regulatory Mapping) requires data sovereignty\n          regulations to be mapped to system controls. SSCF-IPY-005 provides the\n          technical evidence for this mapping.\n        mapping_strength: partial\n\n  # ════════════════════════════════════════════════════════════════════\n  # LOG — Logging & Monitoring (sscf-log-001 through sscf-log-006)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-log-001:\n    sscf_title: \"Security Telemetry Enablement\"\n    sscf_description: \"Enable required audit/security logs for detection and forensics.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-01\", \"LOG-07\", \"LOG-11\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-01 (Logging and Monitoring Policy and Procedures) establishes the governance\n          framework. LOG-07 (Logging Scope) requires all required log categories to be\n          enabled. LOG-11 (Transaction/Activity Logging) specifically requires security\n          event telemetry. SSCF-LOG-001 assessment evidence (login history enabled, field\n          history tracking, event log enablement) directly satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-06\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          SEF-06 (Event Triage Processes) depends on security telemetry being enabled.\n          SSCF-LOG-001 is the prerequisite; SEF-06 requires the downstream triage process\n          to be in place.\n        mapping_strength: partial\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-01\", \"A&A-05\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-01 (Audit and Assurance Policy) and A&A-05 (Audit Management Process) require\n          audit log capability to be confirmed as part of the assurance program. SSCF-LOG-001\n          evidence supports audit readiness assessment.\n        mapping_strength: partial\n\n  sscf-log-002:\n    sscf_title: \"Administrative and Configuration Audit Logging\"\n    sscf_description: \"Capture and monitor administrative and configuration change events.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-02\", \"LOG-04\", \"LOG-12\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-02 (Audit Logs Protection), LOG-04 (Audit Logs Access and Accountability),\n          and LOG-12 (Access Control Logs) directly align with administrative audit logging.\n          LOG-04 specifically requires administrator actions to be logged and accountable.\n          SSCF-LOG-002 assessment evidence (setup audit trail, config change logs) satisfies\n          all three.\n        mapping_strength: direct\n\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          CCC-04 (Change Authorization) requires all configuration changes to be authorized\n          and traceable. Administrative audit logs produced per SSCF-LOG-002 provide the\n          traceability evidence for CCC-04.\n        mapping_strength: partial\n\n      - abbrev: \"IAM\"\n        control_ids: [\"IAM-12\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          IAM-12 (Safeguard Logs Integrity) requires privileged access and admin action\n          logs to be protected from tampering. SSCF-LOG-002's requirement to capture and\n          protect admin logs directly addresses IAM-12.\n        mapping_strength: direct\n\n  sscf-log-003:\n    sscf_title: \"Audit Retention and Integrity\"\n    sscf_description: \"Retain logs per policy and preserve integrity for investigations.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-08\", \"LOG-09\", \"LOG-02\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-08 (Log Records — retention) requires logs to be retained per regulatory\n          requirements. LOG-09 (Log Protection) requires integrity protection. LOG-02\n          (Audit Logs Protection) requires protection from tampering. SSCF-LOG-003\n          assessment evidence (retention configuration, immutable storage, integrity\n          verification) satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-04 (Requirements Compliance) includes compliance with legal log retention\n          obligations. SSCF-LOG-003 retention verification provides evidence for A&A-04\n          compliance assessment.\n        mapping_strength: partial\n\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-04\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          SEF-04 (Incident Response Testing) and the broader incident response process\n          depend on logs being retained and integrity-preserved for forensic use.\n          SSCF-LOG-003 provides the forensic readiness prerequisite for SEF incident\n          response.\n        mapping_strength: partial\n\n  sscf-log-004:\n    sscf_title: \"Real-Time Security Monitoring and Alerting\"\n    sscf_description: \"Configure real-time monitoring rules for high-risk events routed to SOC.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-03\", \"LOG-05\", \"LOG-13\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-03 (Security Monitoring and Alerting), LOG-05 (Audit Logs Monitoring and\n          Response), and LOG-13 (Failures and Anomalies Reporting) directly require\n          real-time security event monitoring and alert routing. SSCF-LOG-004 assessment\n          evidence (alert rules configuration, SOC routing, monitoring coverage) satisfies\n          all three.\n        mapping_strength: direct\n\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-06\", \"SEF-09\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          SEF-06 (Event Triage Processes) requires events to be detected and routed for\n          triage — real-time monitoring is the detection layer. SEF-09 (Incident Response)\n          depends on real-time alerts as the incident initiation trigger. SSCF-LOG-004\n          directly supports both.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          TVM-13 (Threat Response) requires detected threats to trigger response actions.\n          Real-time monitoring (SSCF-LOG-004) is the detection mechanism that initiates\n          threat response.\n        mapping_strength: partial\n\n  sscf-log-005:\n    sscf_title: \"SIEM Integration and Cross-Platform Log Correlation\"\n    sscf_description: \"Integrate SaaS logs into SIEM for cross-platform correlation and investigation.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-03\", \"LOG-05\", \"LOG-07\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-03 (Security Monitoring and Alerting), LOG-05 (Audit Logs Monitoring and\n          Response), and LOG-07 (Logging Scope) require centralized log management and\n          cross-platform correlation capability. SSCF-LOG-005 SIEM integration evidence\n          directly satisfies these requirements.\n        mapping_strength: direct\n\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-09\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          SEF-09 (Incident Response) requires investigation capability that depends on\n          cross-platform log correlation. SSCF-LOG-005 SIEM integration enables the\n          investigation component of SEF-09.\n        mapping_strength: partial\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-12\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          TVM-12 (Threat Analysis and Modelling) requires cross-platform threat visibility\n          to identify attack patterns. SIEM integration (SSCF-LOG-005) provides the data\n          foundation for threat analysis.\n        mapping_strength: partial\n\n  sscf-log-006:\n    sscf_title: \"Anomalous Behavior Detection and Insider Threat Monitoring\"\n    sscf_description: \"Apply UEBA to detect anomalous user activity patterns indicating compromise or misuse.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-03\", \"LOG-13\", \"LOG-14\", \"LOG-15\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-03 (Security Monitoring and Alerting), LOG-13 (Failures and Anomalies\n          Reporting), LOG-14 (Input Monitoring), and LOG-15 (Output Monitoring) collectively\n          define the monitoring scope that UEBA satisfies. SSCF-LOG-006 UEBA evidence\n          (anomaly detection rules, behavioral baseline, alert thresholds) satisfies all four.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-11\", \"TVM-12\", \"TVM-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          TVM-11 (Guardrails), TVM-12 (Threat Analysis and Modelling), and TVM-13\n          (Threat Response) align with behavioral anomaly detection as a threat detection\n          mechanism. SSCF-LOG-006 UEBA evidence contributes to threat detection but does\n          not cover the full threat modeling and response lifecycle.\n        mapping_strength: partial\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-15\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-15 (Human Supervision) requires human review of AI/automated decisions\n          including those made by UEBA systems. SSCF-LOG-006 anomaly detection aligns\n          with GRC-15's requirement for supervised behavioral monitoring.\n        mapping_strength: partial\n\n  # ════════════════════════════════════════════════════════════════════\n  # SEF — Security Incident Management (sscf-sef-001 through sscf-sef-005)\n  # ════════════════════════════════════════════════════════════════════\n\n  sscf-sef-001:\n    sscf_title: \"Real-Time Threat Policy Enforcement\"\n    sscf_description: \"Detect and block high-risk behavior through policy-driven automated controls.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-01\", \"SEF-06\", \"SEF-09\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          SEF-01 (Security Incident Management Policy and Procedures), SEF-06 (Event\n          Triage Processes), and SEF-09 (Incident Response) align with automated threat\n          enforcement — policy-driven blocking is the automated tier of incident response.\n          SSCF-SEF-001 evidence (threat detection rules, automated block policies) satisfies\n          all three AICM controls.\n        mapping_strength: direct\n\n      - abbrev: \"TVM\"\n        control_ids: [\"TVM-11\", \"TVM-13\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          TVM-11 (Guardrails) requires automated controls to prevent high-risk actions.\n          TVM-13 (Threat Response) requires threat response to be timely and automated\n          where possible. SSCF-SEF-001's automated enforcement controls directly satisfy\n          TVM-11 and TVM-13.\n        mapping_strength: direct\n\n      - abbrev: \"AIS\"\n        control_ids: [\"AIS-11\", \"AIS-13\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          AIS-11 (Agents Security Boundaries) and AIS-13 (AI Sandboxing) are relevant\n          when threat policy enforcement applies to AI agent actions (e.g., Agentforce\n          flow blocking). SSCF-SEF-001 covers platform-level enforcement; AI-specific\n          threat enforcement requires AIS-11/13 supplemental controls.\n        mapping_strength: partial\n\n  sscf-sef-002:\n    sscf_title: \"Security Alert Triage and Escalation\"\n    sscf_description: \"Ensure high-risk alerts are triaged and escalated within SLA.\"\n    severity: high\n    aicm_domains:\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-05\", \"SEF-06\", \"SEF-08\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          SEF-05 (Incident Response Metrics) requires SLA measurement for triage and\n          escalation — directly aligned with SSCF-SEF-002's SLA requirement. SEF-06\n          (Event Triage Processes) is the process that SSCF-SEF-002 assesses. SEF-08\n          (Points of Contact Maintenance) ensures escalation paths are current.\n          SSCF-SEF-002 evidence satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-05\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          LOG-05 (Audit Logs Monitoring and Response) requires monitoring to trigger\n          timely response. Alert triage (SSCF-SEF-002) is the response component;\n          LOG-05 covers the monitoring precondition.\n        mapping_strength: partial\n\n  sscf-sef-003:\n    sscf_title: \"Incident Response Plan and Tabletop Testing\"\n    sscf_description: \"Maintain IR plan covering SaaS events; conduct annual tabletop exercises.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-01\", \"SEF-03\", \"SEF-04\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          SEF-01 (Security Incident Management Policy and Procedures), SEF-03 (Incident\n          Response Plans), and SEF-04 (Incident Response Testing) directly map to IR\n          plan maintenance and tabletop exercise requirements. SSCF-SEF-003 evidence\n          (IR plan document, tabletop exercise records, SaaS incident scenarios) satisfies\n          all three.\n        mapping_strength: direct\n\n      - abbrev: \"BCR\"\n        control_ids: [\"BCR-06\", \"BCR-09\", \"BCR-10\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          BCR-06 (Business Continuity Exercises), BCR-09 (Disaster Response Plan), and\n          BCR-10 (Response Plan Exercise) require BCP/DR testing that overlaps with IR\n          tabletop exercises. SSCF-SEF-003 IR tabletop evidence partially satisfies\n          BCR exercise requirements for SaaS-related disruption scenarios.\n        mapping_strength: partial\n\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-02\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          GRC-02 (Risk Management Program) requires incident risk to be managed through\n          a formal program. IR plan existence and testing evidence supports GRC-02\n          program documentation.\n        mapping_strength: partial\n\n  sscf-sef-004:\n    sscf_title: \"Evidence Preservation and Cloud Forensics Readiness\"\n    sscf_description: \"Preserve SaaS audit logs and forensic artifacts in legally defensible manner.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"SEF\"\n        control_ids: [\"SEF-09\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          SEF-09 (Incident Response) includes forensic investigation capability as a\n          component of the incident response lifecycle. Legally defensible evidence\n          preservation is a direct requirement of SEF-09.\n        mapping_strength: direct\n\n      - abbrev: \"LOG\"\n        control_ids: [\"LOG-08\", \"LOG-09\", \"LOG-02\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          LOG-08 (Log Records), LOG-09 (Log Protection), and LOG-02 (Audit Logs Protection)\n          establish the retention and integrity requirements that make forensic evidence\n          legally defensible. SSCF-SEF-004 forensic readiness assessment depends on\n          and validates these LOG controls.\n        mapping_strength: direct\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-05\", \"A&A-06\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-05 (Audit Management Process) and A&A-06 (Remediation) require audit\n          evidence to be preserved and acted upon. Cloud forensics evidence preservation\n          satisfies the audit evidence component of A&A-05/06.\n        mapping_strength: partial\n\n  sscf-sef-005:\n    sscf_title: \"Exception Governance and Risk Acceptance\"\n    sscf_description: \"Enforce time-bound exceptions with compensating controls and approvals.\"\n    severity: moderate\n    aicm_domains:\n      - abbrev: \"GRC\"\n        control_ids: [\"GRC-01\", \"GRC-02\", \"GRC-04\"]\n        coverage_verdict: \"covered\"\n        rationale: >\n          GRC-01 (Governance Program Policy and Procedures), GRC-02 (Risk Management\n          Program), and GRC-04 (Policy Exception Process) directly govern security\n          exceptions and risk acceptance. GRC-04 is the direct match — it explicitly\n          requires a documented exception process with approvals and time bounds.\n          SSCF-SEF-005 evidence (exception tickets, approval records, compensating\n          controls, expiry dates) satisfies all three.\n        mapping_strength: direct\n\n      - abbrev: \"A&A\"\n        control_ids: [\"A&A-06\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          A&A-06 (Remediation) requires that audit findings are tracked through to\n          remediation or accepted as exceptions. SSCF-SEF-005 exception governance\n          evidence demonstrates that the remediation/accept decision is formally governed.\n        mapping_strength: partial\n\n      - abbrev: \"CCC\"\n        control_ids: [\"CCC-08\"]\n        coverage_verdict: \"partial\"\n        rationale: >\n          CCC-08 (Exception Management) in the change control domain mirrors exception\n          governance principles. SSCF-SEF-005 risk acceptance governance provides\n          precedent and evidence that partially satisfies CCC-08 exception management\n          requirements.\n        mapping_strength: partial\n
+
+# config/aicm/sscf_to_aicm_mapping.yaml
+# SSCF v1.0 → CSA AI Controls Matrix (AICM) v1.0.3 bridge
+#
+# Maps all 36 SSCF v1.0 controls to relevant AICM v1.0.3 domains and control IDs.
+# AICM v1.0.3 spans 243 controls across 18 domains, including AI-specific domains
+# (MDS — Model Security) not present in CCM v4.1.
+#
+# ID scheme notes:
+#   IVS domain: control IDs are I&S-01..I&S-09  (not IVS-xx)
+#   SCT domain: control IDs are STA-01..STA-16   (not SCT-xx)
+#   All other domains: domain_abbrev-nn (e.g., IAM-01, LOG-01)
+#
+# coverage_verdict values:
+#   covered     — the SSCF control directly assesses this AICM domain's concern
+#   partial     — SSCF control partially addresses the AICM domain; gaps remain
+#   not_covered — AICM domain has no meaningful SSCF coverage
+#
+# mapping_strength values (per control_id entry):
+#   direct      — 1-to-1 conceptual alignment; SSCF evidence satisfies AICM requirement
+#   partial     — overlapping scope; SSCF evidence contributes but does not fully satisfy
+#   informative — SSCF evidence provides supporting context only
+#
+# Uncovered AICM domains appear in the `uncovered_aicm_domains` block below.
+# These represent gaps a buyer must address through supplemental controls.
+#
+# Source: https://cloudsecurityalliance.org/artifacts/ai-controls-matrix
+
+version: "1.0"
+framework_pair: "SSCF v1.0 → AICM v1.0.3"
+sscf_version: "1.0"
+aicm_version: "1.0.3"
+sscf_total_controls: 36
+generated: "2026-03-10"
+description: >
+  Full crosswalk between the CSA SaaS Security Customer Framework (SSCF) v1.0
+  and the CSA AI Controls Matrix (AICM) v1.0.3. SSCF covers SaaS application-layer
+  posture (36 controls, 6 domains). AICM covers cloud and AI governance (243 controls,
+  18 domains). This mapping surfaces which AICM domains receive coverage from SSCF
+  assessments and which are structural gaps requiring supplemental controls — most
+  notably infrastructure-layer (DCS, IVS, UEM), workforce (HRS), cryptographic
+  lifecycle (CEK), resilience (BCR), and AI model security (MDS).
+
+# ── AICM domains with no SSCF coverage ─────────────────────────────────────────
+# These gaps are inherent to SSCF's SaaS application-layer scope.
+# Organizations relying solely on SSCF assessments should document compensating
+# controls or accept residual risk for the following domains.
+
+uncovered_aicm_domains:
+  - abbrev: "DCS"
+    full_name: "Datacenter Security"
+    control_range: "DCS-01 through DCS-15"
+    reason: >
+      DCS governs physical datacenter access, equipment disposition, media transport,
+      and environmental systems. SSCF is an API-based SaaS assessment framework;
+      physical security of the vendor's datacenter is outside assessable scope.
+      Covered by vendor SOC 2 Type II / ISO 27001 attestations.
+    supplemental_guidance: "Require annual vendor attestation (SOC 2 Type II or ISO 27001 cert) covering DCS scope."
+
+  - abbrev: "HRS"
+    full_name: "Human Resources Security"
+    control_range: "HRS-01 through HRS-15"
+    reason: >
+      HRS covers personnel background screening, acceptable use, employment agreements,
+      security awareness training, and AI competency. SSCF does not assess the SaaS
+      vendor's or customer's HR processes. These are out-of-scope for an API-based
+      platform posture assessment.
+    supplemental_guidance: "Address through HR policy review, security awareness program, and vendor personnel security attestation."
+
+  - abbrev: "BCR"
+    full_name: "Business Continuity & Resilience"
+    control_range: "BCR-01 through BCR-11"
+    reason: >
+      BCR covers BCP/DR strategy, RTO/RPO, backup, disaster response testing, and
+      equipment redundancy. SSCF LOG and SEF controls touch alerting and incident
+      response but do not assess business continuity planning or resilience testing.
+    supplemental_guidance: "Require vendor BCP/DR documentation and annual test evidence. Assess via SLA/uptime SLO review."
+
+  - abbrev: "CEK"
+    full_name: "Cryptography, Encryption & Key Management"
+    control_range: "CEK-01 through CEK-21"
+    reason: >
+      CEK governs encryption algorithms, key generation, rotation, revocation, archival,
+      and recovery. SSCF-CON-003 (API Credential and Token Lifecycle) partially overlaps
+      with key lifecycle governance but does not address at-rest/in-transit encryption
+      algorithm selection, customer-managed keys, or cryptographic audit. CEK-01 receives
+      a partial mention under CON-003 but full CEK coverage is absent.
+    supplemental_guidance: "Supplement with encryption policy review, vendor FIPS 140-2/3 attestation, and BYOK/CMEK capability assessment."
+
+  - abbrev: "IVS"
+    full_name: "Infrastructure & Virtualization Security"
+    control_range: "I&S-01 through I&S-09"
+    reason: >
+      IVS (catalog IDs: I&S-01 through I&S-09) covers network security, OS hardening,
+      environment segregation, and network architecture. SSCF is scoped to SaaS
+      application-layer controls accessed via vendor APIs; underlying infrastructure
+      security is vendor-managed and assessed through SOC 2 / ISO 27001 attestations.
+    supplemental_guidance: "Obtain vendor network architecture documentation and SOC 2 CC6.6/CC6.7 evidence."
+
+  - abbrev: "UEM"
+    full_name: "Universal Endpoint Management"
+    control_range: "UEM-01 through UEM-14"
+    reason: >
+      UEM covers endpoint device policy, MDM, anti-malware, storage encryption, and DLP
+      at the endpoint layer. SSCF-DSP-002 (Data Export Controls) partially intersects
+      endpoint DLP but SSCF makes no assessment of endpoint management controls.
+    supplemental_guidance: "Address through endpoint management program, MDM policy review, and UEM tool assessment."
+
+  - abbrev: "MDS"
+    full_name: "Model Security (AI-specific)"
+    control_range: "MDS-01 through MDS-13"
+    reason: >
+      MDS governs AI/ML model training pipeline security, artifact scanning, adversarial
+      robustness, model integrity, and open model risk. SSCF was designed for SaaS
+      platform posture before AI model governance was codified. SSCF-IPY-002 and
+      SSCF-IPY-003 partially address API-exposed AI feature security and third-party
+      AI connector risk, but training pipeline and model lifecycle controls (MDS-01 through
+      MDS-13) have no SSCF coverage. Salesforce Einstein and Workday AI features increase
+      this gap's significance.
+    supplemental_guidance: >
+      Supplement with vendor AI model governance attestation, Einstein/Workday AI feature
+      security review, and adopt AICM MDS controls as a standalone AI security assessment layer.
+
+# ── Control Mappings ─────────────────────────────────────────────────────────────
+
+controls:
+
+  # ════════════════════════════════════════════════════════════════════
+  # CON — Configuration Hardening (sscf-con-001 through sscf-con-006)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-con-001:
+    sscf_title: "SaaS Security Baseline Enforcement"
+    sscf_description: "Apply and continuously assess approved secure configuration baselines."
+    severity: high
+    aicm_domains:
+      - abbrev: "CCC"
+        control_ids: ["CCC-01", "CCC-06", "CCC-07"]
+        coverage_verdict: "covered"
+        rationale: >
+          CCC-01 (Change Management Policy) establishes the governance foundation for
+          baseline enforcement. CCC-06 (Change Management Baseline) directly requires
+          an approved baseline to be defined and maintained. CCC-07 (Detection of Baseline
+          Deviation) maps directly to SSCF's continuous assessment requirement. SSCF
+          assessment evidence (enabled security settings, hardening flags) satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-01", "TVM-03"]
+        coverage_verdict: "partial"
+        rationale: >
+          TVM-01 (TVM Policy) and TVM-03 (Vulnerability Identification) overlap because
+          baseline enforcement inherently surfaces insecure default settings that are
+          effectively unmitigated vulnerabilities. SSCF-CON-001 provides evidence for
+          configuration hygiene but does not cover scanning, CVSS scoring, or patch
+          remediation timelines required by TVM.
+        mapping_strength: partial
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-02"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-02 (Application Security Baseline Requirements) requires a defined security
+          baseline for applications. SSCF-CON-001 enforces the SaaS platform's security
+          baseline, providing direct evidence for AIS-02's platform-layer baseline requirement.
+          Application-layer SDLC controls within AIS-02 are not addressed by SSCF.
+        mapping_strength: partial
+
+  sscf-con-002:
+    sscf_title: "Drift Detection and Baseline Deviation Management"
+    sscf_description: "Detect unauthorized configuration drift and enforce remediation workflow."
+    severity: high
+    aicm_domains:
+      - abbrev: "CCC"
+        control_ids: ["CCC-04", "CCC-07", "CCC-08", "CCC-09"]
+        coverage_verdict: "covered"
+        rationale: >
+          CCC-04 (Change Authorization) requires controls preventing unauthorized changes —
+          drift detection is the detective complement. CCC-07 (Detection of Baseline Deviation)
+          is the direct mapping. CCC-08 (Exception Management) aligns with remediation
+          workflows for detected drift. CCC-09 (Change Restoration) aligns with the
+          requirement to restore baseline state after unauthorized drift.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-07", "TVM-08"]
+        coverage_verdict: "partial"
+        rationale: >
+          TVM-07 (Vulnerability Remediation Schedule) and TVM-08 (Vulnerability Prioritization)
+          overlap with drift remediation workflow — deviations are prioritized and remediated
+          on schedule. SSCF provides evidence of detection and escalation but not full
+          vulnerability lifecycle scoring.
+        mapping_strength: partial
+
+      - abbrev: "LOG"
+        control_ids: ["LOG-05", "LOG-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          Drift detection depends on LOG-05 (Audit Logs Monitoring and Response) and
+          LOG-13 (Failures and Anomalies Reporting) to surface configuration change events.
+          SSCF-CON-002 drives the detection use case; the logging infrastructure is
+          assessed separately under SSCF-LOG-001/002.
+        mapping_strength: partial
+
+  sscf-con-003:
+    sscf_title: "API Credential and Token Lifecycle"
+    sscf_description: "Govern issuance, scope, rotation, and revocation of credentials and tokens."
+    severity: high
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-15", "IAM-07", "IAM-05"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-15 (Passwords and Secrets Management) directly governs credential and token
+          lifecycle including rotation and storage. IAM-07 (User Access Changes and Revocation)
+          covers token revocation on role change or termination. IAM-05 (Least Privilege)
+          aligns with the scope restriction requirement for API credentials.
+        mapping_strength: direct
+
+      - abbrev: "CEK"
+        control_ids: ["CEK-01", "CEK-12", "CEK-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          CEK-01 (Encryption and Key Management Policy), CEK-12 (Key Rotation), and CEK-13
+          (Key Revocation) overlap significantly with API token lifecycle governance —
+          tokens are a class of cryptographic secrets subject to the same lifecycle controls.
+          SSCF-CON-003 does not address full cryptographic key material (at-rest/in-transit
+          encryption keys) covered by the broader CEK domain.
+        mapping_strength: partial
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-10"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-10 (API Security) requires API endpoints to enforce authentication controls.
+          SSCF-CON-003's credential lifecycle governance is a prerequisite for AIS-10
+          compliance — valid, scoped, rotated credentials underpin API authentication posture.
+        mapping_strength: partial
+
+  sscf-con-004:
+    sscf_title: "Platform Hardening and Security Settings Verification"
+    sscf_description: "Apply vendor hardening guidance; disable insecure defaults; enable security features."
+    severity: high
+    aicm_domains:
+      - abbrev: "CCC"
+        control_ids: ["CCC-01", "CCC-06"]
+        coverage_verdict: "covered"
+        rationale: >
+          CCC-01 and CCC-06 require a documented change management baseline and procedures.
+          Platform hardening verification directly produces evidence that the approved
+          baseline (with insecure defaults disabled) is in effect.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-01", "TVM-03", "TVM-04"]
+        coverage_verdict: "covered"
+        rationale: >
+          TVM-01 (TVM Policy), TVM-03 (Vulnerability Identification), and TVM-04 (Detection
+          Updates) align with the practice of applying vendor hardening guidance and keeping
+          security features current. Verifying platform hardening is a preventive vulnerability
+          management activity that satisfies TVM detection and identification requirements.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-02", "AIS-06"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-02 (Application Security Baseline Requirements) and AIS-06 (Secure Application
+          Deployment) require security hardening at deployment. SSCF-CON-004 assesses the
+          SaaS vendor's deployed hardening state rather than the customer's application SDLC.
+        mapping_strength: partial
+
+  sscf-con-005:
+    sscf_title: "Third-Party Integration and Supply Chain Security"
+    sscf_description: "Inventory and assess security posture of third-party integrations."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "SCT"
+        control_ids: ["STA-01", "STA-08", "STA-09", "STA-15"]
+        coverage_verdict: "covered"
+        rationale: >
+          STA-01 (Supply Chain Risk Management Policy), STA-08 (Supply Chain Inventory),
+          STA-09 (Supply Chain Risk Management), and STA-15 (Supply Chain Data Security
+          Assessment) directly map to SSCF-CON-005's inventory and risk assessment
+          requirement for third-party integrations. SSCF assessment evidence (connected app
+          list, OAuth grants, permission sets) satisfies the inventory and risk posture
+          components of these controls.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-10", "AIS-11"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-10 (API Security) and AIS-11 (Agents Security Boundaries) address security
+          requirements for API-connected integrations and agent boundaries. SSCF-CON-005's
+          third-party integration inventory provides the baseline required to assess AIS-10/11
+          compliance but does not fully assess integration code security.
+        mapping_strength: partial
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-02"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-02 (Risk Management Program) requires third-party risk to be formally assessed
+          and tracked. SSCF-CON-005 integration posture assessment produces risk evidence
+          that feeds the GRC-02 program, but SSCF does not govern the broader risk
+          management program.
+        mapping_strength: partial
+
+  sscf-con-006:
+    sscf_title: "Patch and Version Management Assurance"
+    sscf_description: "Track and assure application of security-relevant vendor patches and EOL deprecation."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "TVM"
+        control_ids: ["TVM-01", "TVM-05", "TVM-07", "TVM-08"]
+        coverage_verdict: "covered"
+        rationale: >
+          TVM-01 (TVM Policy), TVM-05 (External Library Vulnerabilities), TVM-07 (Vulnerability
+          Remediation Schedule), and TVM-08 (Vulnerability Prioritization) directly align with
+          patch tracking and EOL deprecation assurance. SSCF-CON-006 provides evidence
+          that security-relevant patches are tracked and applied within SLA.
+        mapping_strength: direct
+
+      - abbrev: "CCC"
+        control_ids: ["CCC-02", "CCC-03"]
+        coverage_verdict: "partial"
+        rationale: >
+          CCC-02 (Quality Testing) and CCC-03 (Change Management Technology) overlap with
+          patch management processes — patches are a class of change that must go through
+          quality gates and tooling. SSCF-CON-006 assesses patch application outcomes,
+          not the change management process itself.
+        mapping_strength: partial
+
+  # ════════════════════════════════════════════════════════════════════
+  # DSP — Data Security & Privacy (sscf-dsp-001 through sscf-dsp-006)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-dsp-001:
+    sscf_title: "Sensitive Data Access Control"
+    sscf_description: "Restrict and monitor access to sensitive business and personal data."
+    severity: critical
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-01", "DSP-04", "DSP-06", "DSP-17"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-01 (Security and Privacy Policy), DSP-04 (Data Classification), DSP-06
+          (Data Ownership and Stewardship), and DSP-17 (Sensitive Data Protection) directly
+          align with restricting access to sensitive data. SSCF assessment evidence (field-level
+          security, permission sets, sharing rules, FLS) satisfies DSP-04 and DSP-17.
+        mapping_strength: direct
+
+      - abbrev: "IAM"
+        control_ids: ["IAM-05", "IAM-16", "IAM-17"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-05 (Least Privilege), IAM-16 (Authorization Mechanisms), and IAM-17 (Knowledge
+          Access Control — Need to Know) directly implement the access restriction requirement.
+          SSCF-DSP-001's assessment of field-level security and object permissions provides
+          evidence for all three AICM controls.
+        mapping_strength: direct
+
+      - abbrev: "LOG"
+        control_ids: ["LOG-12"]
+        coverage_verdict: "partial"
+        rationale: >
+          LOG-12 (Access Control Logs) requires logging of access to sensitive data.
+          SSCF-DSP-001 includes monitoring of access; the logging infrastructure to support
+          this is assessed under SSCF-LOG-001.
+        mapping_strength: partial
+
+  sscf-dsp-002:
+    sscf_title: "Data Export and Exfiltration Controls"
+    sscf_description: "Prevent unauthorized data exports and exfiltration pathways."
+    severity: high
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-07", "DSP-10", "DSP-17"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-07 (Data Protection by Design and Default), DSP-10 (Sensitive Data Transfer),
+          and DSP-17 (Sensitive Data Protection) cover the controls SSCF-DSP-002 assesses —
+          restricting export pathways, enforcing data transfer controls, and protecting
+          sensitive data from exfiltration.
+        mapping_strength: direct
+
+      - abbrev: "UEM"
+        control_ids: ["UEM-11"]
+        coverage_verdict: "partial"
+        rationale: >
+          UEM-11 (Data Loss Prevention) is the endpoint-layer complement to SSCF's
+          platform-layer export controls. SSCF-DSP-002 assesses platform-side DLP settings;
+          endpoint DLP (UEM-11) requires separate assessment.
+        mapping_strength: partial
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-09"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-09 (Output Validation) requires that application outputs are validated to
+          prevent data leakage via API responses. SSCF-DSP-002 addresses bulk export
+          controls; API-level output validation is only partially assessed.
+        mapping_strength: partial
+
+  sscf-dsp-003:
+    sscf_title: "Data Classification and Inventory"
+    sscf_description: "Maintain current data inventory and classification map per data classification policy."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-03", "DSP-04", "DSP-05", "DSP-06"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-03 (Data Inventory), DSP-04 (Data Classification), DSP-05 (Data Flow
+          Documentation), and DSP-06 (Data Ownership and Stewardship) directly correspond
+          to SSCF-DSP-003. A classification and inventory exercise satisfies all four
+          AICM controls simultaneously.
+        mapping_strength: direct
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-07"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-07 (Information System Regulatory Mapping) requires regulatory requirements
+          to be mapped to system data. Data classification inventory is the prerequisite
+          input for regulatory mapping; SSCF-DSP-003 evidence supports but does not
+          complete GRC-07.
+        mapping_strength: partial
+
+  sscf-dsp-004:
+    sscf_title: "Cross-Border Data Transfer and Residency Controls"
+    sscf_description: "Ensure cross-border data transfers comply with data sovereignty requirements."
+    severity: high
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-10", "DSP-19"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-10 (Sensitive Data Transfer) and DSP-19 (Data Location) directly map to
+          cross-border transfer controls and data residency requirements. SSCF-DSP-004
+          assessment evidence (data residency settings, transfer mechanism verification)
+          satisfies both AICM controls.
+        mapping_strength: direct
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-07"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-07 (Information System Regulatory Mapping) requires mapping of data
+          sovereignty laws to system configuration. SSCF-DSP-004 produces the compliance
+          evidence but does not govern the regulatory mapping program itself.
+        mapping_strength: partial
+
+      - abbrev: "IPY"
+        control_ids: ["IPY-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          IPY-04 (Data Portability Contractual Obligations) includes data residency terms
+          in contracts. Cross-border controls require contractual backing that SSCF-DSP-004
+          assesses technically but not contractually.
+        mapping_strength: partial
+
+  sscf-dsp-005:
+    sscf_title: "Data Retention and Secure Disposal"
+    sscf_description: "Apply retention schedules and secure deletion for SaaS-hosted data."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-02", "DSP-16"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-02 (Secure Disposal) and DSP-16 (Data Retention and Deletion) are the direct
+          AICM equivalents. SSCF-DSP-005 assessment evidence (retention policy configuration,
+          archive schedules, deletion verification) satisfies both controls.
+        mapping_strength: direct
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-04 (Requirements Compliance) includes compliance with legal retention
+          requirements. SSCF-DSP-005's retention schedule verification supports
+          compliance audit but does not govern the audit program.
+        mapping_strength: partial
+
+  sscf-dsp-006:
+    sscf_title: "Privacy Rights and Data Subject Access Management"
+    sscf_description: "Ensure SaaS platforms support DSAR fulfillment within regulatory timeframes."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-08", "DSP-11", "DSP-12"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-08 (Data Privacy by Design and Default), DSP-11 (Personal Data Access,
+          Reversal, Rectification and Deletion), and DSP-12 (Limitation of Purpose in
+          Personal Data Processing) directly align with DSAR fulfillment capabilities.
+          SSCF-DSP-006 assesses whether the SaaS platform technically supports these
+          rights.
+        mapping_strength: direct
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-07"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-07 (Information System Regulatory Mapping) requires GDPR/CCPA rights to be
+          mapped to system capabilities. SSCF-DSP-006 provides the technical capability
+          evidence that feeds this mapping.
+        mapping_strength: partial
+
+  # ════════════════════════════════════════════════════════════════════
+  # IAM — Identity & Access Management (sscf-iam-001 through sscf-iam-008)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-iam-001:
+    sscf_title: "Multi-Factor Authentication Enforcement"
+    sscf_description: "Require MFA for privileged and workforce accounts."
+    severity: critical
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-14", "IAM-01", "IAM-02"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-14 (Strong Authentication) is the direct AICM mapping — it requires MFA
+          or equivalent for access to systems. IAM-01 (IAM Policy and Procedures)
+          provides the governance layer. IAM-02 (Strong Password Policy) is complementary.
+          SSCF-IAM-001 assessment evidence (MFA enforcement flags, policy state) directly
+          satisfies IAM-14.
+        mapping_strength: direct
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-05"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-05 (Information Security Program) requires MFA to be mandated as part of
+          the security program. SSCF-IAM-001 evidence demonstrates technical enforcement,
+          supporting GRC-05 program requirements.
+        mapping_strength: partial
+
+  sscf-iam-002:
+    sscf_title: "Privileged Access Governance and Review"
+    sscf_description: "Enforce approval, least privilege, and periodic recertification for privileged roles."
+    severity: critical
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-04", "IAM-05", "IAM-08", "IAM-09", "IAM-10"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-04 (Separation of Duties), IAM-05 (Least Privilege), IAM-08 (User Access
+          Review), IAM-09 (Segregation of Privileged Access Roles), and IAM-10 (Management
+          of Privileged Access Roles) collectively define privileged access governance.
+          SSCF-IAM-002 assessment evidence (admin role assignments, recertification records,
+          approval workflows) satisfies all five AICM controls.
+        mapping_strength: direct
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-03", "A&A-05"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-03 (Risk Based Planning Assessment) and A&A-05 (Audit Management Process)
+          require privileged access to be included in risk-based audit scope. SSCF-IAM-002
+          recertification evidence supports the audit process but does not govern A&A program
+          design.
+        mapping_strength: partial
+
+  sscf-iam-003:
+    sscf_title: "Federation and SSO Assurance"
+    sscf_description: "Enforce enterprise IdP federation and hardened SSO policy posture."
+    severity: high
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-01", "IAM-14", "IAM-16"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-01 (IAM Policy and Procedures) governs the identity federation framework.
+          IAM-14 (Strong Authentication) requires federation to an enterprise IdP as a
+          strong authentication mechanism. IAM-16 (Authorization Mechanisms) covers
+          the SSO token-based authorization model. SSCF-IAM-003 assessment of SAML/OIDC
+          federation state satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-10"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-10 (API Security) requires secure authentication for API access. SSO
+          federation configuration is the identity layer that API security depends upon;
+          partial coverage because SSCF-IAM-003 focuses on user-facing SSO, not API
+          authentication specifically.
+        mapping_strength: partial
+
+  sscf-iam-004:
+    sscf_title: "User Lifecycle and Offboarding Controls"
+    sscf_description: "Timely revocation of access on termination or role change; stale account detection."
+    severity: high
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-06", "IAM-07", "IAM-08"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-06 (User Access Provisioning), IAM-07 (User Access Changes and Revocation),
+          and IAM-08 (User Access Review) directly map to user lifecycle and offboarding.
+          IAM-07 covers timely revocation; IAM-08 covers stale account detection via
+          periodic review. SSCF-IAM-004 evidence (inactive accounts, deprovisioning
+          timeliness metrics) satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "HRS"
+        control_ids: ["HRS-06"]
+        coverage_verdict: "partial"
+        rationale: >
+          HRS-06 (Employment Termination) governs the HR process that triggers access
+          revocation. SSCF-IAM-004 assesses the technical outcome; the HR process itself
+          is outside SSCF scope.
+        mapping_strength: partial
+
+  sscf-iam-005:
+    sscf_title: "Service Account and Non-Human Identity Governance"
+    sscf_description: "Inventory and govern service accounts with named owners and scoped permissions."
+    severity: high
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-03", "IAM-05", "IAM-19"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-03 (Identity Inventory) requires all identities including service accounts
+          to be inventoried. IAM-05 (Least Privilege) applies to service account permission
+          scoping. IAM-19 (Agent Access Restriction) is specifically relevant to non-human
+          identity governance in AI-augmented environments (Salesforce Einstein agents,
+          Workday integrations). SSCF-IAM-005 evidence satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-11"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-11 (Agents Security Boundaries) governs AI agent identity and access
+          boundaries — a growing concern as Salesforce Agentforce and Workday AI copilots
+          operate as non-human identities. SSCF-IAM-005 service account governance
+          provides partial coverage but does not address AI agent-specific boundary controls.
+        mapping_strength: partial
+
+  sscf-iam-006:
+    sscf_title: "Session Security and Timeout Controls"
+    sscf_description: "Enforce idle timeout, concurrent session limits, and session token invalidation."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-14", "IAM-16"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-14 (Strong Authentication) includes session security as part of the
+          authentication lifecycle. IAM-16 (Authorization Mechanisms) governs session
+          token management. SSCF-IAM-006 assessment of timeout settings, concurrent
+          session limits, and token invalidation directly satisfies these controls.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-14"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-14 (AI Cache Protection) addresses session and cache security for AI
+          interactions. Session invalidation controls assessed by SSCF-IAM-006 partially
+          address AI session security but AIS-14 has additional AI-specific requirements.
+        mapping_strength: partial
+
+  sscf-iam-007:
+    sscf_title: "Just-in-Time Access and Temporary Privilege Elevation"
+    sscf_description: "Govern temporary privilege via request-approve-expire workflow."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-10", "IAM-16", "IAM-08"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-10 (Management of Privileged Access Roles) encompasses JIT provisioning
+          workflows. IAM-16 (Authorization Mechanisms) governs time-bound authorization
+          grants. IAM-08 (User Access Review) ensures temporary elevations are reviewed
+          and expired. SSCF-IAM-007 evidence (JIT request/approve/expire records) satisfies
+          all three.
+        mapping_strength: direct
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-04 (Policy Exception Process) aligns with the exception-based nature of
+          temporary privilege elevation — each JIT grant is effectively a bounded exception
+          to standing least-privilege policy. SSCF-IAM-007 evidence supports GRC-04
+          exception process documentation.
+        mapping_strength: partial
+
+  sscf-iam-008:
+    sscf_title: "External and Guest Access Controls"
+    sscf_description: >
+      Govern external/contractor access: scoped, time-bound, MFA-enforced, recertified quarterly.
+    severity: high
+    aicm_domains:
+      - abbrev: "IAM"
+        control_ids: ["IAM-07", "IAM-08", "IAM-13", "IAM-14"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-07 (User Access Changes and Revocation) covers time-bound expiry for external
+          accounts. IAM-08 (User Access Review) covers quarterly recertification. IAM-13
+          (Uniquely Identifiable Users) requires external users to be individually identified
+          rather than sharing accounts. IAM-14 (Strong Authentication) enforces MFA for
+          external access. SSCF-IAM-008 assessment evidence satisfies all four.
+        mapping_strength: direct
+
+      - abbrev: "SCT"
+        control_ids: ["STA-10", "STA-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          STA-10 (Primary Service and Contractual Agreement) and STA-13 (Supply Chain
+          Service Agreement Compliance) require external/contractor access terms to be
+          contractually governed. SSCF-IAM-008 assesses technical controls; contractual
+          obligations are outside SSCF scope.
+        mapping_strength: partial
+
+  # ════════════════════════════════════════════════════════════════════
+  # IPY — Interoperability & Portability (sscf-ipy-001 through sscf-ipy-005)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-ipy-001:
+    sscf_title: "Data Portability and Export Standards"
+    sscf_description: "Verify SaaS platforms support data export in open machine-readable formats."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "IPY"
+        control_ids: ["IPY-01", "IPY-04"]
+        coverage_verdict: "covered"
+        rationale: >
+          IPY-01 (Interoperability and Portability Policy and Procedures) and IPY-04
+          (Data Portability Contractual Obligations) directly require platforms to support
+          data portability in open formats and to contractually commit to portability.
+          SSCF-IPY-001 assessment of export format availability satisfies both.
+        mapping_strength: direct
+
+      - abbrev: "DSP"
+        control_ids: ["DSP-05", "DSP-20"]
+        coverage_verdict: "partial"
+        rationale: >
+          DSP-05 (Data Flow Documentation) and DSP-20 (Data Provenance and Transparency)
+          require data movement paths and provenance to be documented. Data portability
+          assessment generates partial evidence for these controls but does not constitute
+          full data flow documentation.
+        mapping_strength: partial
+
+  sscf-ipy-002:
+    sscf_title: "API Security and Open Interface Governance"
+    sscf_description: "Govern API access to enforce authentication, rate limiting, and input validation."
+    severity: high
+    aicm_domains:
+      - abbrev: "AIS"
+        control_ids: ["AIS-08", "AIS-09", "AIS-10"]
+        coverage_verdict: "covered"
+        rationale: >
+          AIS-08 (Input Validation), AIS-09 (Output Validation), and AIS-10 (API Security)
+          directly correspond to SSCF-IPY-002's requirements: input validation, output
+          controls, and API authentication/rate limiting enforcement. SSCF evidence from
+          connected app and API settings assessment satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "IPY"
+        control_ids: ["IPY-02", "IPY-03"]
+        coverage_verdict: "covered"
+        rationale: >
+          IPY-02 (Application Interface Availability) and IPY-03 (Secure Interoperability
+          and Portability Management) govern the security posture of open interfaces.
+          SSCF-IPY-002 directly assesses API authentication, rate limits, and input controls
+          that IPY-02 and IPY-03 require.
+        mapping_strength: direct
+
+      - abbrev: "MDS"
+        control_ids: ["MDS-06", "MDS-07"]
+        coverage_verdict: "partial"
+        rationale: >
+          MDS-06 (Adversarial Attack Analysis) and MDS-07 (Model Hardening) are relevant
+          when APIs expose AI/ML model endpoints (Salesforce Einstein, Workday AI APIs).
+          SSCF-IPY-002's API security assessment partially addresses adversarial input
+          via input validation controls but does not assess AI model robustness.
+        mapping_strength: partial
+
+  sscf-ipy-003:
+    sscf_title: "Integration Inventory and Third-Party Connector Risk Assessment"
+    sscf_description: "Maintain integration inventory; assess security risk of data flows between systems."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "SCT"
+        control_ids: ["STA-08", "STA-09", "STA-15"]
+        coverage_verdict: "covered"
+        rationale: >
+          STA-08 (Supply Chain Inventory), STA-09 (Supply Chain Risk Management), and
+          STA-15 (Supply Chain Data Security Assessment) directly align with integration
+          inventory and connector risk assessment. SSCF-IPY-003 evidence (connected app
+          list, OAuth grants, data flow risk assessment) satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "IPY"
+        control_ids: ["IPY-03"]
+        coverage_verdict: "covered"
+        rationale: >
+          IPY-03 (Secure Interoperability and Portability Management) requires security
+          risk assessment for interoperability arrangements. SSCF-IPY-003's integration
+          risk assessment is the direct implementation evidence for IPY-03.
+        mapping_strength: direct
+
+      - abbrev: "DSP"
+        control_ids: ["DSP-05", "DSP-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          DSP-05 (Data Flow Documentation) and DSP-13 (Personal Data Sub-processing)
+          require data flows between systems and sub-processors to be documented.
+          SSCF-IPY-003 integration inventory provides the basis for data flow documentation
+          but does not constitute a complete data flow analysis.
+        mapping_strength: partial
+
+  sscf-ipy-004:
+    sscf_title: "Vendor Lock-In Mitigation and SaaS Exit Planning"
+    sscf_description: "Document SaaS exit plan covering data retrieval, migration, and dependency mapping."
+    severity: low
+    aicm_domains:
+      - abbrev: "IPY"
+        control_ids: ["IPY-01", "IPY-04"]
+        coverage_verdict: "covered"
+        rationale: >
+          IPY-01 (Interoperability and Portability Policy and Procedures) and IPY-04
+          (Data Portability Contractual Obligations) require exit planning and contractual
+          data portability commitments. SSCF-IPY-004 exit plan documentation satisfies both.
+        mapping_strength: direct
+
+      - abbrev: "BCR"
+        control_ids: ["BCR-03", "BCR-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          BCR-03 (Business Continuity Strategy) and BCR-04 (Business Continuity Planning)
+          overlap with SaaS exit planning — a vendor exit scenario is a business continuity
+          event. SSCF-IPY-004 exit plan provides partial input to BCR strategy but does
+          not constitute a full BCP.
+        mapping_strength: partial
+
+      - abbrev: "SCT"
+        control_ids: ["STA-14"]
+        coverage_verdict: "partial"
+        rationale: >
+          STA-14 (Supply Chain Governance Review) includes review of SaaS vendor dependency
+          and exit risk. SSCF-IPY-004 exit plan evidence supports STA-14 governance review.
+        mapping_strength: partial
+
+  sscf-ipy-005:
+    sscf_title: "Multi-Cloud Data Residency and Sovereignty Controls"
+    sscf_description: "Enforce data residency requirements for regulated data across cloud environments."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "DSP"
+        control_ids: ["DSP-19", "DSP-10"]
+        coverage_verdict: "covered"
+        rationale: >
+          DSP-19 (Data Location) and DSP-10 (Sensitive Data Transfer) directly address
+          data residency and cross-cloud transfer controls. SSCF-IPY-005 assessment
+          evidence (data residency configuration, encryption in transit) satisfies both.
+        mapping_strength: direct
+
+      - abbrev: "IPY"
+        control_ids: ["IPY-03"]
+        coverage_verdict: "partial"
+        rationale: >
+          IPY-03 (Secure Interoperability and Portability Management) requires secure
+          data management across cloud boundaries. Multi-cloud residency controls are
+          a specific case of secure interoperability management.
+        mapping_strength: partial
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-07"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-07 (Information System Regulatory Mapping) requires data sovereignty
+          regulations to be mapped to system controls. SSCF-IPY-005 provides the
+          technical evidence for this mapping.
+        mapping_strength: partial
+
+  # ════════════════════════════════════════════════════════════════════
+  # LOG — Logging & Monitoring (sscf-log-001 through sscf-log-006)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-log-001:
+    sscf_title: "Security Telemetry Enablement"
+    sscf_description: "Enable required audit/security logs for detection and forensics."
+    severity: high
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-01", "LOG-07", "LOG-11"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-01 (Logging and Monitoring Policy and Procedures) establishes the governance
+          framework. LOG-07 (Logging Scope) requires all required log categories to be
+          enabled. LOG-11 (Transaction/Activity Logging) specifically requires security
+          event telemetry. SSCF-LOG-001 assessment evidence (login history enabled, field
+          history tracking, event log enablement) directly satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "SEF"
+        control_ids: ["SEF-06"]
+        coverage_verdict: "partial"
+        rationale: >
+          SEF-06 (Event Triage Processes) depends on security telemetry being enabled.
+          SSCF-LOG-001 is the prerequisite; SEF-06 requires the downstream triage process
+          to be in place.
+        mapping_strength: partial
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-01", "A&A-05"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-01 (Audit and Assurance Policy) and A&A-05 (Audit Management Process) require
+          audit log capability to be confirmed as part of the assurance program. SSCF-LOG-001
+          evidence supports audit readiness assessment.
+        mapping_strength: partial
+
+  sscf-log-002:
+    sscf_title: "Administrative and Configuration Audit Logging"
+    sscf_description: "Capture and monitor administrative and configuration change events."
+    severity: high
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-02", "LOG-04", "LOG-12"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-02 (Audit Logs Protection), LOG-04 (Audit Logs Access and Accountability),
+          and LOG-12 (Access Control Logs) directly align with administrative audit logging.
+          LOG-04 specifically requires administrator actions to be logged and accountable.
+          SSCF-LOG-002 assessment evidence (setup audit trail, config change logs) satisfies
+          all three.
+        mapping_strength: direct
+
+      - abbrev: "CCC"
+        control_ids: ["CCC-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          CCC-04 (Change Authorization) requires all configuration changes to be authorized
+          and traceable. Administrative audit logs produced per SSCF-LOG-002 provide the
+          traceability evidence for CCC-04.
+        mapping_strength: partial
+
+      - abbrev: "IAM"
+        control_ids: ["IAM-12"]
+        coverage_verdict: "covered"
+        rationale: >
+          IAM-12 (Safeguard Logs Integrity) requires privileged access and admin action
+          logs to be protected from tampering. SSCF-LOG-002's requirement to capture and
+          protect admin logs directly addresses IAM-12.
+        mapping_strength: direct
+
+  sscf-log-003:
+    sscf_title: "Audit Retention and Integrity"
+    sscf_description: "Retain logs per policy and preserve integrity for investigations."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-08", "LOG-09", "LOG-02"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-08 (Log Records — retention) requires logs to be retained per regulatory
+          requirements. LOG-09 (Log Protection) requires integrity protection. LOG-02
+          (Audit Logs Protection) requires protection from tampering. SSCF-LOG-003
+          assessment evidence (retention configuration, immutable storage, integrity
+          verification) satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-04 (Requirements Compliance) includes compliance with legal log retention
+          obligations. SSCF-LOG-003 retention verification provides evidence for A&A-04
+          compliance assessment.
+        mapping_strength: partial
+
+      - abbrev: "SEF"
+        control_ids: ["SEF-04"]
+        coverage_verdict: "partial"
+        rationale: >
+          SEF-04 (Incident Response Testing) and the broader incident response process
+          depend on logs being retained and integrity-preserved for forensic use.
+          SSCF-LOG-003 provides the forensic readiness prerequisite for SEF incident
+          response.
+        mapping_strength: partial
+
+  sscf-log-004:
+    sscf_title: "Real-Time Security Monitoring and Alerting"
+    sscf_description: "Configure real-time monitoring rules for high-risk events routed to SOC."
+    severity: high
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-03", "LOG-05", "LOG-13"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-03 (Security Monitoring and Alerting), LOG-05 (Audit Logs Monitoring and
+          Response), and LOG-13 (Failures and Anomalies Reporting) directly require
+          real-time security event monitoring and alert routing. SSCF-LOG-004 assessment
+          evidence (alert rules configuration, SOC routing, monitoring coverage) satisfies
+          all three.
+        mapping_strength: direct
+
+      - abbrev: "SEF"
+        control_ids: ["SEF-06", "SEF-09"]
+        coverage_verdict: "covered"
+        rationale: >
+          SEF-06 (Event Triage Processes) requires events to be detected and routed for
+          triage — real-time monitoring is the detection layer. SEF-09 (Incident Response)
+          depends on real-time alerts as the incident initiation trigger. SSCF-LOG-004
+          directly supports both.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          TVM-13 (Threat Response) requires detected threats to trigger response actions.
+          Real-time monitoring (SSCF-LOG-004) is the detection mechanism that initiates
+          threat response.
+        mapping_strength: partial
+
+  sscf-log-005:
+    sscf_title: "SIEM Integration and Cross-Platform Log Correlation"
+    sscf_description: "Integrate SaaS logs into SIEM for cross-platform correlation and investigation."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-03", "LOG-05", "LOG-07"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-03 (Security Monitoring and Alerting), LOG-05 (Audit Logs Monitoring and
+          Response), and LOG-07 (Logging Scope) require centralized log management and
+          cross-platform correlation capability. SSCF-LOG-005 SIEM integration evidence
+          directly satisfies these requirements.
+        mapping_strength: direct
+
+      - abbrev: "SEF"
+        control_ids: ["SEF-09"]
+        coverage_verdict: "partial"
+        rationale: >
+          SEF-09 (Incident Response) requires investigation capability that depends on
+          cross-platform log correlation. SSCF-LOG-005 SIEM integration enables the
+          investigation component of SEF-09.
+        mapping_strength: partial
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-12"]
+        coverage_verdict: "partial"
+        rationale: >
+          TVM-12 (Threat Analysis and Modelling) requires cross-platform threat visibility
+          to identify attack patterns. SIEM integration (SSCF-LOG-005) provides the data
+          foundation for threat analysis.
+        mapping_strength: partial
+
+  sscf-log-006:
+    sscf_title: "Anomalous Behavior Detection and Insider Threat Monitoring"
+    sscf_description: "Apply UEBA to detect anomalous user activity patterns indicating compromise or misuse."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "LOG"
+        control_ids: ["LOG-03", "LOG-13", "LOG-14", "LOG-15"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-03 (Security Monitoring and Alerting), LOG-13 (Failures and Anomalies
+          Reporting), LOG-14 (Input Monitoring), and LOG-15 (Output Monitoring) collectively
+          define the monitoring scope that UEBA satisfies. SSCF-LOG-006 UEBA evidence
+          (anomaly detection rules, behavioral baseline, alert thresholds) satisfies all four.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-11", "TVM-12", "TVM-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          TVM-11 (Guardrails), TVM-12 (Threat Analysis and Modelling), and TVM-13
+          (Threat Response) align with behavioral anomaly detection as a threat detection
+          mechanism. SSCF-LOG-006 UEBA evidence contributes to threat detection but does
+          not cover the full threat modeling and response lifecycle.
+        mapping_strength: partial
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-15"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-15 (Human Supervision) requires human review of AI/automated decisions
+          including those made by UEBA systems. SSCF-LOG-006 anomaly detection aligns
+          with GRC-15's requirement for supervised behavioral monitoring.
+        mapping_strength: partial
+
+  # ════════════════════════════════════════════════════════════════════
+  # SEF — Security Incident Management (sscf-sef-001 through sscf-sef-005)
+  # ════════════════════════════════════════════════════════════════════
+
+  sscf-sef-001:
+    sscf_title: "Real-Time Threat Policy Enforcement"
+    sscf_description: "Detect and block high-risk behavior through policy-driven automated controls."
+    severity: high
+    aicm_domains:
+      - abbrev: "SEF"
+        control_ids: ["SEF-01", "SEF-06", "SEF-09"]
+        coverage_verdict: "covered"
+        rationale: >
+          SEF-01 (Security Incident Management Policy and Procedures), SEF-06 (Event
+          Triage Processes), and SEF-09 (Incident Response) align with automated threat
+          enforcement — policy-driven blocking is the automated tier of incident response.
+          SSCF-SEF-001 evidence (threat detection rules, automated block policies) satisfies
+          all three AICM controls.
+        mapping_strength: direct
+
+      - abbrev: "TVM"
+        control_ids: ["TVM-11", "TVM-13"]
+        coverage_verdict: "covered"
+        rationale: >
+          TVM-11 (Guardrails) requires automated controls to prevent high-risk actions.
+          TVM-13 (Threat Response) requires threat response to be timely and automated
+          where possible. SSCF-SEF-001's automated enforcement controls directly satisfy
+          TVM-11 and TVM-13.
+        mapping_strength: direct
+
+      - abbrev: "AIS"
+        control_ids: ["AIS-11", "AIS-13"]
+        coverage_verdict: "partial"
+        rationale: >
+          AIS-11 (Agents Security Boundaries) and AIS-13 (AI Sandboxing) are relevant
+          when threat policy enforcement applies to AI agent actions (e.g., Agentforce
+          flow blocking). SSCF-SEF-001 covers platform-level enforcement; AI-specific
+          threat enforcement requires AIS-11/13 supplemental controls.
+        mapping_strength: partial
+
+  sscf-sef-002:
+    sscf_title: "Security Alert Triage and Escalation"
+    sscf_description: "Ensure high-risk alerts are triaged and escalated within SLA."
+    severity: high
+    aicm_domains:
+      - abbrev: "SEF"
+        control_ids: ["SEF-05", "SEF-06", "SEF-08"]
+        coverage_verdict: "covered"
+        rationale: >
+          SEF-05 (Incident Response Metrics) requires SLA measurement for triage and
+          escalation — directly aligned with SSCF-SEF-002's SLA requirement. SEF-06
+          (Event Triage Processes) is the process that SSCF-SEF-002 assesses. SEF-08
+          (Points of Contact Maintenance) ensures escalation paths are current.
+          SSCF-SEF-002 evidence satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "LOG"
+        control_ids: ["LOG-05"]
+        coverage_verdict: "partial"
+        rationale: >
+          LOG-05 (Audit Logs Monitoring and Response) requires monitoring to trigger
+          timely response. Alert triage (SSCF-SEF-002) is the response component;
+          LOG-05 covers the monitoring precondition.
+        mapping_strength: partial
+
+  sscf-sef-003:
+    sscf_title: "Incident Response Plan and Tabletop Testing"
+    sscf_description: "Maintain IR plan covering SaaS events; conduct annual tabletop exercises."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "SEF"
+        control_ids: ["SEF-01", "SEF-03", "SEF-04"]
+        coverage_verdict: "covered"
+        rationale: >
+          SEF-01 (Security Incident Management Policy and Procedures), SEF-03 (Incident
+          Response Plans), and SEF-04 (Incident Response Testing) directly map to IR
+          plan maintenance and tabletop exercise requirements. SSCF-SEF-003 evidence
+          (IR plan document, tabletop exercise records, SaaS incident scenarios) satisfies
+          all three.
+        mapping_strength: direct
+
+      - abbrev: "BCR"
+        control_ids: ["BCR-06", "BCR-09", "BCR-10"]
+        coverage_verdict: "partial"
+        rationale: >
+          BCR-06 (Business Continuity Exercises), BCR-09 (Disaster Response Plan), and
+          BCR-10 (Response Plan Exercise) require BCP/DR testing that overlaps with IR
+          tabletop exercises. SSCF-SEF-003 IR tabletop evidence partially satisfies
+          BCR exercise requirements for SaaS-related disruption scenarios.
+        mapping_strength: partial
+
+      - abbrev: "GRC"
+        control_ids: ["GRC-02"]
+        coverage_verdict: "partial"
+        rationale: >
+          GRC-02 (Risk Management Program) requires incident risk to be managed through
+          a formal program. IR plan existence and testing evidence supports GRC-02
+          program documentation.
+        mapping_strength: partial
+
+  sscf-sef-004:
+    sscf_title: "Evidence Preservation and Cloud Forensics Readiness"
+    sscf_description: "Preserve SaaS audit logs and forensic artifacts in legally defensible manner."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "SEF"
+        control_ids: ["SEF-09"]
+        coverage_verdict: "covered"
+        rationale: >
+          SEF-09 (Incident Response) includes forensic investigation capability as a
+          component of the incident response lifecycle. Legally defensible evidence
+          preservation is a direct requirement of SEF-09.
+        mapping_strength: direct
+
+      - abbrev: "LOG"
+        control_ids: ["LOG-08", "LOG-09", "LOG-02"]
+        coverage_verdict: "covered"
+        rationale: >
+          LOG-08 (Log Records), LOG-09 (Log Protection), and LOG-02 (Audit Logs Protection)
+          establish the retention and integrity requirements that make forensic evidence
+          legally defensible. SSCF-SEF-004 forensic readiness assessment depends on
+          and validates these LOG controls.
+        mapping_strength: direct
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-05", "A&A-06"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-05 (Audit Management Process) and A&A-06 (Remediation) require audit
+          evidence to be preserved and acted upon. Cloud forensics evidence preservation
+          satisfies the audit evidence component of A&A-05/06.
+        mapping_strength: partial
+
+  sscf-sef-005:
+    sscf_title: "Exception Governance and Risk Acceptance"
+    sscf_description: "Enforce time-bound exceptions with compensating controls and approvals."
+    severity: moderate
+    aicm_domains:
+      - abbrev: "GRC"
+        control_ids: ["GRC-01", "GRC-02", "GRC-04"]
+        coverage_verdict: "covered"
+        rationale: >
+          GRC-01 (Governance Program Policy and Procedures), GRC-02 (Risk Management
+          Program), and GRC-04 (Policy Exception Process) directly govern security
+          exceptions and risk acceptance. GRC-04 is the direct match — it explicitly
+          requires a documented exception process with approvals and time bounds.
+          SSCF-SEF-005 evidence (exception tickets, approval records, compensating
+          controls, expiry dates) satisfies all three.
+        mapping_strength: direct
+
+      - abbrev: "A&A"
+        control_ids: ["A&A-06"]
+        coverage_verdict: "partial"
+        rationale: >
+          A&A-06 (Remediation) requires that audit findings are tracked through to
+          remediation or accepted as exceptions. SSCF-SEF-005 exception governance
+          evidence demonstrates that the remediation/accept decision is formally governed.
+        mapping_strength: partial
+
+      - abbrev: "CCC"
+        control_ids: ["CCC-08"]
+        coverage_verdict: "partial"
+        rationale: >
+          CCC-08 (Exception Management) in the change control domain mirrors exception
+          governance principles. SSCF-SEF-005 risk acceptance governance provides
+          precedent and evidence that partially satisfies CCC-08 exception management
+          requirements.
+        mapping_strength: partial
+

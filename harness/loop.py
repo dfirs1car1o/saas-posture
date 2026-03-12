@@ -246,6 +246,26 @@ def _run_loop(  # NOSONAR
     except Exception as exc:  # noqa: BLE001
         click.echo(f"  [memory] unavailable: {exc}", err=True)
 
+    # --- Memory guard: strip indirect prompt injection patterns before injecting
+    # Mem0 memories into the system prompt. If Qdrant memories were poisoned via
+    # a prior adversarial assessment run, this prevents the stored content from
+    # overriding the orchestrator's instructions. Low-overhead; defense-in-depth. ---
+    _INJECTION_PATTERNS = [
+        "ignore previous instructions",
+        "ignore all previous",
+        "disregard previous",
+        "system:",
+        "you are now",
+        "act as",
+        "new instructions:",
+        "override:",
+    ]
+    if memory_context:
+        lowered = memory_context.lower()
+        if any(pat in lowered for pat in _INJECTION_PATTERNS):
+            click.echo("  [memory] WARNING: possible injection pattern in stored memories — skipping.", err=True)
+            memory_context = ""
+
     # --- Build initial messages (system prompt + user task) ---
     user_content = task
     if memory_context:

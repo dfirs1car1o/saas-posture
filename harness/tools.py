@@ -269,6 +269,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
                     "type": "string",
                     "description": "Path to drift_report.json from backlog_diff — adds regression section to report",
                 },
+                "aicm_coverage": {
+                    "type": "string",
+                    "description": "Path to aicm_coverage.json from gen_aicm_crosswalk — adds AICM section to annex",
+                },
             },
             "required": ["backlog", "audience", "out"],
         },
@@ -546,6 +550,7 @@ def _report_gen_optional_args(inp: dict[str, Any]) -> list[str]:
     sscf_benchmark = _safe_inp_path(inp.get("sscf_benchmark"))
     nist_review = _safe_inp_path(inp.get("nist_review"))
     drift_report = _safe_inp_path(inp.get("drift_report"))
+    aicm_coverage = _safe_inp_path(inp.get("aicm_coverage"))
     if sscf_benchmark:
         extras += ["--sscf-benchmark", sscf_benchmark]
     if nist_review:
@@ -562,6 +567,8 @@ def _report_gen_optional_args(inp: dict[str, Any]) -> list[str]:
         extras.append("--mock-llm")
     if drift_report:
         extras += ["--drift-report", drift_report]
+    if aicm_coverage:
+        extras += ["--aicm-coverage", aicm_coverage]
     return extras
 
 

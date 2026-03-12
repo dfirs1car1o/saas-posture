@@ -688,6 +688,62 @@ def _render_ccm_crosswalk(backlog: dict) -> str:  # NOSONAR
     return "\n".join(lines)
 
 
+def _render_aicm_coverage(aicm: dict[str, Any]) -> str:
+    """Render AICM v1.0.3 AI Governance Coverage section for the security annex.
+
+    Reads aicm_coverage.json produced by gen_aicm_crosswalk.py and renders
+    a domain-level summary table plus gap domain list — showing which AI
+    Controls Matrix domains have SSCF evidence and which require supplemental
+    questionnaire or third-party audit.
+
+    Only included in the annex (security audience).
+    """
+    summary = aicm.get("summary", {})
+    domain_coverage = aicm.get("domain_coverage", {})
+    gap_note = aicm.get("gap_note", "")
+    aicm_version = aicm.get("aicm_version", "v1.0.3")
+
+    _VERDICT_ICON = {
+        "covered": "✅",
+        "partial": "⚠️",
+        "not_assessed": "—",
+        "not_covered": "—",
+    }
+    _POSTURE_ICON = {"pass": "🟢", "partial": "🟡", "fail": "🔴", "not_assessed": "—"}
+
+    lines = [
+        f"## CSA AICM {aicm_version} AI Governance Coverage",
+        "",
+        "Maps SSCF assessment evidence to the CSA AI Controls Matrix (AICM) — "
+        "an AI-specific governance framework covering 243 controls across 18 domains "
+        "including Model Security (MDS) not present in CCM v4.1.",
+        "",
+        f"**Total AICM domains:** {summary.get('total_aicm_domains', 18)}  ",
+        f"**Total AICM controls:** {summary.get('total_aicm_controls', 243)}  ",
+        f"**Covered:** {summary.get('covered_domains', 0)} domains  "
+        f"**Partial:** {summary.get('partial_domains', 0)} domains  "
+        f"**Gap:** {summary.get('gap_domains', 0)} domains",
+        "",
+        "| Domain | SSCF Coverage | Posture | Controls | Failing Controls |",
+        "|---|---|---|---|---|",
+    ]
+
+    for abbrev, data in sorted(domain_coverage.items()):
+        cov = data.get("coverage_verdict", "not_assessed")
+        pos = data.get("posture_verdict", "not_assessed")
+        total = data.get("total_aicm_controls", 0)
+        failing = data.get("failing_controls", [])
+        cov_icon = _VERDICT_ICON.get(cov, "—")
+        pos_icon = _POSTURE_ICON.get(pos, "—")
+        fail_str = ", ".join(failing[:3]) + ("…" if len(failing) > 3 else "") if failing else "—"
+        lines.append(f"| **{abbrev}** | {cov_icon} {cov} | {pos_icon} {pos} | {total} | {fail_str} |")
+
+    if gap_note:
+        lines += ["", f"> **Gap Note:** {gap_note}"]
+
+    return "\n".join(lines)
+
+
 def _render_drift_section(drift: dict[str, Any]) -> str:
     """Changes Since Last Assessment — rendered from drift_report.json."""
     summary = drift.get("summary", {})
@@ -1222,6 +1278,12 @@ def cli() -> None:
     default=None,
     help="Path to iso27001_2022_annex_a_catalog.yaml for full 93-control SoA. Auto-detected if omitted.",
 )
+@click.option(
+    "--aicm-coverage",
+    "aicm_coverage",
+    default=None,
+    help="Path to aicm_coverage.json from gen_aicm_crosswalk.py. Adds AICM AI governance section to annex.",
+)
 def generate(  # NOSONAR
     backlog: str,
     audience: str,
@@ -1235,6 +1297,7 @@ def generate(  # NOSONAR
     mock_llm: bool,
     drift_report: str | None,
     iso27001_catalog: str | None,
+    aicm_coverage: str | None,
 ) -> None:
     """Generate an executive governance report (Markdown + DOCX for security audience).
 
@@ -1266,6 +1329,7 @@ def generate(  # NOSONAR
     sscf_data = _load_json(sscf_benchmark) if sscf_benchmark else None
     nist_data = _load_json(nist_review) if nist_review else None
     drift_data = _load_json(drift_report) if drift_report else None
+    aicm_data = _load_json(aicm_coverage) if aicm_coverage else None
 
     # Resolve ISO 27001 catalog path — explicit arg → repo default → None (partial SoA)
     _default_catalog = _REPO / "config" / "iso27001" / "iso27001_2022_annex_a_catalog.yaml"
@@ -1358,7 +1422,10 @@ def generate(  # NOSONAR
             "and framework crosswalk tables. Share the main assessment document for executive "
             "review; share this annex for governance tracking and audit evidence.\n"
         )
-        annex_parts = [p for p in [annex_header, full_matrix, poam, provenance, ccm_crosswalk, iso_soa] if p]
+        aicm_section = _render_aicm_coverage(aicm_data) if aicm_data else ""
+        annex_parts = [
+            p for p in [annex_header, full_matrix, poam, provenance, ccm_crosswalk, iso_soa, aicm_section] if p
+        ]
         annex_md = "\n\n".join(annex_parts)
 
         annex_md_path = out_path.with_name(out_path.stem + "_annex.md")
