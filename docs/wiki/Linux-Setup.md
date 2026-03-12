@@ -223,7 +223,7 @@ python3.11 -m venv /opt/saas-posture/.venv
 
 For CI environments where you don't want LLM API calls, use mock mode:
 ```bash
-/opt/saas-posture/.venv/bin/pytest tests/ -v   # 44/44 offline tests
+/opt/saas-posture/.venv/bin/pytest tests/ -v   # 94 offline tests
 ```
 
 ---
@@ -280,7 +280,7 @@ ls -la /path/to/salesforce_jwt_private.pem  # should show -rw-------
 ### `ModuleNotFoundError: No module named 'skills'`
 
 ```bash
-pip install -e .   # editable install required
+pip install -e ".[dev]"   # editable install with dev deps required
 ```
 
 ### Qdrant / memory errors

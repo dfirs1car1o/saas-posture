@@ -123,7 +123,7 @@ The SBOM is uploaded as a CI artifact (90-day retention). Grype scan results are
 
 **Fix grype failures:**
 - Run `grype sbom:docs/sbom.cdx.json` locally to see the full CVE list
-- Update the affected dependency in `pyproject.toml`, then re-run `pip install -e .`
+- Update the affected dependency in `pyproject.toml`, then re-run `pip install -e ".[dev]"`
 - If the CVE has no fix yet, open a GitHub issue to track it and consider a temporary allowlist in CI
 
 ---

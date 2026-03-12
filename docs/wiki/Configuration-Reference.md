@@ -274,7 +274,7 @@ proactive_triggers:
 
 ```toml
 [project.scripts]
-# CLI entry points installed by pip install -e .
+# CLI entry points installed by pip install -e ".[dev]"
 sfdc-connect = "skills.sfdc_connect.sfdc_connect:cli"
 oscal-assess  = "skills.oscal_assess.oscal_assess:cli"
 sscf-benchmark = "skills.sscf_benchmark.sscf_benchmark:cli"
