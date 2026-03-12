@@ -35,7 +35,7 @@ def _read_xml_bytes(source_cfg: dict[str, Any], base_dir: Path) -> bytes:
     if not xml_url.startswith("https://"):
         raise ValueError(f"xml_url must use https:// scheme, got: {xml_url!r}")
 
-    with urllib.request.urlopen(xml_url, timeout=60) as response:  # noqa: S310
+    with urllib.request.urlopen(xml_url, timeout=60) as response:  # noqa: S310  # nosec B310 — https:// enforced above
         return response.read()
 
 

@@ -1,5 +1,5 @@
 """
-Smoke test: harness agentic loop with mocked OpenAI client.
+Smoke test: harness agentic loop with mocked OpenAI client + audit log verification.
 
 Verifies:
   1. Correct tool dispatch order (sfdc_connect_collect → oscal_assess_assess → stop)
@@ -199,6 +199,65 @@ def test_tool_error_triggers_handler(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # Test: OpenAI client constructed with env key
 # ---------------------------------------------------------------------------
+
+
+def test_audit_log_written_with_correct_events(tmp_path: Path) -> None:
+    """Audit log (audit.jsonl) is written for every run with loop_start, tool_call, loop_end."""
+    from datetime import UTC, datetime
+
+    fake_gap = str(tmp_path / "gap_analysis.json")
+    (tmp_path / "gap_analysis.json").write_text(json.dumps({"findings": []}))
+
+    mock_responses = [
+        _tool_use_response(
+            "sfdc_connect_collect",
+            "call_a01",
+            {"scope": "all", "dry_run": True, "org": "audit-test-org"},
+        ),
+        _end_turn_response("Done."),
+    ]
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = mock_responses
+
+    dispatch_results = {
+        "sfdc_connect_collect": json.dumps({"status": "ok", "dry_run": True, "output_file": fake_gap}),
+    }
+
+    def fake_dispatch(name: str, inp: dict) -> str:  # noqa: ANN001
+        return dispatch_results.get(name, json.dumps({"status": "ok"}))
+
+    runner = CliRunner()
+    with (
+        patch("openai.OpenAI", return_value=mock_client),
+        patch("harness.loop.build_client", return_value=MagicMock()),
+        patch("harness.loop.load_memories", return_value=""),
+        patch("harness.loop.save_assessment"),
+        patch("harness.loop.dispatch", side_effect=fake_dispatch),
+    ):
+        result = runner.invoke(
+            cli,
+            ["run", "--dry-run", "--env", "dev", "--org", "audit-test-org", "--approve-critical"],
+        )
+
+    assert result.exit_code == 0, result.output
+
+    run_date = datetime.now(UTC).strftime("%Y-%m-%d")
+    audit_path = (
+        _REPO / "docs" / "oscal-salesforce-poc" / "generated" / "audit-test-org" / run_date / "audit.jsonl"
+    )
+    assert audit_path.exists(), f"audit.jsonl not created at {audit_path}"
+
+    lines = [json.loads(l) for l in audit_path.read_text().strip().splitlines()]
+    events = [l["event"] for l in lines]
+
+    assert events[0] == "loop_start"
+    assert "tool_call" in events
+    assert events[-1] == "loop_end"
+
+    tool_call = next(l for l in lines if l["event"] == "tool_call")
+    assert tool_call["tool"] == "sfdc_connect_collect"
+    assert "duration_ms" in tool_call
+    assert tool_call["status"] == "ok"
 
 
 def test_openai_client_uses_api_key(tmp_path: Path) -> None:

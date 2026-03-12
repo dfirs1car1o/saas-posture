@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,29 @@ from harness.memory import build_client, load_memories, save_assessment
 from harness.tools import ALL_TOOLS, dispatch
 
 _REPO = Path(__file__).resolve().parents[1]
+
+
+# ---------------------------------------------------------------------------
+# Structured audit log
+# ---------------------------------------------------------------------------
+
+
+def _append_audit(path: Path, record: dict[str, Any]) -> None:
+    """Append one JSONL record to the run audit log. Best-effort — never aborts the loop.
+
+    Produces a machine-readable forensic trail of every tool invocation:
+        {"event": "tool_call", "ts": "...", "turn": 2, "tool": "oscal_assess_assess",
+         "args": {...}, "status": "ok", "duration_ms": 142}
+
+    OWASP ASI-09 (Logging & Monitoring) requires an audit trail for every
+    autonomous agent action. This satisfies that requirement without coupling
+    the audit path to the harness state machine.
+    """
+    try:
+        with path.open("a") as fh:
+            fh.write(json.dumps(record) + "\n")
+    except Exception:  # noqa: BLE001
+        pass  # audit failure must never abort the assessment run
 
 
 def _make_openai_client(api_key: str | None = None, max_retries: int = 5):
@@ -195,6 +219,23 @@ def _run_loop(  # NOSONAR
     """Core agentic loop. Returns result dict with score, status, output paths."""
     client = _make_openai_client(api_key=api_key or os.getenv("OPENAI_API_KEY"), max_retries=5)
 
+    # --- Audit log: one JSONL file per run, co-located with other outputs ---
+    run_date = datetime.now(UTC).strftime("%Y-%m-%d")
+    audit_dir = _REPO / "docs" / "oscal-salesforce-poc" / "generated" / org / run_date
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    audit_path = audit_dir / "audit.jsonl"
+    _append_audit(
+        audit_path,
+        {
+            "event": "loop_start",
+            "ts": datetime.now(UTC).isoformat(),
+            "org": org,
+            "env": env,
+            "platform": platform,
+            "dry_run": dry_run,
+        },
+    )
+
     # --- Memory: load prior assessments for this org ---
     mem_client = None
     memory_context = ""
@@ -278,10 +319,26 @@ def _run_loop(  # NOSONAR
 
             click.echo(f"  [tool] {name}({json.dumps(inp, separators=(',', ':'))})", err=True)
 
+            _t0 = time.perf_counter()
+            _call_status = "ok"
             try:
                 result_str = dispatch(name, inp)
             except Exception as exc:  # noqa: BLE001
+                _call_status = "error"
                 result_str = _handle_tool_error(name, inp, exc)
+            finally:
+                _append_audit(
+                    audit_path,
+                    {
+                        "event": "tool_call",
+                        "ts": datetime.now(UTC).isoformat(),
+                        "turn": turn + 1,
+                        "tool": name,
+                        "args": inp,
+                        "status": _call_status,
+                        "duration_ms": round((time.perf_counter() - _t0) * 1000),
+                    },
+                )
 
             # Track output files for downstream steps and final gate
             try:
@@ -340,8 +397,20 @@ def _run_loop(  # NOSONAR
         assessment_id = f"{platform}-assess-{org}-{env}-loop"
         save_assessment(mem_client, org, assessment_id, score, critical_fails)
 
+    _append_audit(
+        audit_path,
+        {
+            "event": "loop_end",
+            "ts": datetime.now(UTC).isoformat(),
+            "turns": state["turns"],
+            "overall_score": score,
+            "critical_fails": critical_fails,
+        },
+    )
+
     state["score"] = score
     state["critical_fails"] = critical_fails
+    state["audit_log"] = str(audit_path)
     return state
 
 
@@ -538,6 +607,7 @@ def run(  # NOSONAR
                 "report_app_owner": state.get("report_app_owner"),
                 "report_security_md": state.get("report_security_md"),
                 "report_security_docx": state.get("report_security_docx"),
+                "audit_log": state.get("audit_log"),
                 "summary": state.get("summary", ""),
             },
             indent=2,
@@ -556,6 +626,7 @@ def run(  # NOSONAR
         ("report_app_owner", "App owner MD  "),
         ("report_security_md", "Security MD   "),
         ("report_security_docx", "Security DOCX "),
+        ("audit_log", "Audit log     "),
     ]
     for key, label in _file_labels:
         path = state.get(key)
