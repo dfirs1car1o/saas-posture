@@ -280,3 +280,57 @@ def test_openai_client_uses_api_key(tmp_path: Path) -> None:
         )
 
     mock_ctor.assert_called_once_with(api_key="sk-test-key", max_retries=5)
+
+
+# ---------------------------------------------------------------------------
+# Test: sequencing gate blocks out-of-order tool calls
+# ---------------------------------------------------------------------------
+
+
+def test_sequencing_gate_blocks_report_gen_without_prerequisites(tmp_path: Path) -> None:
+    """report_gen_generate is blocked if oscal_gap_map / sscf_benchmark haven't run."""
+    fake_backlog = str(tmp_path / "backlog.json")
+    (tmp_path / "backlog.json").write_text(json.dumps({"mapped_items": [], "summary": {}}))
+
+    # LLM tries to call report_gen before gap_map/benchmark — sequencing violation
+    mock_responses = [
+        _tool_use_response(
+            "report_gen_generate",
+            "call_seq_001",
+            {
+                "backlog": fake_backlog,
+                "audience": "security",
+                "out": str(tmp_path / "report.md"),
+                "org": "seq-test-org",
+            },
+        ),
+        _end_turn_response("Could not generate report — prerequisite tools not completed."),
+    ]
+
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = mock_responses
+
+    dispatch_called_with: list[str] = []
+
+    def fake_dispatch(name: str, inp: dict) -> str:  # noqa: ANN001
+        dispatch_called_with.append(name)
+        return json.dumps({"status": "ok"})
+
+    runner = CliRunner()
+    with (
+        patch("openai.OpenAI", return_value=mock_client),
+        patch("harness.loop.build_client", return_value=MagicMock()),
+        patch("harness.loop.load_memories", return_value=""),
+        patch("harness.loop.save_assessment"),
+        patch("harness.loop.dispatch", side_effect=fake_dispatch),
+    ):
+        result = runner.invoke(
+            cli,
+            ["run", "--dry-run", "--org", "seq-test-org", "--approve-critical"],
+        )
+
+    assert result.exit_code == 0, result.output
+    # dispatch must NOT have been called for report_gen (blocked by sequencing gate)
+    assert "report_gen_generate" not in dispatch_called_with, (
+        "report_gen_generate should have been blocked by sequencing gate"
+    )

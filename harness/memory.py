@@ -11,6 +11,7 @@ Environment:
     QDRANT_IN_MEMORY=1  — use in-memory Qdrant (no Docker needed; for CI / tests)
     QDRANT_HOST         — override Qdrant host (default: localhost)
     QDRANT_PORT         — override Qdrant port (default: 6333)
+    QDRANT_API_KEY      — API key for non-local Qdrant deployments (unset = no auth)
 """
 
 from __future__ import annotations
@@ -58,6 +59,7 @@ def build_client() -> Any:
                 "collection_name": COLLECTION,
                 "host": os.getenv("QDRANT_HOST", "localhost"),
                 "port": int(os.getenv("QDRANT_PORT", "6333")),
+                "api_key": os.getenv("QDRANT_API_KEY") or None,
             },
         }
 

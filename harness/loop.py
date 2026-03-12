@@ -83,6 +83,21 @@ def _make_openai_client(api_key: str | None = None, max_retries: int = 5):
 load_dotenv(_REPO / ".env")
 _MAX_TURNS = 14  # hard stop: 7 pipeline steps + LLM-only turns; extra headroom for finish() call
 
+# Tool sequencing dependency map (OWASP A2 — Excessive Agency mitigation).
+# Before dispatching a tool, verify all required predecessors have completed.
+# This prevents the LLM from calling report_gen before assess/gap_map, which would
+# produce misleading governance output from missing or stale data.
+# dry_run=True waives collector prerequisites (sfdc/workday_connect_collect) so
+# offline test loops can run straight to assess without a live org connection.
+_TOOL_REQUIRES: dict[str, frozenset] = {
+    "oscal_gap_map": frozenset({"oscal_assess_assess"}),
+    "sscf_benchmark_benchmark": frozenset({"oscal_gap_map"}),
+    "nist_review_assess": frozenset({"oscal_assess_assess"}),
+    "gen_aicm_crosswalk": frozenset({"oscal_gap_map"}),
+    "report_gen_generate": frozenset({"oscal_gap_map", "sscf_benchmark_benchmark"}),
+    "finish": frozenset({"report_gen_generate"}),
+}
+
 # ---------------------------------------------------------------------------
 # Expert-review escalation helper
 # ---------------------------------------------------------------------------
@@ -282,11 +297,15 @@ def _run_loop(  # NOSONAR
         "backlog": None,
         "sscf_report": None,
         "nist_review": None,
+        "aicm_coverage": None,
         "report_app_owner": None,
         "report_security_md": None,
         "report_security_docx": None,
         "turns": 0,
     }
+
+    # Tracks which pipeline tools have completed; used by the sequencing gate.
+    completed_tools: set[str] = set()
 
     # --- Agentic loop ---
     for turn in range(_MAX_TURNS):
@@ -339,6 +358,40 @@ def _run_loop(  # NOSONAR
 
             click.echo(f"  [tool] {name}({json.dumps(inp, separators=(',', ':'))})", err=True)
 
+            # --- Tool sequencing gate (OWASP A2 — Excessive Agency) ---
+            # Waive collector prerequisites when dry_run is active — offline test runs
+            # skip straight to assess without a live Salesforce/Workday connection.
+            _required = _TOOL_REQUIRES.get(name, frozenset())
+            if inp.get("dry_run", dry_run):
+                _required = _required - {"sfdc_connect_collect", "workday_connect_collect"}
+            _missing = _required - completed_tools
+            if _missing:
+                _seq_msg = (
+                    f"Sequencing violation: '{name}' requires {sorted(_missing)} to complete first. "
+                    "Call the required tools before calling this one."
+                )
+                click.echo(f"  [sequence] BLOCKED: {_seq_msg}", err=True)
+                _append_audit(
+                    audit_path,
+                    {
+                        "event": "tool_call",
+                        "ts": datetime.now(UTC).isoformat(),
+                        "turn": turn + 1,
+                        "tool": name,
+                        "args": inp,
+                        "status": "sequencing_violation",
+                        "duration_ms": 0,
+                    },
+                )
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tc.id,
+                        "content": json.dumps({"status": "error", "message": _seq_msg}),
+                    }
+                )
+                continue
+
             _t0 = time.perf_counter()
             _call_status = "ok"
             try:
@@ -360,6 +413,9 @@ def _run_loop(  # NOSONAR
                     },
                 )
 
+            # Mark tool as completed so downstream sequencing checks pass
+            completed_tools.add(name)
+
             # Track output files for downstream steps and final gate
             try:
                 result_data = json.loads(result_str)
@@ -377,6 +433,8 @@ def _run_loop(  # NOSONAR
                         state["sscf_report"] = out_file
                     elif name == "nist_review_assess":
                         state["nist_review"] = out_file
+                    elif name == "gen_aicm_crosswalk":
+                        state["aicm_coverage"] = out_file
                     elif name == "report_gen_generate":
                         audience = inp.get("audience", "")
                         if audience == "app-owner":
@@ -533,11 +591,13 @@ def run(  # NOSONAR
                 f"4. Call sscf_benchmark_benchmark (org='{org}') with the backlog to produce the SSCF scorecard.\n"
                 f"5. Call nist_review_assess (org='{org}', platform='workday') with gap_analysis from step 2 "
                 f"and backlog from step 3 to produce nist_review.json.\n"
+                f"5b. Call gen_aicm_crosswalk (org='{org}', backlog from step 3, platform='workday') "
+                f"to produce aicm_coverage.json.\n"
                 f"6. Call report_gen_generate twice:\n"
                 f"   a. audience='app-owner', out='{org}_remediation_report.md', platform='workday', "
                 f"sscf_benchmark from step 4.\n"
                 f"   b. audience='security', out='{org}_security_assessment.md', platform='workday', "
-                f"sscf_benchmark from step 4, nist_review from step 5, "
+                f"sscf_benchmark from step 4, nist_review from step 5, aicm_coverage from step 5b, "
                 f"title='{governance_title} - {org_display}'. "
                 f"The security call automatically also writes .docx to the same directory.\n\n"
                 "After step 6b completes, call finish() with a one-sentence summary of what was done. "
@@ -556,11 +616,13 @@ def run(  # NOSONAR
                 f"4. Call sscf_benchmark_benchmark (org='{org}') with the backlog to produce the SSCF scorecard.\n"
                 f"5. Call nist_review_assess (org='{org}', platform='salesforce') with gap_analysis from step 2 "
                 f"and backlog from step 3 to produce nist_review.json.\n"
+                f"5b. Call gen_aicm_crosswalk (org='{org}', backlog from step 3, platform='salesforce') "
+                f"to produce aicm_coverage.json.\n"
                 f"6. Call report_gen_generate twice:\n"
                 f"   a. audience='app-owner', out='{org}_remediation_report.md', platform='salesforce', "
                 f"sscf_benchmark from step 4.\n"
                 f"   b. audience='security', out='{org}_security_assessment.md', platform='salesforce', "
-                f"sscf_benchmark from step 4, nist_review from step 5, "
+                f"sscf_benchmark from step 4, nist_review from step 5, aicm_coverage from step 5b, "
                 f"title='{governance_title} - {org_display}'. "
                 f"The security call automatically also writes .docx to the same directory.\n\n"
                 "After step 6b completes, call finish() with a one-sentence summary of what was done. "
@@ -624,6 +686,7 @@ def run(  # NOSONAR
                 "backlog": state.get("backlog"),
                 "sscf_report": state.get("sscf_report"),
                 "nist_review": state.get("nist_review"),
+                "aicm_coverage": state.get("aicm_coverage"),
                 "report_app_owner": state.get("report_app_owner"),
                 "report_security_md": state.get("report_security_md"),
                 "report_security_docx": state.get("report_security_docx"),
@@ -643,6 +706,7 @@ def run(  # NOSONAR
         ("backlog", "Backlog       "),
         ("sscf_report", "SSCF report   "),
         ("nist_review", "NIST review   "),
+        ("aicm_coverage", "AICM coverage "),
         ("report_app_owner", "App owner MD  "),
         ("report_security_md", "Security MD   "),
         ("report_security_docx", "Security DOCX "),

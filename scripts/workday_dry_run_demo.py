@@ -548,6 +548,7 @@ def main() -> None:
     backlog_path = out_dir / "workday_backlog.json"
     sscf_path = out_dir / "workday_sscf_report.json"
     nist_path = out_dir / "workday_nist_review.json"
+    aicm_path = out_dir / "aicm_coverage.json"
     security_md = out_dir / f"{args.org}_security_assessment.md"
     app_owner_md = out_dir / f"{args.org}_remediation_report.md"
 
@@ -600,6 +601,24 @@ def main() -> None:
     )
     print(f"  [nist]        written: {nist_path}")
 
+    # Step 4.5: gen_aicm_crosswalk
+    _run(
+        [
+            python,
+            "scripts/gen_aicm_crosswalk.py",
+            "--backlog",
+            str(backlog_path),
+            "--org",
+            args.org,
+            "--platform",
+            "workday",
+            "--out",
+            str(aicm_path),
+        ],
+        "aicm-crosswalk",
+    )
+    print(f"  [aicm]        written: {aicm_path}")
+
     # Step 5a: report-gen app-owner
     _run(
         [
@@ -639,6 +658,8 @@ def main() -> None:
             str(sscf_path),
             "--nist-review",
             str(nist_path),
+            "--aicm-coverage",
+            str(aicm_path),
             "--audience",
             "security",
             "--title",

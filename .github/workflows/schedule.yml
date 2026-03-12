@@ -105,6 +105,7 @@ jobs:
             --backlog "$OUT/backlog.json" \
             --sscf-benchmark "$OUT/sscf_report.json" \
             --nist-review "$OUT/nist_review.json" \
+            --aicm-coverage "$OUT/aicm_coverage.json" \
             --audience security \
             --org-alias ci-dry-run-sfdc \
             --mock-llm \

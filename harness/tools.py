@@ -382,6 +382,32 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "required": ["backlog"],
         },
     },
+    {
+        "name": "gen_aicm_crosswalk",
+        "description": (
+            "Generate a CSA AI Controls Matrix (AICM v1.0.3) coverage crosswalk from the assessment backlog. "
+            "Maps SSCF findings to all 18 AICM domains and 243 controls, producing aicm_coverage.json. "
+            "Call after oscal_gap_map. Pass the output to report_gen_generate as aicm_coverage "
+            "to include the AICM annex in the security report."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "backlog": {
+                    "type": "string",
+                    "description": "Path to backlog.json from oscal_gap_map",
+                },
+                "org": {"type": "string", "description": _ORG_ALIAS_HELP},
+                "platform": {
+                    "type": "string",
+                    "enum": ["salesforce", "workday"],
+                    "description": "Platform being assessed — determines AICM mapping scope",
+                },
+                "out": {"type": "string", "description": "Override output path for aicm_coverage.json"},
+            },
+            "required": ["backlog"],
+        },
+    },
 ]
 
 
@@ -701,6 +727,19 @@ def _dispatch_backlog_diff(inp: dict[str, Any], out_dir: Path) -> str:
     return _run(args)
 
 
+def _dispatch_aicm_crosswalk(inp: dict[str, Any], out_dir: Path) -> str:
+    """Generate AICM v1.0.3 coverage crosswalk from the assessment backlog."""
+    out_path = _safe_out_path(inp.get("out"), out_dir / "aicm_coverage.json")
+    backlog = _safe_inp_path(inp["backlog"])  # required field
+    args = [_PYTHON, "scripts/gen_aicm_crosswalk.py", "--backlog", backlog, "--out", out_path]
+    if inp.get("org"):
+        args += ["--org", inp["org"]]
+    if inp.get("platform"):
+        args += ["--platform", inp["platform"]]
+    _run(args)
+    return json.dumps({"status": "ok", "output_file": out_path})
+
+
 def _dispatch_finish(inp: dict[str, Any], out_dir: Path) -> str:  # noqa: ARG001
     """Sentinel: orchestrator signals pipeline is complete. Loop will break immediately."""
     return json.dumps({"status": "ok", "pipeline_complete": True, "summary": inp.get("summary", "")})
@@ -739,6 +778,7 @@ _DISPATCHERS = {
     "sfdc_expert_enrich": _dispatch_sfdc_expert,
     "nist_review_assess": _dispatch_nist_review,
     "sscf_benchmark_benchmark": _dispatch_sscf_benchmark,
+    "gen_aicm_crosswalk": _dispatch_aicm_crosswalk,
     "report_gen_generate": _dispatch_report_gen,
 }
 

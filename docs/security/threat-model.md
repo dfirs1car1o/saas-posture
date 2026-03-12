@@ -169,11 +169,11 @@
 
 ## Open / Residual Risks
 
-| # | Risk | Mitigation Roadmap |
-|---|---|---|
-| R1 | **Tool sequencing not enforced in code** — LLM could call `report_gen` before `oscal_assess` | Add a state machine or dependency graph to `dispatch()` enforcing stage order |
-| R2 | **Human review is process-dependent** — `--approve-critical` can be scripted away | Add required named approver field to the critical gate; require human-signed artifact |
-| R3 | **Qdrant has no authentication in local dev** — any local process can read/write memories | Enable Qdrant API key auth for production deployments |
+| # | Risk | Status | Mitigation Roadmap |
+|---|---|---|---|
+| R1 | **Tool sequencing not enforced in code** — LLM could call `report_gen` before `oscal_assess` | ✅ Resolved | `_TOOL_REQUIRES` dependency map in `harness/loop.py`; sequencing gate fires before every dispatch; violations return structured error JSON to orchestrator; `dry_run` waives collector prerequisites |
+| R2 | **Human review is process-dependent** — `--approve-critical` can be scripted away | ⚠️ Open | Add required named approver field to the critical gate; require human-signed artifact |
+| R3 | **Qdrant has no authentication in local dev** — any local process can read/write memories | ✅ Resolved | `QDRANT_API_KEY` env var wired into networked Qdrant config in `harness/memory.py`; documented in `.env.example` |
 
 ---
 
