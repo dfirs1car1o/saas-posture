@@ -70,7 +70,7 @@ def _resolve_auth_method(cli_flag: str | None) -> str:
     return method
 
 
-def _connect_jwt() -> Any:
+def _connect_jwt(timeout: int = JWT_REQUEST_TIMEOUT) -> Any:
     """Return an authenticated Salesforce client using JWT Bearer Flow (read-only use only)."""
     try:
         import jwt as pyjwt
@@ -122,7 +122,7 @@ def _connect_jwt() -> Any:
         resp = requests.post(
             token_url,
             data={"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer", "assertion": token},
-            timeout=JWT_REQUEST_TIMEOUT,
+            timeout=timeout,
         )
         resp.raise_for_status()
         result = resp.json()
@@ -153,10 +153,10 @@ def _connect_jwt() -> Any:
     return Salesforce(instance_url=instance_url, session_id=access_token)
 
 
-def _connect(auth_method: str | None = None) -> Any:
+def _connect(auth_method: str | None = None, timeout: int = JWT_REQUEST_TIMEOUT) -> Any:
     """Return an authenticated Salesforce client using JWT Bearer Flow (read-only use only)."""
     _resolve_auth_method(auth_method)  # validates any explicit override
-    return _connect_jwt()
+    return _connect_jwt(timeout=timeout)
 
 
 def _result_envelope(org: str, env: str, scope: str, data: Any) -> dict:
@@ -386,7 +386,7 @@ def collect(
         click.echo(f"Output: {out or 'stdout'}")
         return
 
-    sf = _connect(effective_method)
+    sf = _connect(effective_method, timeout=timeout)
     if org:
         # Override instance URL if explicit org URL provided
         sf.sf_instance = org.replace("https://", "").rstrip("/")

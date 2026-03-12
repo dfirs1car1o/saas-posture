@@ -214,7 +214,7 @@ def _handle_tool_error(
         raise RuntimeError(f"Critical tool '{tool_name}' failed — aborting to prevent false-pass assessment.\n{error}")
     # Downstream stages (gap_map, benchmark): return structured error payload.
     # The orchestrator can report partial results rather than aborting the whole run.
-    return json.dumps({"status": "error", "tool": tool_name, "message": str(error)})
+    return json.dumps({"status": "error", "tool": tool_name, "input": tool_input, "message": str(error)})
 
 
 # ---------------------------------------------------------------------------

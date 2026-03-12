@@ -641,7 +641,7 @@ def _rule_data_004(raw: dict[str, Any]) -> Finding:
 def _rule_data_structural(control_id: str, severity: str) -> Callable[[dict], Finding]:
     """Structural partial for data controls requiring field-level inventory."""
 
-    def _rule(raw: dict[str, Any]) -> Finding:
+    def _rule(_raw: dict[str, Any]) -> Finding:
         return Finding(
             control_id,
             "partial",
