@@ -303,11 +303,11 @@ Emits a realistic weak-org stub verdict: GOVERN=pass, MAP=partial, MEASURE=pass,
 **Binary:** `workday-connect`
 **File:** `skills/workday_connect/workday_connect.py`
 **Spec:** `skills/workday_connect/SKILL.md`
-**Purpose:** Authenticates to a Workday HCM/Finance tenant and collects security-relevant configuration across 30 WSCC controls (OAuth 2.0, SOAP/RaaS/REST, 21 automated tests).
+**Purpose:** Authenticates to a Workday HCM/Finance tenant and collects security-relevant configuration across 30 WSCC controls (OAuth 2.0, RaaS/REST/manual, 12 automated tests).
 
 ### Auth
 
-OAuth 2.0 Client Credentials — no password credentials. All calls (REST, SOAP, RaaS) use short-lived Bearer tokens.
+OAuth 2.0 Client Credentials — no password credentials. All calls (REST, RaaS) use short-lived Bearer tokens. No SOAP.
 
 ```bash
 WD_TENANT=acme_dpt1

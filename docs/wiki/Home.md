@@ -15,7 +15,7 @@ Welcome to the **SaaS Security Multi-Agent System** wiki. Fully automated AI pip
 | [Architecture Overview](Architecture-Overview) | How the system is designed |
 | [OSCAL Guide](OSCAL-Guide) | What OSCAL is and how we use it — catalogs, profiles, component definitions, diagrams |
 | [Agent Reference](Agent-Reference) | All 9 agents — roles, models, triggers |
-| [Skill Reference](Skill-Reference) | All 6 CLI tools — usage, inputs, outputs |
+| [Skill Reference](Skill-Reference) | All 7 CLI tools — usage, inputs, outputs |
 | [Pipeline Walkthrough](Pipeline-Walkthrough) | Step-by-step: from org → report |
 | [CI-CD Reference](CI-CD-Reference) | Every CI job, what it checks, how to fix failures |
 | [Security Model](Security-Model) | Rules, gates, escalation paths, OWASP Agentic App Top 10 controls |

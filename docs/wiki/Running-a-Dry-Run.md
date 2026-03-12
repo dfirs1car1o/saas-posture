@@ -43,7 +43,10 @@ agent-loop [DRY-RUN]: org=test-org env=dev
   [tool] report_gen_generate({"org":"test-org","audience":"app-owner",...})
   → writes: docs/oscal-salesforce-poc/generated/test-org/test-org_remediation_report.md
 
-  [tool] report_gen_generate({"org":"test-org","audience":"security",...})
+  [tool] gen_aicm_crosswalk({"org":"test-org","backlog":"...backlog.json","platform":"salesforce"})
+  → writes: docs/oscal-salesforce-poc/generated/test-org/aicm_coverage.json
+
+  [tool] report_gen_generate({"org":"test-org","audience":"security","aicm_coverage":"...aicm_coverage.json",...})
   → writes: docs/oscal-salesforce-poc/generated/test-org/test-org_security_assessment.md
   → writes: docs/oscal-salesforce-poc/generated/test-org/test-org_security_assessment.docx
 
@@ -134,16 +137,18 @@ To test just the pipeline logic without any API calls:
 pytest tests/ -v
 ```
 
-This runs 44 tests across 6 suites — all pass without any environment variables or API keys:
+This runs 64 tests across 8 suites — all pass without any environment variables or API keys:
 
 | Test file | Tests | What it covers |
 |---|---|---|
 | `tests/test_pipeline_smoke.py` | 3 | Dry-run assess, gap map, benchmark |
 | `tests/test_report_gen.py` | 3 | App-owner MD, security MD, DOCX generation |
-| `tests/test_harness_dry_run.py` | 3 | Loop tool dispatch, error handler, API key handling |
+| `tests/test_harness_dry_run.py` | 5 | Loop tool dispatch, audit log events, sequencing gate |
 | `tests/test_sfdc_connect_jwt.py` | 6 | JWT auth resolution, env validation, key path handling |
 | `tests/test_workday_connect.py` | 12 | OAuth flow, 30 controls, RaaS/REST, graceful degradation |
 | `tests/test_drift_and_ccm.py` | 10 | Drift classification, CCM crosswalk rendering |
+| `tests/test_security_gates.py` | 18 | Path traversal, org sanitization, dispatch boundary, input validation |
+| `tests/test_safe_out_path.py` | 7 | Output path boundary enforcement |
 
 **Run with coverage:**
 ```bash

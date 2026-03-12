@@ -224,7 +224,7 @@ docs/security/            ← threat-model.md — OWASP Top 10 for Agentic Appli
 
 ## Authentication
 
-Two Salesforce auth methods are supported. JWT is preferred for production.
+JWT Bearer is the only supported authentication method for Salesforce.
 
 > **New setup?** See [`docs/wiki/API-Credential-Setup.md`](docs/wiki/API-Credential-Setup.md) for step-by-step instructions on obtaining Salesforce JWT Bearer credentials, Workday OAuth 2.0 client credentials, and OpenAI API keys — including permission sets and secrets rotation guidance.
 
