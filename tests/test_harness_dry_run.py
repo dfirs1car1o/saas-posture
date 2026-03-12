@@ -242,9 +242,7 @@ def test_audit_log_written_with_correct_events(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.output
 
     run_date = datetime.now(UTC).strftime("%Y-%m-%d")
-    audit_path = (
-        _REPO / "docs" / "oscal-salesforce-poc" / "generated" / "audit-test-org" / run_date / "audit.jsonl"
-    )
+    audit_path = _REPO / "docs" / "oscal-salesforce-poc" / "generated" / "audit-test-org" / run_date / "audit.jsonl"
     assert audit_path.exists(), f"audit.jsonl not created at {audit_path}"
 
     lines = [json.loads(row) for row in audit_path.read_text().strip().splitlines()]
@@ -528,6 +526,4 @@ def test_finish_blocked_without_security_report(tmp_path: Path) -> None:
     assert "report_gen_generate" in dispatched
     # finish() must NOT have been dispatched — sequencing gate should have blocked it
     # because state["report_security_md"] is None (only app-owner report was written)
-    assert "finish" not in dispatched, (
-        "finish() should be blocked when no security-audience report has been written"
-    )
+    assert "finish" not in dispatched, "finish() should be blocked when no security-audience report has been written"

@@ -41,9 +41,12 @@ No Docker required. Runs fully from the command line with Python 3.11+.
 git clone git@github.com:dfirs1car1o/saas-posture.git
 cd saas-posture
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e .
-cp .env.example .env   # fill in credentials
+pip install -e ".[dev]"    # installs runtime + all dev/test dependencies
+cp .env.example .env       # fill in credentials
 python3 scripts/validate_env.py
+
+# Quick local verification (no credentials needed)
+pytest tests/test_harness_dry_run.py -v
 ```
 
 **Run the full pipeline — Salesforce (live org):**
