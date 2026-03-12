@@ -8,7 +8,7 @@ A dry run executes the **full 7-stage pipeline** — orchestrator, all tool call
 
 - `OPENAI_API_KEY` set in `.env` (the LLM calls are real — only the Salesforce connection is mocked)
 - `QDRANT_IN_MEMORY=1` set in `.env` (no Docker needed)
-- Package installed: `pip install -e .`
+- Package installed: `pip install -e ".[dev]"`
 
 ---
 
@@ -137,7 +137,7 @@ To test just the pipeline logic without any API calls:
 pytest tests/ -v
 ```
 
-This runs 64 tests across 8 suites — all pass without any environment variables or API keys:
+This runs 94 tests across 8 suites — all pass without any environment variables or API keys:
 
 | Test file | Tests | What it covers |
 |---|---|---|

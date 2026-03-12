@@ -7,7 +7,7 @@ Common errors and their fixes.
 ## `agent-loop: command not found`
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 ```
 Then verify: `which agent-loop`
 
@@ -59,7 +59,7 @@ QDRANT_PORT=6333
 ## `ModuleNotFoundError: No module named 'skills'`
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 ```
 The `skills` package requires editable install (`-e`) to be importable.
 
@@ -97,7 +97,7 @@ ImportError: cannot import name 'cli' from 'harness.loop'
 
 Fix:
 ```bash
-pip install -e . && pip install pytest pytest-mock PyYAML click
+pip install -e ".[dev]"
 ```
 
 Note: `[tool.uv]` dev-dependencies in `pyproject.toml` are not installed by plain `pip install`. You must install test dependencies explicitly.
@@ -113,7 +113,7 @@ cred_skip = {"SF_USERNAME", "SF_CONSUMER_KEY", "SF_PRIVATE_KEY_PATH", "OPENAI_AP
 
 If non-credential checks fail (e.g., `repo-layout`, `sfdc-connect-module`), run:
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 python3 scripts/validate_env.py --fix
 ```
 

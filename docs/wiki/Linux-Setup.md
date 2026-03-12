@@ -77,7 +77,7 @@ function cd() { builtin cd "$@" && [[ -f .venv/bin/activate ]] && source .venv/b
 ## Step 4 — Install Dependencies
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 pip install pytest pytest-mock PyYAML click
 ```
 
@@ -217,7 +217,7 @@ For headless environments (CI, remote servers), skip the venv auto-activate step
 ```bash
 # Example CI install
 python3.11 -m venv /opt/saas-posture/.venv
-/opt/saas-posture/.venv/bin/pip install -e .
+/opt/saas-posture/.venv/bin/pip install -e ".[dev]"
 /opt/saas-posture/.venv/bin/agent-loop run --org my-org --env prod --approve-critical
 ```
 
@@ -249,7 +249,7 @@ tar xf Python-3.11.9.tgz && cd Python-3.11.9
 
 ```bash
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 Or use directly without activation:

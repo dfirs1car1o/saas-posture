@@ -83,7 +83,7 @@ This opens a PowerShell terminal at the repo root. All commands below run here.
 ## Step 5 — Install Python Dependencies
 
 ```powershell
-pip install -e .
+pip install -e ".[dev]"
 pip install pytest pytest-mock PyYAML click
 ```
 
@@ -97,7 +97,7 @@ sfdc-connect --help
 
 > **Corporate proxy — pip can't reach the internet?**
 > ```powershell
-> pip install -e . --proxy http://your-proxy-server:port
+> pip install -e ".[dev]" --proxy http://your-proxy-server:port
 > ```
 > Ask your IT department for the proxy address and port if needed.
 
@@ -253,7 +253,7 @@ Install these from the Extensions panel (**Ctrl+Shift+X**):
 ### `agent-loop: command not found` / `not recognized`
 
 ```powershell
-pip install -e .
+pip install -e ".[dev]"
 # Then close and reopen the VS Code terminal
 ```
 
@@ -278,10 +278,10 @@ where python
 
 ```powershell
 # With corporate proxy
-pip install -e . --proxy http://proxy.yourcompany.com:8080
+pip install -e ".[dev]" --proxy http://proxy.yourcompany.com:8080
 
 # With self-signed corporate cert (if SSL errors)
-pip install -e . --trusted-host pypi.org --trusted-host files.pythonhosted.org
+pip install -e ".[dev]" --trusted-host pypi.org --trusted-host files.pythonhosted.org
 ```
 
 Ask IT for your proxy address if unsure.

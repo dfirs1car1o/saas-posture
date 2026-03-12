@@ -60,7 +60,7 @@ The pipeline is fully agentic: `gpt-5.3-chat-latest` orchestrates 7 CLI tools an
 ## Bare Minimum to Run
 
 ```text
-Python 3.11+  +  git  +  pip install -e .  +  .env with API keys
+Python 3.11+  +  git  +  pip install -e ".[dev]"  +  .env with API keys
 ```
 
 No Docker. No Node.js. No cloud accounts beyond OpenAI + Salesforce.
@@ -73,7 +73,7 @@ No Docker. No Node.js. No cloud accounts beyond OpenAI + Salesforce.
 git clone git@github.com:dfirs1car1o/saas-posture.git
 cd saas-posture
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e . && pip install pytest
+pip install -e ".[dev]"
 cp .env.example .env   # fill in OPENAI_API_KEY + Salesforce credentials
 pytest tests/ -v       # 64/64 should pass (offline, no API keys needed)
 agent-loop run --dry-run --env dev --org test-org
@@ -114,4 +114,4 @@ agent-loop run --dry-run --env dev --org test-org
 | **AICM Loop Wiring** | **✅ Done** | `gen_aicm_crosswalk` registered as dispatchable tool in agent loop; Step 5b in both Salesforce + Workday task prompts; `schedule.yml` Phase 6 passes `--aicm-coverage` |
 | **Tool Sequencing Gate** | **✅ Done** | `_TOOL_REQUIRES` dependency map in `harness/loop.py` — enforces pipeline order in code; sequencing violations return structured error JSON (OWASP A2 Excessive Agency) |
 | **Qdrant API Key Auth** | **✅ Done** | `QDRANT_API_KEY` env var wired into networked Qdrant config; documented in `.env.example` (OWASP A3 Memory Poisoning) |
-| **OWASP Agentic App Hardening** | **✅ Done** | Full OWASP Top 10 for Agentic Applications 2026 threat model; input path validation, org sanitization, memory guard, structured audit log, Semgrep CI gates; 64 tests |
+| **OWASP Agentic App Hardening** | **✅ Done** | Full OWASP Top 10 for Agentic Applications 2026 threat model; input path validation, org sanitization, memory guard, structured audit log, Semgrep CI gates; 94 tests |

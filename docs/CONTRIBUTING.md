@@ -9,7 +9,7 @@ This guide covers everything a new contributor needs to get the repo running loc
 ### Bare Minimum (run the full pipeline)
 
 ```text
-Python 3.11+  +  git  +  pip install -e .  +  .env with API keys
+Python 3.11+  +  git  +  pip install -e ".[dev]"  +  .env with API keys
 ```
 
 That's it. No Docker, no Node.js, no container runtime required.

@@ -12,7 +12,7 @@ cd saas-posture
 python3 -m venv .venv && source .venv/bin/activate
 
 # Install the package + test dependencies
-pip install -e .
+pip install -e ".[dev]"
 pip install pytest pytest-mock PyYAML click
 ```
 

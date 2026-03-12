@@ -301,23 +301,32 @@ class TestDispatchSfdcExpert:
         result = dispatch("sfdc_expert_enrich", {"org": _TEST_ORG, "gap_analysis": "/nonexistent/path.json"})
         assert json.loads(result)["status"] == "error"
 
-    def test_enriches_eligible_findings(self) -> None:
+    def test_enriches_eligible_findings(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        # Redirect _REPO so apex scripts land in tmp_path, not in the live repo tree.
+        # Without this, the dispatcher writes apex files into
+        # docs/oscal-salesforce-poc/apex-scripts/ and leaves untracked repo artifacts.
+        import harness.tools as tools_mod
+
+        monkeypatch.setattr(tools_mod, "_REPO", tmp_path)
         gap_data = {
             "findings": [
                 {"control_id": "SBS-AUTH-001", "status": "fail", "needs_expert_review": True},
                 {"control_id": "SBS-ACS-001", "status": "pass", "needs_expert_review": False},
             ]
         }
-        gap_path = _BASE / "gap_analysis.json"
+        gap_path = tmp_path / "gap_analysis.json"
         gap_path.write_text(json.dumps(gap_data))
         result = dispatch("sfdc_expert_enrich", {"org": _TEST_ORG, "gap_analysis": str(gap_path)})
         data = json.loads(result)
         assert data["status"] == "ok"
         assert data["enriched_findings"] == 1
 
-    def test_no_eligible_findings_enriches_zero(self) -> None:
+    def test_no_eligible_findings_enriches_zero(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        import harness.tools as tools_mod
+
+        monkeypatch.setattr(tools_mod, "_REPO", tmp_path)
         gap_data = {"findings": [{"control_id": "SBS-ACS-001", "status": "pass", "needs_expert_review": False}]}
-        gap_path = _BASE / "gap_analysis.json"
+        gap_path = tmp_path / "gap_analysis.json"
         gap_path.write_text(json.dumps(gap_data))
         result = dispatch("sfdc_expert_enrich", {"org": _TEST_ORG, "gap_analysis": str(gap_path)})
         data = json.loads(result)

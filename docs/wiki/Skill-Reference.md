@@ -1,6 +1,6 @@
 # Skill Reference
 
-All CLI skills. Each is a Python CLI installed by `pip install -e .` and callable from the shell or from the agent orchestrator via `tool_use`.
+All CLI skills. Each is a Python CLI installed by `pip install -e ".[dev]"` and callable from the shell or from the agent orchestrator via `tool_use`.
 
 ---
 

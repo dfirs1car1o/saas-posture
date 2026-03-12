@@ -17,7 +17,7 @@ All actions are pinned to full commit SHAs for supply chain security.
 | `pip-audit` | `pip-audit --desc on` | All PRs + push to main | Any installed package has a known CVE |
 | `validate-env` | `validate_env.py --ci` | All PRs + push to main | Missing required repo files or Python packages |
 | `license-check` | `pip-licenses` | All PRs + push to main | GPL/AGPL/LGPL dependency detected (not in allowlist) |
-| `pytest` | `pytest tests/ -v --cov=... --cov-fail-under=25` | All PRs + push to main | Any test fails or coverage drops below 25% (64 tests total) |
+| `pytest` | `pytest tests/ -v --cov=... --cov-fail-under=25` | All PRs + push to main | Any test fails or coverage drops below 25% (94 tests total) |
 | `docker-smoke` | `docker compose up/down` | All PRs + push to main | OpenSearch or Dashboards fail to reach healthy state |
 
 **Fix `ruff` failures:**
@@ -33,7 +33,7 @@ ruff format skills/ scripts/ harness/
 
 **Fix `validate-env` failures:**
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 python3 scripts/validate_env.py --fix
 ```
 

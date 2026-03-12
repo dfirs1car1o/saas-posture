@@ -59,7 +59,7 @@ agent-loop run --platform workday --env dev --org <tenant-alias> --approve-criti
 # Dry run (no credentials needed)
 agent-loop run --dry-run --env dev --org test-org
 
-# Run tests (64 tests, fully offline)
+# Run tests (94 tests, fully offline)
 pytest tests/ -v
 
 # Lint + SAST

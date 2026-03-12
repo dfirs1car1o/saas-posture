@@ -84,7 +84,7 @@ function cd() { builtin cd "$@" && [[ -f .venv/bin/activate ]] && source .venv/b
 ## Step 5 — Install Dependencies
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
 pip install pytest pytest-mock PyYAML click
 ```
 
@@ -224,7 +224,7 @@ brew install python@3.13
 Activate your venv first:
 ```bash
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 ### `pandoc: command not found`
