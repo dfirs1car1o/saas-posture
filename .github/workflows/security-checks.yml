@@ -24,7 +24,8 @@ jobs:
       - name: Run Bandit (HIGH severity = hard fail)
         # -lll = HIGH+ severity, -ii = MEDIUM+ confidence
         # MEDIUM findings surface in pr-inline-review.yml as annotations only
-        run: bandit -r skills/ scripts/ -lll -ii
+        # harness/ included: loop.py + tools.py are security-critical agentic code
+        run: bandit -r skills/ scripts/ harness/ -lll -ii
 
   pip-audit:
     name: pip-audit (dependency CVEs)
@@ -58,3 +59,28 @@ jobs:
 
       - name: Run Gitleaks
         run: gitleaks detect --source . --log-level warn --redact
+
+  semgrep:
+    name: Semgrep SAST (OWASP + Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.11"
+
+      - run: pip install semgrep
+
+      - name: Run Semgrep (ERROR = hard fail, WARNING = annotation)
+        # p/python: subprocess injection, eval/exec, insecure deserialization
+        # p/owasp-top-ten: A01 path traversal, A03 injection, A05 misconfiguration
+        # --error exits non-zero only on ERROR-level findings so WARN doesn't block CI
+        run: |
+          semgrep \
+            --config p/python \
+            --config p/owasp-top-ten \
+            --severity ERROR \
+            --error \
+            --quiet \
+            skills/ scripts/ harness/

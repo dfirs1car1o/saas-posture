@@ -12,6 +12,7 @@ Raises RuntimeError on non-zero subprocess exit (stderr included in message).
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -25,6 +26,46 @@ _ORG_ALIAS_HELP = "Org alias for output dir naming"
 # Allowed output roots — all generated artifacts must land under one of these.
 _ARTIFACT_ROOT = (_REPO / "docs" / "oscal-salesforce-poc" / "generated").resolve()
 _APEX_ROOT = (_REPO / "docs" / "oscal-salesforce-poc" / "apex-scripts").resolve()
+
+# Org alias: alphanumeric, hyphens, underscores only — prevents path traversal
+# via LLM-provided values injected into directory paths (e.g., "../../tmp").
+_ORG_ALIAS_RE = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
+
+
+def _sanitize_org(org: str) -> str:
+    """Validate and return a safe org alias.
+
+    LLM-provided org values flow directly into filesystem paths via _out_dir().
+    Restricting the character set closes the path traversal vector before
+    _safe_out_path() even runs.
+
+    Raises ValueError on invalid aliases so _handle_tool_error() can surface
+    the rejection rather than silently using a malformed path.
+    """
+    if not _ORG_ALIAS_RE.match(org):
+        raise ValueError(f"Invalid org alias: {org!r}. Must match [a-zA-Z0-9_-]{{1,64}}.")
+    return org
+
+
+def _safe_inp_path(raw: str | None) -> str | None:
+    """Validate that an LLM-provided input file path stays within the artifact tree.
+
+    Mirrors _safe_out_path() for *input* file arguments (gap_analysis, backlog,
+    collector_output, baseline, current, etc.).  Returns None for None inputs
+    (optional fields).  Raises ValueError for paths that escape the allowed roots
+    so the dispatcher surfaces a clear error instead of passing a traversal path
+    to a subprocess argument.
+    """
+    if raw is None:
+        return None
+    target = Path(raw).resolve()
+    if not (target.is_relative_to(_ARTIFACT_ROOT) or target.is_relative_to(_APEX_ROOT)):
+        raise ValueError(
+            f"Input path '{target}' is outside the allowed artifact root "
+            f"({_ARTIFACT_ROOT}). LLM-provided input paths must be under "
+            "docs/oscal-salesforce-poc/generated/."
+        )
+    return str(target)
 
 
 def _safe_out_path(raw: str | None, default: Path) -> str:
@@ -449,6 +490,7 @@ def _dispatch_sfdc_connect(inp: dict[str, Any], out_dir: Path) -> str:
 
 def _dispatch_oscal_assess(inp: dict[str, Any], out_dir: Path) -> str:
     out_path = _safe_out_path(inp.get("out"), out_dir / "gap_analysis.json")
+    collector_output = _safe_inp_path(inp.get("collector_output"))
     args = [
         _PYTHON,
         "-m",
@@ -461,8 +503,8 @@ def _dispatch_oscal_assess(inp: dict[str, Any], out_dir: Path) -> str:
         "--out",
         out_path,
     ]
-    if inp.get("collector_output"):
-        args += ["--collector-output", inp["collector_output"]]
+    if collector_output:
+        args += ["--collector-output", collector_output]
     if inp.get("dry_run"):
         args.append("--dry-run")
     if inp.get("assessment_owner"):
@@ -474,6 +516,7 @@ def _dispatch_oscal_assess(inp: dict[str, Any], out_dir: Path) -> str:
 def _dispatch_gap_map(inp: dict[str, Any], out_dir: Path) -> str:
     out_md = _safe_out_path(inp.get("out_md"), out_dir / "matrix.md")
     out_json = _safe_out_path(inp.get("out_json"), out_dir / "backlog.json")
+    gap_analysis = _safe_inp_path(inp["gap_analysis"])  # required field
     controls_path = _REPO / "docs/oscal-salesforce-poc/generated/sbs_controls.json"
     mapping_path = _REPO / "config/oscal-salesforce/control_mapping.yaml"
     sscf_map_path = _REPO / "config/oscal-salesforce/sbs_to_sscf_mapping.yaml"
@@ -483,7 +526,7 @@ def _dispatch_gap_map(inp: dict[str, Any], out_dir: Path) -> str:
         "--controls",
         str(controls_path),
         "--gap-analysis",
-        inp["gap_analysis"],
+        gap_analysis,
         "--mapping",
         str(mapping_path),
         "--sscf-map",
@@ -500,10 +543,13 @@ def _dispatch_gap_map(inp: dict[str, Any], out_dir: Path) -> str:
 def _report_gen_optional_args(inp: dict[str, Any]) -> list[str]:
     """Build the optional CLI flags for report-gen from the tool input dict."""
     extras: list[str] = []
-    if inp.get("sscf_benchmark"):
-        extras += ["--sscf-benchmark", inp["sscf_benchmark"]]
-    if inp.get("nist_review"):
-        extras += ["--nist-review", inp["nist_review"]]
+    sscf_benchmark = _safe_inp_path(inp.get("sscf_benchmark"))
+    nist_review = _safe_inp_path(inp.get("nist_review"))
+    drift_report = _safe_inp_path(inp.get("drift_report"))
+    if sscf_benchmark:
+        extras += ["--sscf-benchmark", sscf_benchmark]
+    if nist_review:
+        extras += ["--nist-review", nist_review]
     if inp.get("org_alias"):
         extras += ["--org-alias", inp["org_alias"]]
     if inp.get("title"):
@@ -514,8 +560,8 @@ def _report_gen_optional_args(inp: dict[str, Any]) -> list[str]:
         extras.append("--dry-run")
     if inp.get("mock_llm"):
         extras.append("--mock-llm")
-    if inp.get("drift_report"):
-        extras += ["--drift-report", inp["drift_report"]]
+    if drift_report:
+        extras += ["--drift-report", drift_report]
     return extras
 
 
@@ -535,6 +581,7 @@ def _dispatch_report_gen(inp: dict[str, Any], out_dir: Path) -> str:
         out_path = _safe_out_path(str(candidate), out_dir / "report.md")
     else:
         out_path = _safe_out_path(None, out_dir / "report.md")
+    backlog = _safe_inp_path(inp["backlog"])  # required field
     audience = inp.get("audience", "security")
     args = [
         _PYTHON,
@@ -542,7 +589,7 @@ def _dispatch_report_gen(inp: dict[str, Any], out_dir: Path) -> str:
         "skills.report_gen.report_gen",
         "generate",
         "--backlog",
-        inp["backlog"],
+        backlog,
         "--audience",
         audience,
         "--out",
@@ -555,6 +602,8 @@ def _dispatch_report_gen(inp: dict[str, Any], out_dir: Path) -> str:
 
 def _dispatch_nist_review(inp: dict[str, Any], out_dir: Path) -> str:
     out_path = _safe_out_path(inp.get("out"), out_dir / "nist_review.json")
+    gap_analysis = _safe_inp_path(inp.get("gap_analysis"))
+    backlog = _safe_inp_path(inp.get("backlog"))
     args = [
         _PYTHON,
         "-m",
@@ -565,10 +614,10 @@ def _dispatch_nist_review(inp: dict[str, Any], out_dir: Path) -> str:
     ]
     if inp.get("platform"):
         args += ["--platform", inp["platform"]]
-    if inp.get("gap_analysis"):
-        args += ["--gap-analysis", inp["gap_analysis"]]
-    if inp.get("backlog"):
-        args += ["--backlog", inp["backlog"]]
+    if gap_analysis:
+        args += ["--gap-analysis", gap_analysis]
+    if backlog:
+        args += ["--backlog", backlog]
     if inp.get("dry_run"):
         args.append("--dry-run")
     _run(args)
@@ -631,8 +680,8 @@ def _dispatch_sfdc_expert(inp: dict[str, Any], out_dir: Path) -> str:  # noqa: A
 
 def _dispatch_backlog_diff(inp: dict[str, Any], out_dir: Path) -> str:
     """Run drift_check.py to compare two backlogs."""
-    baseline = inp.get("baseline")
-    current = inp.get("current")
+    baseline = _safe_inp_path(inp.get("baseline"))
+    current = _safe_inp_path(inp.get("current"))
     if not baseline or not current:
         return json.dumps({"status": "error", "message": "baseline and current paths are required"})
     args = [_PYTHON, "scripts/drift_check.py", "--baseline", baseline, "--current", current]
@@ -692,6 +741,6 @@ def dispatch(name: str, input_dict: dict[str, Any]) -> str:
     handler = _DISPATCHERS.get(name)
     if handler is None:
         raise ValueError(f"Unknown tool: {name!r}. Available: {list(_DISPATCHERS)}")
-    org = input_dict.get("org", "unknown-org")
+    org = _sanitize_org(input_dict.get("org", "unknown-org"))
     out_dir = _out_dir(org)
     return handler(input_dict, out_dir)

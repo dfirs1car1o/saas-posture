@@ -5,6 +5,7 @@ on:
     paths:
       - "skills/**"
       - "scripts/**"
+      - "harness/**"
       - ".github/workflows/pr-inline-review.yml"
 
 permissions:
@@ -26,7 +27,7 @@ jobs:
       - run: pip install ruff
 
       - name: Ruff annotations on changed files
-        run: ruff check skills/ scripts/ --output-format=github
+        run: ruff check skills/ scripts/ harness/ --output-format=github
 
   bandit-inline:
     name: Bandit SAST (inline PR annotations)
@@ -41,9 +42,10 @@ jobs:
       - run: pip install bandit[toml]
 
       - name: Bandit JSON output
-        # MEDIUM+ severity, MEDIUM+ confidence — full annotation coverage
+        # MEDIUM+ severity, MEDIUM+ confidence — full annotation coverage on ALL source dirs
+        # harness/ added: loop.py + tools.py are the most security-critical code in the repo
         # || true so the step doesn't fail (annotations are informational here)
-        run: bandit -r skills/ scripts/ -ll -ii -f json -o /tmp/bandit.json || true
+        run: bandit -r skills/ scripts/ harness/ -ll -ii -f json -o /tmp/bandit.json || true
 
       - name: Emit GitHub annotations
         run: |
