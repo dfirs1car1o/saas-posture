@@ -11,6 +11,70 @@ This project follows a simple changelog format and semantic versioning intent:
 
 ## [Unreleased]
 
+### 2026-03-12 — SonarCloud S1172 fixes, lint cleanup
+
+#### Fixed
+- `skills/sfdc_connect/sfdc_connect.py` — wire CLI `--timeout` param through `_connect()` → `_connect_jwt()` → `requests.post(timeout=timeout)`; previously the arg was accepted but silently ignored
+- `skills/oscal_assess/oscal_assess.py` — rename `_rule_data_structural` inner closure param `raw` → `_raw` (S1172: intentionally unused)
+- `harness/loop.py` — include `tool_input` in non-critical tool error JSON payload (S1172: unused param now used)
+- `scripts/gen_architecture_png.py` — wrap 4 long `label()` calls to ≤120 chars (E501)
+- `tests/test_harness_dry_run.py` — rename ambiguous loop var `l` → `row` (E741)
+- `tests/test_security_gates.py` — fix import sort order (I001 autofix)
+
+---
+
+### 2026-03-11 — OWASP Agentic App hardening, AICM loop wiring, Qdrant auth, 64 tests
+
+#### Added
+- `harness/loop.py` — `_TOOL_REQUIRES` sequencing gate: `dict[str, frozenset]` dependency map checked before every tool dispatch; violations return structured error JSON and log `status: sequencing_violation` to `audit.jsonl` (OWASP A2 Excessive Agency)
+- `harness/loop.py` — `completed_tools: set[str]` tracks dispatched tools; dry_run waives collector prerequisites
+- `harness/tools.py` — `gen_aicm_crosswalk` tool schema + `_dispatch_aicm_crosswalk()` dispatcher; registered in `_DISPATCHERS`
+- `harness/loop.py` — Step 5b in both Salesforce and Workday task prompts; `aicm_coverage` state tracking; `loop_result.json` includes `aicm_coverage` path
+- `.github/workflows/schedule.yml` — Phase 6 `report-gen` now passes `--aicm-coverage`
+- `scripts/workday_dry_run_demo.py` — Step 4.5 `gen_aicm_crosswalk` call; `--aicm-coverage` passed to security report
+- `tests/test_harness_dry_run.py` — `test_sequencing_gate_blocks_report_gen_without_prerequisites`: confirms dispatch blocked when prerequisites missing
+- `tests/test_security_gates.py` — 18 new tests: `TestSafeInpPath`, `TestSanitizeOrg`, `TestDispatchOrgValidation`
+- `tests/test_safe_out_path.py` — 7 new tests: output path boundary enforcement
+- `docs/security/threat-model.md` — R1 (sequencing gate) and R3 (Qdrant auth) marked ✅ Resolved
+
+#### Security
+- `harness/memory.py` — `QDRANT_API_KEY` env var wired into networked Qdrant config (`api_key: os.getenv("QDRANT_API_KEY") or None`) (OWASP A3 Memory Poisoning / R3)
+- `.env.example` — `QDRANT_API_KEY` documented as required for non-local deployments
+
+#### Changed
+- Test suite: 37 → 64 tests (all offline, no API keys needed)
+- `docs/wiki/Security-Model.md` — full rewrite with OWASP Top 10 for Agentic Applications 2026 status table, sequencing gate docs, memory guard code sample, structured audit log format
+- `docs/wiki/Architecture-Overview.md` — security controls architecture section added; 7 Skills table; data flow pipelines include Step 5b
+
+---
+
+### 2026-03-10 — OSCAL P0/P1/P2, SonarCloud, dashboard rebuild, ISO 27001 SoA, CCM crosswalk
+
+#### Added
+- `config/sscf/sscf_v1_catalog.json` — ODP parameterization: all 36 controls carry `params` with allowed-values
+- `config/salesforce/sbs_v1_profile.json` — 59 `set-parameters` for all ODP params (SBS)
+- `config/workday/wscc_v1_profile.json` — 50 `set-parameters` (WSCC)
+- `scripts/gen_poam.py` — persistent cumulative OSCAL 1.1.2 POA&M (31 items); merges across runs, auto-closes resolved findings
+- `scripts/gen_assessment_results.py` — OSCAL 1.1.2 `assessment-results` wrapping `gap_analysis.json`
+- `scripts/gen_ssp.py` — per-org OSCAL 1.1.2 SSP with sensitivity tier derived from SSCF score
+- `config/ssp/commercial_saas_ssp_template.json` — commercial SaaS SSP template (no FedRAMP red tape)
+- `scripts/gen_resolved_profile.py` — resolves SBS (35) and WSCC (30) profiles into standalone catalogs
+- `scripts/upgrade_component_defs.py` — adds `control-origination`, `responsibility`, `set-parameters` to component definitions
+- `config/iso27001/` — `sscf_to_iso27001_mapping.yaml` (29 of 93 Annex A controls), `iso27001_2022_annex_a_catalog.yaml` (full 93-control catalog)
+- `skills/report_gen/report_gen.py` — `_render_iso27001_soa()`: full 93-control Statement of Applicability in security DOCX; `_render_ccm_crosswalk()`: CCM v4.1 regulatory crosswalk (SOX/HIPAA/SOC2/ISO 27001/PCI DSS/GDPR); `_render_aicm_coverage()`: AICM v1.0.3 annex
+- `scripts/gen_dashboards_ndjson.py` — 42 saved objects, 13 panels per platform, KQL-filtered
+- `docs/screenshots/` — sfdc, workday, sscf-main dashboard screenshots embedded in wiki
+
+#### Fixed
+- SonarCloud: 18 issues resolved (3 BLOCKER S2083 path injection, 3 S3776 complexity, 5 S1192 literals, dead code, regex, unused param, nested ternary, commented code, dict literals)
+- Dashboard panel bug: OSD 2.19 duplicate refs from `panelJSON id` fields — fixed via `panelRefName`-only refs
+
+#### Security
+- `skills/sfdc_connect/sfdc_connect.py` — SOAP auth completely removed; JWT Bearer only
+- `skills/workday_connect/workday_connect.py` — SOAP removed; REST + RaaS + manual only
+
+---
+
 ### 2026-03-06 — POA&M, Not Assessed appendix, CI fix, docs update
 
 #### Added

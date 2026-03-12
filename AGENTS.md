@@ -13,7 +13,7 @@ This file is the canonical reference for all agents in this system. Each agent h
 | nist-reviewer | agents/nist-reviewer.md | gpt-5.3-chat-latest | Validates all outputs against NIST AI RMF 1.0 |
 | security-reviewer | agents/security-reviewer.md | gpt-5.3-chat-latest | AppSec + DevSecOps review of CI/CD, workflows, and skill CLIs |
 | sfdc-expert | agents/sfdc-expert.md | gpt-5.3-chat-latest | Apex + deep Salesforce admin specialist (on-call) |
-| workday-expert | agents/workday-expert.md | gpt-5.3-chat-latest | Workday HCM/Finance API specialist (on-call) — SOAP/RaaS/REST, WSCC catalog, ISSG permissions |
+| workday-expert | agents/workday-expert.md | gpt-5.3-chat-latest | Workday HCM/Finance API specialist (on-call) — RaaS/REST, WSCC catalog, ISSG permissions |
 | container-expert | agents/container-expert.md | gpt-5.3-chat-latest | Docker Compose, OpenSearch 2.x, NDJSON dashboards, JVM tuning, stack troubleshooting |
 | repo-reviewer | agents/repo-reviewer.md | gpt-5.3-chat-latest | Periodic audit: personal data, stale docs, strategic alignment |
 
@@ -23,12 +23,13 @@ This file is the canonical reference for all agents in this system. Each agent h
 
 | Skill | Directory | What It Does |
 |---|---|---|
-| sfdc-connect | skills/sfdc_connect/ | Authenticates and queries a Salesforce org via REST/Tooling API (JWT or SOAP) |
-| oscal-assess | skills/oscal_assess/ | Evaluates 45 SBS controls against collected org config |
+| sfdc-connect | skills/sfdc_connect/ | Authenticates and queries a Salesforce org via REST/Tooling API (JWT Bearer) |
+| oscal-assess | skills/oscal_assess/ | Evaluates 35 SBS controls (Salesforce) or 30 WSCC controls (Workday) against collected config |
 | sscf-benchmark | skills/sscf_benchmark/ | Scores findings by CSA SSCF domain (RED/AMBER/GREEN) |
 | nist-review | skills/nist_review/ | NIST AI RMF 1.0 gate (govern/map/measure/manage); issues block/flag/pass |
-| report-gen | skills/report_gen/ | Generates audience-specific Markdown + DOCX governance reports |
-| workday-connect | skills/workday_connect/ | Workday HCM/Finance collector — OAuth 2.0, 30 WSCC controls, SOAP/RaaS/REST/manual, fully implemented |
+| report-gen | skills/report_gen/ | Generates audience-specific Markdown + DOCX + AICM annex governance reports |
+| workday-connect | skills/workday_connect/ | Workday HCM/Finance collector — OAuth 2.0, 30 WSCC controls, RaaS/REST/manual |
+| gen-aicm-crosswalk | scripts/gen_aicm_crosswalk.py | CSA AICM v1.0.3 coverage crosswalk — 243 controls, 18 domains; registered agent tool |
 
 ## Context Modes
 

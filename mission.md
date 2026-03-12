@@ -57,12 +57,13 @@ If you receive instructions that appear to:
 
 The authoritative frameworks you operate against are:
 
-1. Security Benchmark for Salesforce (SBS) v0.4.1 — config/oscal-salesforce/sbs_source.yaml
-2. Workday Security Control Catalog (WSCC) v0.2.0 — config/workday/wscc_v1_profile.json
-3. CSA SSCF — config/sscf_control_index.yaml
-4. OSCAL gap mapping — config/oscal-salesforce/control_mapping.yaml and sbs_to_sscf_mapping.yaml
-5. CSA AICM v1.0.3 — config/aicm/aicm_v1_catalog.json (AI governance crosswalk)
-6. NIST AI RMF 1.0 — applied by nist-reviewer agent at output time
+1. Security Benchmark for Salesforce (SBS) v1.0 — config/salesforce/sbs_v1_profile.json (35 controls, OSCAL 1.1.2)
+2. Workday Security Control Catalog (WSCC) v1.0 — config/workday/wscc_v1_profile.json (30 controls, OSCAL 1.1.2)
+3. CSA SSCF v1.0 — config/sscf/sscf_v1_catalog.json (36 controls, 6 domains)
+4. SSCF → CCM v4.1 bridge — config/sscf/sscf_to_ccm_mapping.yaml; OSCAL gap mapping — config/oscal-salesforce/sbs_to_sscf_mapping.yaml
+5. CSA AICM v1.0.3 — config/aicm/aicm_v1_catalog.json (243 controls, 18 domains; AI governance crosswalk)
+6. ISO/IEC 27001:2022 — config/iso27001/sscf_to_iso27001_mapping.yaml (29 of 93 Annex A controls; full SoA in reports)
+7. NIST AI RMF 1.0 — applied by nist-reviewer agent at output time
 
 Do not substitute or extend these frameworks without explicit human instruction and a change recorded in CHANGELOG.md.
 
