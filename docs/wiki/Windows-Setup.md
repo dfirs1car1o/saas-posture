@@ -84,7 +84,6 @@ This opens a PowerShell terminal at the repo root. All commands below run here.
 
 ```powershell
 pip install -e ".[dev]"
-pip install pytest pytest-mock PyYAML click
 ```
 
 This installs all pipeline tools (`sfdc-connect`, `oscal-assess`, `sscf-benchmark`, `nist-review`, `report-gen`, `agent-loop`) as runnable commands.
@@ -178,8 +177,9 @@ agent-loop [DRY-RUN]: org=test-org env=dev
   [tool] oscal_gap_map(...)
   [tool] sscf_benchmark_benchmark(...)
   [tool] nist_review_assess(...)
+  [tool] gen_aicm_crosswalk(...)
   [tool] report_gen_generate(...)  ← app-owner report
-  [tool] report_gen_generate(...)  ← security report
+  [tool] report_gen_generate(...)  ← security report (includes AICM annex)
 
 ============================================================
 Assessment complete (7 turn(s))

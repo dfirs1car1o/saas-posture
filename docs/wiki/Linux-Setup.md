@@ -78,7 +78,6 @@ function cd() { builtin cd "$@" && [[ -f .venv/bin/activate ]] && source .venv/b
 
 ```bash
 pip install -e ".[dev]"
-pip install pytest pytest-mock PyYAML click
 ```
 
 Verify:
@@ -144,7 +143,7 @@ Expected:
 pytest tests/ -v
 ```
 
-Expected: **66/66 pass** (no API keys or Salesforce org needed).
+Expected: **94/94 pass** (no API keys or Salesforce org needed).
 
 ---
 

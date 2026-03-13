@@ -85,7 +85,6 @@ function cd() { builtin cd "$@" && [[ -f .venv/bin/activate ]] && source .venv/b
 
 ```bash
 pip install -e ".[dev]"
-pip install pytest pytest-mock PyYAML click
 ```
 
 Verify all CLIs are installed:
@@ -152,7 +151,7 @@ Expected:
 pytest tests/ -v
 ```
 
-Expected: **66/66 pass** (no API keys or Salesforce org needed).
+Expected: **94/94 pass** (no API keys or Salesforce org needed).
 
 ---
 
@@ -174,12 +173,14 @@ critical_fails: 0
 ────────────────────────────────────────────────────────────
 📁  RESULTS
 ────────────────────────────────────────────────────────────
-  Gap analysis  →  /Users/yourname/saas-posture/docs/oscal-salesforce-poc/generated/test-org/gap_analysis.json
-  Backlog       →  /Users/yourname/saas-posture/docs/oscal-salesforce-poc/generated/test-org/backlog.json
-  SSCF report   →  /Users/yourname/saas-posture/docs/oscal-salesforce-poc/generated/test-org/sscf_report.json
-  App owner MD  →  .../test-org_remediation_report.md
-  Security MD   →  .../test-org_security_assessment.md
-  Security DOCX →  .../test-org_security_assessment.docx
+  Gap analysis  →  .../generated/test-org/<date>/gap_analysis.json
+  Backlog       →  .../generated/test-org/<date>/backlog.json
+  SSCF report   →  .../generated/test-org/<date>/sscf_report.json
+  NIST review   →  .../generated/test-org/<date>/nist_review.json
+  AICM coverage →  .../generated/test-org/<date>/aicm_coverage.json
+  App owner MD  →  .../generated/test-org/<date>/test-org_remediation_report.md
+  Security MD   →  .../generated/test-org/<date>/test-org_security_assessment.md
+  Security DOCX →  .../generated/test-org/<date>/test-org_security_assessment.docx
 ────────────────────────────────────────────────────────────
 ```
 

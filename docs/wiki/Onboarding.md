@@ -11,9 +11,8 @@ cd saas-posture
 # Create and activate a venv
 python3 -m venv .venv && source .venv/bin/activate
 
-# Install the package + test dependencies
+# Install the package + all dev/test dependencies
 pip install -e ".[dev]"
-pip install pytest pytest-mock PyYAML click
 ```
 
 ## Step 2: Configure .env
@@ -57,7 +56,7 @@ Expected: `ENVIRONMENT READY` or `ENVIRONMENT READY WITH WARNINGS` (credentials 
 pytest tests/ -v
 ```
 
-Expected: **66/66 pass** (fully offline — no API keys or Salesforce org needed).
+Expected: **94/94 pass** (fully offline — no API keys or Salesforce org needed).
 
 ## Step 5: Your First Run (Dry-Run)
 
@@ -73,8 +72,9 @@ agent-loop [DRY-RUN]: org=my-test-org env=dev
   [tool] oscal_gap_map(...)
   [tool] sscf_benchmark_benchmark(...)
   [tool] nist_review_assess(...)
+  [tool] gen_aicm_crosswalk(...)
   [tool] report_gen_generate(...)   ← app-owner
-  [tool] report_gen_generate(...)   ← security
+  [tool] report_gen_generate(...)   ← security (includes AICM annex)
 ============================================================
 Assessment complete (N turn(s))
 overall_score : 34.8%
@@ -103,6 +103,7 @@ This runs against your real Salesforce org. Requires Salesforce credentials set 
 | `generated/<org>/<date>/backlog.json` | Remediation backlog mapped to SSCF controls |
 | `generated/<org>/<date>/sscf_report.json` | SSCF domain scorecard (0–100% per domain) |
 | `generated/<org>/<date>/nist_review.json` | NIST AI RMF governance verdict |
+| `generated/<org>/<date>/aicm_coverage.json` | CSA AICM v1.0.3 crosswalk (243 controls, 18 domains) |
 | `generated/<org>/<date>/{org}_remediation_report.md` | App owner remediation report (Markdown) |
 | `generated/<org>/<date>/{org}_security_assessment.md` | Security governance report (Markdown) |
 | `generated/<org>/<date>/{org}_security_assessment.docx` | Security governance report (Word) |

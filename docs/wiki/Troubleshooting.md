@@ -78,14 +78,14 @@ If you're calling CLIs directly, add `--org my-org` to each command.
 
 ---
 
-## `Reached max turns (12)` warning
+## `Reached max turns (14)` warning
 
-The pipeline ran 12 turns without completing. Most common cause: the orchestrator made extra diagnostic tool calls after finishing the pipeline.
+The pipeline ran 14 turns without completing. Most common cause: the orchestrator made extra diagnostic tool calls after finishing the pipeline.
 
 Fixes:
 - Re-run — the LLM usually completes within budget on retry
-- Check that the task prompt ends with "After step 6b, STOP calling tools immediately" (see `harness/loop.py`)
-- If consistently hitting the limit, check `_MAX_TURNS` in `harness/loop.py` and bump to 14
+- Check that the task prompt ends with "call finish() immediately after step 5b" (see `harness/loop.py`)
+- If consistently hitting the limit, raise `_MAX_TURNS` in `harness/loop.py`
 
 ---
 
