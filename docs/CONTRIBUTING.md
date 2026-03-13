@@ -134,7 +134,7 @@ saas-posture/
 │
 ├── harness/                    ← Agentic orchestration loop (Phase 3)
 │   ├── agents.py               ← AgentConfig dataclass + agent registry
-│   ├── tools.py                ← Anthropic tool schemas + subprocess dispatchers
+│   ├── tools.py                ← OpenAI tool schemas + subprocess dispatchers
 │   ├── memory.py               ← Mem0+Qdrant session memory
 │   └── loop.py                 ← agent-loop CLI entry point
 │

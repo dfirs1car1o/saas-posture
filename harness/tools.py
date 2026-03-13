@@ -1,7 +1,7 @@
 """
-harness/tools.py — Anthropic tool schema definitions + subprocess dispatchers.
+harness/tools.py — OpenAI tool schema definitions + subprocess dispatchers.
 
-Each tool schema follows the Anthropic tool format (input_schema = JSON Schema).
+Each tool schema follows the OpenAI tool format (input_schema = JSON Schema).
 dispatch(name, input_dict) runs the corresponding CLI as a subprocess and returns
 its result as a JSON string. All output files are written to:
     docs/oscal-salesforce-poc/generated/<org>/<date>/
@@ -87,7 +87,7 @@ def _safe_out_path(raw: str | None, default: Path) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool schema definitions (Anthropic format)
+# Tool schema definitions (OpenAI tool format)
 # ---------------------------------------------------------------------------
 
 TOOL_SCHEMAS: list[dict[str, Any]] = [

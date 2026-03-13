@@ -90,7 +90,7 @@
 
 | Attribute | Detail |
 |---|---|
-| **Threat** | Salesforce JWT private key, OpenAI/Anthropic API keys, or org credentials leaked to stdout, logs, or generated artifacts |
+| **Threat** | Salesforce JWT private key, OpenAI API key, or org credentials leaked to stdout, logs, or generated artifacts |
 | **Likelihood** | Low — credentials come from env vars and `.env` file, not from tool arguments |
 | **Impact** | Critical — org compromise or API key theft |
 | **Controls** | `SECURITY.md`: all creds via env vars only; `validate_env.py` skips credential checks in CI; `gitleaks` scans full git history; `--redact` flag on gitleaks output; generated artifacts confined to `docs/oscal-salesforce-poc/generated/` (in `.gitignore` boundary); JWT private key outside repo (`~/salesforce_jwt_private.pem`, chmod 600) |

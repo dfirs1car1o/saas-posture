@@ -2,7 +2,7 @@
 name: nist-review
 description: Validates multi-agent assessment outputs against NIST AI RMF 1.0 (Govern, Map, Measure, Manage) and produces a structured verdict JSON. Used as pipeline step 5 after sscf-benchmark.
 cli: skills/nist-review/nist-review
-model_hint: sonnet
+model_hint: gpt-5.3-chat-latest
 ---
 
 # nist-review
@@ -25,7 +25,7 @@ nist-review assess \
 --gap-analysis    Path to gap_analysis.json from oscal-assess. Required (live mode).
 --backlog         Path to backlog.json from oscal_gap_map. Required (live mode).
 --out             Output path for nist_review.json. Required.
---dry-run         Produce realistic stub verdict without calling the Anthropic API.
+--dry-run         Produce realistic stub verdict without calling the OpenAI API.
 ```
 
 ## NIST AI RMF Functions

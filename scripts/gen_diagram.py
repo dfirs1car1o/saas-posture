@@ -45,7 +45,7 @@ _GRAPH = {
     "splines": "ortho",
     "nodesep": "0.6",
     "ranksep": "0.9",
-    "label": "saas-posture — Reference Architecture\nRead-only · OWASP Agentic App hardened · 7-phase · 64 tests",
+    "label": "saas-posture — Reference Architecture\nRead-only · OWASP Agentic App hardened · 7-phase · 94 tests",
     "labelloc": "t",
     "labelfontsize": "13",
 }
